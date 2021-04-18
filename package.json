@@ -1,0 +1,59 @@
+{
+  "name": "@dsrvlabs/kms",
+  "version": "0.0.1",
+  "description": "blockchain key managament system",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "src/**/*",
+    "lib/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prettier": "prettier --write --config ./.prettierrc \"**/*.{ts,tsx}\"",
+    "lint": "eslint './src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'"
+  },
+  "repository": "https://github.com/dsrvlabs/kms.git",
+  "keywords": [
+    "dsrv",
+    "blockchain",
+    "ledger",
+    "signer",
+    "kms",
+    "key management system",
+    "keystore",
+    "store",
+    "mnemonic",
+    "bip39",
+    "bip32",
+    "bip44"
+  ],
+  "author": "daoauth",
+  "license": "MIT",
+  "dependencies": {
+    "@ledgerhq/hw-transport-webusb": "^5.49.0",
+    "@o1labs/client-sdk": "^1.0.0",
+    "argon2": "^0.27.2",
+    "base58check": "^2.0.0",
+    "bip32": "^2.0.6",
+    "bip39": "^3.0.3",
+    "bs58": "^4.0.1",
+    "mina-ledger-js": "^1.0.6",
+    "node-jose": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.1",
+    "@types/ledgerhq__hw-transport-webusb": "^4.70.1",
+    "@types/node-jose": "^1.1.5",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.24.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.4"
+  }
+}
