@@ -1,5 +1,5 @@
 {
-  "name": "@dsrvlabs/kms",
+  "name": "@dsrv/kms",
   "version": "0.0.1",
   "description": "blockchain key managament system",
   "main": "./lib/index.js",
