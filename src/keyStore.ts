@@ -37,10 +37,12 @@ async function getAlgo2HashKey(
 
 export async function createKeyStore(
   mnemonic: string[],
-  password: string
+  password: string,
+  time: number = 9,
+  mem: number = 262144
 ): Promise<KeyStore | null> {
   const encoder = new TextEncoder();
-  const opt = { t: 9, m: 262144, s: encode(randomBytes(LENGTH)), j: [] };
+  const opt = { t: time, m: mem, s: encode(randomBytes(LENGTH)), j: [] };
   const key = await getAlgo2HashKey(password, opt);
   if (key) {
     const jwe = await JWE.createEncrypt(

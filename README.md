@@ -31,8 +31,8 @@ const keyStore = await createKeyStore(mnemonic.split(" "), password);
 
 // get account
 const kms = new KMS({
-  ledger: null,
   keyStore,
+  transport: null,
 });
 const account = await kms.getAccount(password, {
   type: COIN.MINA,
