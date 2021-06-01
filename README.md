@@ -2,6 +2,9 @@
 dsrv key management store
 
 ## Usage
+```html
+<script src="node_modules/argon2-browser/lib/argon2.js"></script>
+```
 ```javascript
 import { KMS, COIN, createKeyStore } from "@dsrv/kms";
 
