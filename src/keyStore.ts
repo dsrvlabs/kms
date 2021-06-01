@@ -18,9 +18,9 @@ async function getAlgo2HashKey(
   password: string,
   keyStore: KeyStore
 ): Promise<JWK.Key | null> {
-  const { hash } = window as { [key: string]: any };
-  if (hash) {
-    const buf = await hash({
+  const { argon2 } = window as { [key: string]: any };
+  if (argon2 && argon2.hash) {
+    const buf = await argon2.hash({
       pass: password,
       time: keyStore.t,
       mem: keyStore.m,
