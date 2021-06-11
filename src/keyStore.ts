@@ -5,6 +5,12 @@ import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
 import { COIN, BIP44 } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
+import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
+import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
+import { KEYSTORE as terra } from "./blockchains/terra/keyStore";
+import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
+import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
+import { KEYSTORE as near } from "./blockchains/near/keyStore";
 
 export interface KeyStore {
   t: number;
@@ -79,6 +85,30 @@ export async function getAccountFromKeyStore(
         // blockchains
         case COIN.MINA: {
           const account = mina.getAccount(child);
+          return account;
+        }
+        case COIN.CELO: {
+          const account = celo.getAccount(child);
+          return account;
+        }
+        case COIN.COSMOS: {
+          const account = cosmos.getAccount(child);
+          return account;
+        }
+        case COIN.TERRA: {
+          const account = terra.getAccount(child);
+          return account;
+        }
+        case COIN.SOLANA: {
+          const account = solana.getAccount(child);
+          return account;
+        }
+        case COIN.POLKADOT: {
+          const account = polkadot.getAccount(child);
+          return account;
+        }
+        case COIN.NEAR: {
+          const account = near.getAccount(child);
           return account;
         }
         // add blockchains....

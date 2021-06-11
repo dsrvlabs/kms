@@ -1,9 +1,10 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { COIN, BIP44 } from "./types";
+import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import { COIN, BIP44, RawTx } from "./types";
 import { createKeyStore, getAccountFromKeyStore } from "./keyStore";
-import { getAccountFromLedger } from "./ledger";
+import { getAccountFromLedger, signTxFromLedger } from "./ledger";
 
-export { createKeyStore, BIP44, COIN };
+export { createKeyStore, COIN, BIP44, RawTx };
 
 interface KeyStore {
   t: number;
@@ -14,25 +15,25 @@ interface KeyStore {
 
 interface Ledger {
   keyStore: KeyStore | null;
-  transport: TransportWebUSB | null;
+  transport: TransportWebUSB | TransportNodeHid | null;
 }
 
 export class KMS {
   private keyStore: KeyStore | null;
 
-  private transport: TransportWebUSB | null;
+  private transport: TransportWebUSB | TransportNodeHid | null;
 
   constructor(ledger: Ledger) {
     this.keyStore = ledger.keyStore;
     this.transport = ledger.transport;
   }
 
-  async getAccount(password: string, path: BIP44): Promise<string> {
+  async getAccount(path: BIP44): Promise<string> {
     if (this.keyStore) {
       const account = await getAccountFromKeyStore(
         path,
         this.keyStore,
-        password
+        path.password || ""
       );
       return account;
     }
@@ -41,6 +42,17 @@ export class KMS {
       return account;
     }
     return "";
+  }
+
+  async signTx(path: BIP44, rawTx: RawTx): Promise<{ [key: string]: any }> {
+    if (this.keyStore) {
+      return {};
+    }
+    if (this.transport) {
+      const response = await signTxFromLedger(path, this.transport, rawTx);
+      return response;
+    }
+    return {};
   }
 }
 
