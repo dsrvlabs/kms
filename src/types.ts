@@ -13,7 +13,7 @@ export const COIN = {
   MINA: 12586,
   TERRA: 330,
   FLOW: 769,
-  SOLANA: 2017,
+  SOLANA: 501,
   NEAR: 397,
   KUSAMA: 434,
   POLKADOT: 354,

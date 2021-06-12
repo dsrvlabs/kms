@@ -10,6 +10,7 @@ import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
 import { KEYSTORE as terra } from "./blockchains/terra/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
 import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
+import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
 import { KEYSTORE as near } from "./blockchains/near/keyStore";
 
 export interface KeyStore {
@@ -105,6 +106,10 @@ export async function getAccountFromKeyStore(
         }
         case COIN.POLKADOT: {
           const account = polkadot.getAccount(child);
+          return account;
+        }
+        case COIN.KUSAMA: {
+          const account = kusama.getAccount(child);
           return account;
         }
         case COIN.NEAR: {
