@@ -11,6 +11,7 @@ export class LEDGER {
     path: BIP44,
     transport: TransportWebUSB | TransportNodeHid
   ): Promise<string> {
+    transport.setScrambleKey("NEAR");
     const client = await App.createClient(transport);
     const response = await client.getPublicKey(
       `44'/${path.type}'/${path.account}'/0'/${path.index}'`

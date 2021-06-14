@@ -12,6 +12,7 @@ import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
 import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
 import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
 import { KEYSTORE as near } from "./blockchains/near/keyStore";
+import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 
 export interface KeyStore {
   t: number;
@@ -79,9 +80,10 @@ export async function getAccountFromKeyStore(
       );
       const node = fromSeed(Buffer.from(seed, "hex"));
       const child = node.derivePath(
-        `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+        path.type !== COIN.FLOW
+          ? `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+          : `m/44'/1'/${path.type}'/0/${path.index}`
       );
-
       switch (path.type) {
         // blockchains
         case COIN.MINA: {
@@ -113,7 +115,11 @@ export async function getAccountFromKeyStore(
           return account;
         }
         case COIN.NEAR: {
-          const account = near.getAccount(child);
+          const account = near.getAccount(seed, path);
+          return account;
+        }
+        case COIN.FLOW: {
+          const account = flow.getAccount(child);
           return account;
         }
         // add blockchains....
