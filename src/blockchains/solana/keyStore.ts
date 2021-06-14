@@ -1,12 +1,14 @@
-import { BIP32Interface } from "bip32";
 import { Keypair } from "@solana/web3.js";
+import { derivePath } from "near-hd-key";
+import { BIP44 } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface): string {
-    const pk = node.privateKey
-      ? new Uint8Array(node.privateKey.buffer)
-      : new Uint8Array(32);
-    const { publicKey } = Keypair.fromSeed(pk);
+  static getAccount(seed: string, path: BIP44): string {
+    const { key } = derivePath(
+      `m/44'/${path.type}'/${path.account}'/${path.index}'`,
+      seed
+    );
+    const { publicKey } = Keypair.fromSeed(key);
     return publicKey.toBase58();
   }
   /*

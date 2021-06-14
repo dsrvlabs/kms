@@ -103,7 +103,7 @@ export async function getAccountFromKeyStore(
           return account;
         }
         case COIN.SOLANA: {
-          const account = solana.getAccount(child);
+          const account = solana.getAccount(seed, path);
           return account;
         }
         case COIN.POLKADOT: {
