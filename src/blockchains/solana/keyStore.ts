@@ -3,10 +3,10 @@ import { derivePath } from "near-hd-key";
 import { BIP44 } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(seed: string, path: BIP44): string {
+  static getAccount(seed: Buffer, path: BIP44): string {
     const { key } = derivePath(
       `m/44'/${path.type}'/${path.account}'/${path.index}'`,
-      seed
+      seed.toString("hex")
     );
     const { publicKey } = Keypair.fromSeed(key);
     return publicKey.toBase58();

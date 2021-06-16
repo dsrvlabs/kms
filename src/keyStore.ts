@@ -75,14 +75,10 @@ export async function getAccountFromKeyStore(
       const mnemonic = await JWE.createDecrypt(key).decrypt(
         keyStore.j.join(".")
       );
-      const seed = mnemonicToSeedSync(mnemonic.plaintext.toString()).toString(
-        "hex"
-      );
-      const node = fromSeed(Buffer.from(seed, "hex"));
+      const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
+      const node = fromSeed(seed);
       const child = node.derivePath(
-        path.type !== COIN.FLOW
-          ? `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-          : `m/44'/1'/${path.type}'/0/${path.index}`
+        `m/44'/${path.type}'/${path.account}'/0/${path.index}`
       );
       switch (path.type) {
         // blockchains
@@ -107,7 +103,7 @@ export async function getAccountFromKeyStore(
           return account;
         }
         case COIN.POLKADOT: {
-          const account = polkadot.getAccount(child);
+          const account = polkadot.getAccount(seed, path);
           return account;
         }
         case COIN.KUSAMA: {
@@ -119,7 +115,7 @@ export async function getAccountFromKeyStore(
           return account;
         }
         case COIN.FLOW: {
-          const account = flow.getAccount(child);
+          const account = flow.getAccount(seed, path);
           return account;
         }
         // add blockchains....

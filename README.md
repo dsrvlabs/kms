@@ -34,10 +34,11 @@ const kms = new KMS({
   keyStore,
   transport: null,
 });
-const account = await kms.getAccount(password, {
+const account = await kms.getAccount({
   type: COIN.MINA,
   account: 0,
   index: 0,
+  password
 });
 
 /*

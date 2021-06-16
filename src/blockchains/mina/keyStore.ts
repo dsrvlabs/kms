@@ -14,13 +14,13 @@ export class KEYSTORE {
   }
 
   static getAccount(node: BIP32Interface): string {
-    const privateKey = this.getPrivateKey(node);
+    const privateKey = KEYSTORE.getPrivateKey(node);
     return CodaSDK.derivePublicKey(privateKey);
   }
 
   static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
-    const privateKey = this.getPrivateKey(node);
-    const publicKey = this.getAccount(node);
+    const privateKey = KEYSTORE.getPrivateKey(node);
+    const publicKey = KEYSTORE.getAccount(node);
 
     if (rawTx.meta.isPayment) {
       const signedPayment = CodaSDK.signPayment(

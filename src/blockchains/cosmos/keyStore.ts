@@ -12,7 +12,7 @@ export class KEYSTORE {
   static getAccount(node: BIP32Interface): string {
     const message = CryptoJS.enc.Hex.parse(node.publicKey.toString("hex"));
     const temp = CryptoJS.RIPEMD160(CryptoJS.SHA256(message) as any).toString();
-    const address = this.bech32ify(temp, "cosmos");
+    const address = KEYSTORE.bech32ify(temp, "cosmos");
     return address;
   }
 
