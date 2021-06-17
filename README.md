@@ -46,3 +46,12 @@ B62qpgyAmA5yNgY4buNhTxTKYTvkqSFf442KkHzYHribCFjDmXcfHHm
 */
 
 ```
+
+## Test keysore
+1. yarn build
+2. modify test/mnemonic.json
+3. node test/keystore
+
+## Test ledger nano s, nano x
+1. yarn build
+2. node test/ledger/mina o node test/ledger/cosmos
