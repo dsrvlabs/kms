@@ -32,7 +32,7 @@
   "author": "daoauth",
   "license": "MIT",
   "dependencies": {
-    "@celo/wallet-ledger": "^1.2.0",
+    "@ledgerhq/errors": "^5.50.0",
     "@ledgerhq/hw-transport-node-hid": "^5.49.0",
     "@ledgerhq/hw-transport-webusb": "^5.49.0",
     "@o1labs/client-sdk": "^1.0.1",
@@ -44,6 +44,7 @@
     "argon2-browser": "^1.17.0",
     "base58check": "^2.0.0",
     "bech32": "^2.0.0",
+    "bignumber.js": "^9.0.1",
     "bip32": "^2.0.6",
     "bip39": "^3.0.3",
     "bn.js": "^4.12.0",
@@ -56,6 +57,7 @@
     "near-hd-key": "^1.2.1",
     "near-ledger-js": "^0.1.2",
     "node-jose": "^2.0.0",
+    "rlp": "^2.2.6",
     "secp256k1": "^4.0.2",
     "tweetnacl": "^1.0.3"
   },

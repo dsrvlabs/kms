@@ -1,6 +1,6 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
-import { newLedgerWalletWithSetup } from "@celo/wallet-ledger";
+import Ledger from "./hw";
 import { BIP44 } from "../../types";
 
 // LEDGER
@@ -9,9 +9,17 @@ export class LEDGER {
     path: BIP44,
     transport: TransportWebUSB | TransportNodeHid
   ): Promise<string> {
-    const instance = await newLedgerWalletWithSetup(transport, [path.index]);
-    const response = await instance.getAccounts();
-    return response[0];
+    try {
+      const instance = new Ledger(transport);
+      const response = await instance.getAddress(
+        `44'/${path.type}'/${path.account}'/0/${path.index}`
+      );
+      return response.address;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+    return "";
   }
 
   /*

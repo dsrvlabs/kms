@@ -1,6 +1,6 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
-import { getPublicKey, getSolanaDerivationPath } from "./core";
+import { getPublicKey, getSolanaDerivationPath } from "./hw";
 import { BIP44 } from "../../types";
 
 // LEDGER
