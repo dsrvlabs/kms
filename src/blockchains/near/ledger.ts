@@ -16,7 +16,7 @@ export class LEDGER {
     const response = await client.getPublicKey(
       `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
-    return response ? encode(response) : "";
+    return response ? `ed25519:${encode(response)}` : "";
   }
 
   /*

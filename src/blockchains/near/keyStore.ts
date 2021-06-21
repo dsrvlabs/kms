@@ -10,7 +10,7 @@ export class KEYSTORE {
       seed.toString("hex")
     );
     const keyPair = nacl.sign.keyPair.fromSeed(key);
-    return encode(Buffer.from(keyPair.publicKey));
+    return `ed25519:${encode(Buffer.from(keyPair.publicKey))}`;
   }
   /*
   static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
