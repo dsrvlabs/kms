@@ -39,6 +39,7 @@
     "@onflow/ledger": "^0.1.0",
     "@onflow/util-encode-key": "^0.0.2",
     "@polkadot/util-crypto": "^6.7.1",
+    "@solana/web3.js": "^1.18.0",
     "@terra-money/ledger-terra-js": "^1.1.0",
     "@zondax/ledger-polkadot": "^0.14.0",
     "argon2-browser": "^1.17.0",

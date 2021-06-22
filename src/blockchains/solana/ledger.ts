@@ -13,7 +13,7 @@ export class LEDGER {
       transport,
       getSolanaDerivationPath(path.account, path.index)
     );
-    return response;
+    return response.toBase58();
   }
 
   /*

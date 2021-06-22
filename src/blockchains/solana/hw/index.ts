@@ -1,8 +1,8 @@
-// from @solana/wallet-ledger
+// https://github.com/solana-labs/wallet-provider/blob/master/packages/wallet-ledger/src/core.ts
 import type Transport from "@ledgerhq/hw-transport";
+import type { Transaction } from "@solana/web3.js";
 
-import BN from "bn.js";
-import { encode } from "bs58";
+import { PublicKey } from "@solana/web3.js";
 
 const INS_GET_PUBKEY = 0x05;
 const INS_SIGN_MESSAGE = 0x06;
@@ -106,9 +106,10 @@ export function getSolanaDerivationPath(account?: number, change?: number) {
 
 export async function signTransaction(
   transport: Transport,
-  messageBytes: Buffer, // transaction.serializeMessage();
+  transaction: Transaction,
   derivationPath: Buffer = getSolanaDerivationPath()
 ) {
+  const messageBytes = transaction.serializeMessage();
   // eslint-disable-next-line no-use-before-define
   return signBytes(transport, messageBytes, derivationPath);
 }
@@ -138,6 +139,6 @@ export async function getPublicKey(
     P1_NON_CONFIRM,
     derivationPath
   );
-  const bn = new BN(publicKeyBytes);
-  return encode(bn.toArrayLike(Buffer));
+
+  return new PublicKey(publicKeyBytes);
 }
