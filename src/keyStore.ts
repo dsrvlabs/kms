@@ -3,7 +3,7 @@ import { encode, decode } from "bs58";
 import { JWK, JWE, util } from "node-jose";
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import { COIN, BIP44 } from "./types";
+import { COIN, BIP44, RawTx } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
@@ -130,5 +130,44 @@ export async function getAccountFromKeyStore(
     // eslint-disable-next-line no-console
     console.log(error);
     return "";
+  }
+}
+
+export async function signTxFromKeyStore(
+  path: BIP44,
+  keyStore: KeyStore,
+  password: string,
+  rawTx: RawTx
+): Promise<{ [key: string]: any }> {
+  try {
+    const key = await getAlgo2HashKey(password, keyStore);
+    if (key && keyStore) {
+      const mnemonic = await JWE.createDecrypt(key).decrypt(
+        keyStore.j.join(".")
+      );
+      const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
+      const node = fromSeed(seed);
+      const child = node.derivePath(
+        `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+      );
+
+      switch (path.type) {
+        // blockchains
+        case COIN.MINA: {
+          const response = mina.signTx(child, rawTx);
+          return { ...response };
+        }
+        // add blockchains....
+        // blockchains
+        default:
+          break;
+      }
+    }
+
+    return {};
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return {};
   }
 }

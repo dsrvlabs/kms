@@ -3,6 +3,7 @@ import * as CodaSDK from "@o1labs/client-sdk";
 import { RawTx } from "../../types";
 
 const base58check = require("base58check");
+const { TxType, Networks } = require("mina-ledger-js");
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
@@ -22,35 +23,49 @@ export class KEYSTORE {
     const privateKey = KEYSTORE.getPrivateKey(node);
     const publicKey = KEYSTORE.getAccount(node);
 
-    if (rawTx.meta.isPayment) {
+    if (rawTx.isPayment) {
       const signedPayment = CodaSDK.signPayment(
         {
-          from: rawTx.meta.from,
-          to: rawTx.meta.to,
-          amount: rawTx.meta.amount,
-          fee: rawTx.meta.fee,
-          nonce: rawTx.meta.nonce,
+          from: rawTx.from,
+          to: rawTx.to,
+          amount: rawTx.amount,
+          fee: rawTx.fee,
+          nonce: rawTx.nonce,
         },
         {
           privateKey,
           publicKey,
         }
       );
-      return signedPayment;
+      return {
+        ...signedPayment,
+        payload: {
+          ...signedPayment.payload,
+          txType: TxType.PAYMENT,
+          networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+        },
+      };
     }
     const signedStakeDelegation = CodaSDK.signStakeDelegation(
       {
-        from: rawTx.meta.from,
-        to: rawTx.meta.to,
-        fee: rawTx.meta.fee,
-        nonce: rawTx.meta.nonce,
+        from: rawTx.from,
+        to: rawTx.to,
+        fee: rawTx.fee,
+        nonce: rawTx.nonce,
       },
       {
         privateKey,
         publicKey,
       }
     );
-    return signedStakeDelegation;
+    return {
+      ...signedStakeDelegation,
+      payload: {
+        ...signedStakeDelegation.payload,
+        txType: TxType.DELEGATION,
+        networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+      },
+    };
   }
   /*
   export signMessage(node: BIP32Interface, msg: string) {

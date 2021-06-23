@@ -28,8 +28,19 @@ async function signTx(transport, type, index, account) {
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    // eslint-disable-next-line no-console
-    console.log("verify - ", CodaSDK.verifyPaymentSignature(response));
+    if (response.payload.txType === 0) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "verifyPaymentSignature - ",
+        CodaSDK.verifyPaymentSignature(response)
+      );
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        "verifyStakeDelegationSignature - ",
+        CodaSDK.verifyStakeDelegationSignature(response)
+      );
+    }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
