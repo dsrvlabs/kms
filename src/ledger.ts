@@ -10,6 +10,7 @@ import { LEDGER as kusama } from "./blockchains/kusama/ledger";
 import { LEDGER as polkadot } from "./blockchains/polkadot/ledger";
 import { LEDGER as cosmos } from "./blockchains/cosmos/ledger";
 import { LEDGER as celo } from "./blockchains/celo/ledger";
+import { LEDGER as tezos } from "./blockchains/tezos/ledger";
 
 export async function getAccountFromLedger(
   path: BIP44,
@@ -52,6 +53,10 @@ export async function getAccountFromLedger(
       }
       case COIN.CELO: {
         const publicKey = await celo.getAccount(path, transport);
+        return publicKey;
+      }
+      case COIN.TEZOS: {
+        const publicKey = await tezos.getAccount(path, transport);
         return publicKey;
       }
       // add blockchains....

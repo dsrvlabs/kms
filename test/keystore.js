@@ -11,7 +11,8 @@ const cosmos = require("../lib/blockchains/cosmos/keyStore");
 const terra = require("../lib/blockchains/terra/keyStore");
 const solana = require("../lib/blockchains/solana/keyStore");
 const near = require("../lib/blockchains/near/keyStore");
-// const flow = require("../lib/blockchains/flow/keyStore");
+const tezos = require("../lib/blockchains/tezos/keyStore");
+const flow = require("../lib/blockchains/flow/keyStore");
 // const polkadot = require("../lib/blockchains/polkadot/keyStore");
 // const kusama = require("../lib/blockchains/kusama/keyStore");
 
@@ -84,11 +85,15 @@ async function getAccountFromKeyStore(path, keyStore, password) {
         const account = near.KEYSTORE.getAccount(seed, path);
         return account;
       }
-      /*
-      case COIN.FLOW: {
-        const account = flow.KEYSTORE.getAccount(seed, path);
+      case COIN.TEZOS: {
+        const account = tezos.KEYSTORE.getAccount(seed, path);
         return account;
       }
+      case COIN.FLOW: {
+        const account = flow.KEYSTORE.getAccount(child);
+        return account;
+      }
+      /*
       case COIN.POLKADOT: {
         const account = polkadot.KEYSTORE.getAccount(seed, path);
         return account;
@@ -122,8 +127,9 @@ async function run() {
     ["CELO", COIN.CELO],
     ["COSMOS", COIN.COSMOS],
     ["TERRA", COIN.TERRA],
+    ["TEZOS", COIN.TEZOS],
+    ["FLOW", COIN.FLOW],
     /*
-    ["FLOW", COIN.POLKADOT],
     ["POLKADOT", COIN.POLKADOT],
     ["KUSAMA", COIN.KUSAMA],
     */

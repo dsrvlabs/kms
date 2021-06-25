@@ -13,6 +13,7 @@ import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
 import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
 import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
+import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 
 export interface KeyStore {
   t: number;
@@ -115,7 +116,11 @@ export async function getAccountFromKeyStore(
           return account;
         }
         case COIN.FLOW: {
-          const account = flow.getAccount(seed, path);
+          const account = flow.getAccount(child);
+          return account;
+        }
+        case COIN.TEZOS: {
+          const account = tezos.getAccount(seed, path);
           return account;
         }
         // add blockchains....
