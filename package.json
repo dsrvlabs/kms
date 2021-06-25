@@ -58,6 +58,7 @@
     "ethereumjs-util": "^7.0.10",
     "ledger-cosmos-js": "^2.1.8",
     "mina-ledger-js": "^1.0.6",
+    "near-api-js": "^0.41.0",
     "near-hd-key": "^1.2.1",
     "near-ledger-js": "^0.1.2",
     "node-jose": "^2.0.0",
