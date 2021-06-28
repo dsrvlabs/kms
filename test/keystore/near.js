@@ -48,7 +48,11 @@ async function run() {
     keyStore,
     PASSWORD
   );
-
+  await getAccount(
+    { type: TYPE, account: 0, index: INDEX },
+    keyStore,
+    PASSWORD
+  );
   await signTx(
     SEED, 
     { type: TYPE, account: 0, index: INDEX }
