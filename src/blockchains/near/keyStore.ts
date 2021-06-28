@@ -40,7 +40,12 @@ export class KEYSTORE {
         `access_key/${sender}/${publicKey.toString()}`, ''
     );
     const nonce = ++accessKey.nonce;
-    const actions = [nearAPI.transactions.transfer(amount)];
+
+    var actions = [nearAPI.transactions.transfer(amount)];
+    if (rawTx.isStake) {
+      actions = [nearAPI.transactions.stake(amount, publicKey)];
+    }
+
     const recentBlockHash = nearAPI.utils.serialize.base_decode(accessKey.block_hash);
     const transaction = nearAPI.transactions.createTransaction(
         sender, 

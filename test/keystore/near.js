@@ -23,6 +23,7 @@ async function getSeed(keyStore, password) {
 
 async function signTx(seed, path) {
   try {
+    const isStake = false;
     const response = await near.KEYSTORE.signTx( 
       seed,
       path,
@@ -31,6 +32,7 @@ async function signTx(seed, path) {
         receiver: "receiver.testnet",
         networkId: "testnet",
         amount: "0.5",
+        isStake,
       }
     );
 
