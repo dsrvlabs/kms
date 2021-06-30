@@ -69,6 +69,8 @@ export class KEYSTORE {
         })
     });
 
+    const verify = keyPair.verify(serializedTxHash, signature.signature);
+
     /* send transaction
     const signedSerializedTx = signedTransaction.encode();
     const result = await provider.sendJsonRpc(
@@ -79,7 +81,16 @@ export class KEYSTORE {
     return result.transaction
     */
 
-    return signedTransaction
+    if (rawTx.isStake) {
+      return {
+        ...signedTransaction,
+        verifyStakeSignature: verify,
+      }
+    }
+    return {
+      ...signedTransaction,
+      verifySignature: verify,
+    };
   }
 
 
