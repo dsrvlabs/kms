@@ -6,7 +6,7 @@ dsrv key management store
 <script src="node_modules/argon2-browser/lib/argon2.js"></script>
 ```
 ```javascript
-import { KMS, COIN, createKeyStore } from "@dsrv/kms";
+import { KMS, CHAIN, createKeyStore } from "@dsrv/kms";
 
 
 // create key store
@@ -35,7 +35,7 @@ const kms = new KMS({
   transport: null,
 });
 const account = await kms.getAccount({
-  type: COIN.MINA,
+  type: CHAIN.MINA,
   account: 0,
   index: 0,
   password

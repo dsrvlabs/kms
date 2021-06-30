@@ -3,7 +3,7 @@ const { mnemonicToSeedSync } = require("bip39");
 const { fromSeed } = require("bip32");
 const CodaSDK = require("@o1labs/client-sdk");
 
-const { COIN } = require("../../lib");
+const { CHAIN } = require("../../lib");
 const mina = require("../../lib/blockchains/mina/keyStore");
 
 const {
@@ -14,7 +14,7 @@ const {
 
 const MNEMONIC = require("../mnemonic.json");
 
-const TYPE = COIN.MINA;
+const TYPE = CHAIN.MINA;
 const INDEX = 0;
 
 async function getDerivePath(path, keyStore, password) {

@@ -3,7 +3,7 @@ import { encode, decode } from "bs58";
 import { JWK, JWE, util } from "node-jose";
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import { COIN, BIP44, RawTx } from "./types";
+import { CHAIN, BIP44, RawTx } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
@@ -34,10 +34,11 @@ async function getAlgo2HashKey(
       time: keyStore.t,
       mem: keyStore.m,
       salt: decode(keyStore.s),
+      hashLen: LENGTH,
     });
     const key = await JWK.asKey({
       kty: "oct",
-      k: util.base64url.encode(buf.toString("hex")),
+      k: util.base64url.encode(buf.hashHex),
     });
     return key;
   }
@@ -83,43 +84,43 @@ export async function getAccountFromKeyStore(
       );
       switch (path.type) {
         // blockchains
-        case COIN.MINA: {
+        case CHAIN.MINA: {
           const account = mina.getAccount(child);
           return account;
         }
-        case COIN.CELO: {
+        case CHAIN.CELO: {
           const account = celo.getAccount(child);
           return account;
         }
-        case COIN.COSMOS: {
+        case CHAIN.COSMOS: {
           const account = cosmos.getAccount(child);
           return account;
         }
-        case COIN.TERRA: {
+        case CHAIN.TERRA: {
           const account = terra.getAccount(child);
           return account;
         }
-        case COIN.SOLANA: {
+        case CHAIN.SOLANA: {
           const account = solana.getAccount(seed, path);
           return account;
         }
-        case COIN.POLKADOT: {
+        case CHAIN.POLKADOT: {
           const account = polkadot.getAccount(seed, path);
           return account;
         }
-        case COIN.KUSAMA: {
+        case CHAIN.KUSAMA: {
           const account = kusama.getAccount(child);
           return account;
         }
-        case COIN.NEAR: {
+        case CHAIN.NEAR: {
           const account = near.getAccount(seed, path);
           return account;
         }
-        case COIN.FLOW: {
+        case CHAIN.FLOW: {
           const account = flow.getAccount(child);
           return account;
         }
-        case COIN.TEZOS: {
+        case CHAIN.TEZOS: {
           const account = tezos.getAccount(seed, path);
           return account;
         }
@@ -158,7 +159,7 @@ export async function signTxFromKeyStore(
 
       switch (path.type) {
         // blockchains
-        case COIN.MINA: {
+        case CHAIN.MINA: {
           const response = mina.signTx(child, rawTx);
           return { ...response };
         }

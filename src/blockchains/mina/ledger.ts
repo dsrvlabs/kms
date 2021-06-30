@@ -1,5 +1,4 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import { BIP44, RawTx } from "../../types";
 
 const BN = require("bn.js");
@@ -7,10 +6,7 @@ const { MinaLedgerJS, TxType, Networks } = require("mina-ledger-js");
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     const instance = new MinaLedgerJS(transport);
     const response = await instance.getAddress(path.account);
     return response.publicKey;
@@ -18,7 +14,7 @@ export class LEDGER {
 
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     const instance = new MinaLedgerJS(transport);
@@ -53,7 +49,7 @@ export class LEDGER {
   /*
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

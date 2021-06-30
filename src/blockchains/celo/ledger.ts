@@ -1,14 +1,10 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import Ledger from "./hw";
 import { BIP44 } from "../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     try {
       const instance = new Ledger(transport);
       const response = await instance.getAddress(
@@ -25,7 +21,7 @@ export class LEDGER {
   /*
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     // ...
@@ -33,7 +29,7 @@ export class LEDGER {
 
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

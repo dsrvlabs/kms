@@ -1,8 +1,8 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
-const { KMS, COIN } = require("../../lib");
+const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
-const TYPE = COIN.COSMOS;
+const TYPE = CHAIN.COSMOS;
 const INDEX = 0;
 
 async function signTx(transport, type, index) {

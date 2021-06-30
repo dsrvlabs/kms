@@ -1,5 +1,4 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
 import { BIP44 } from "../../types";
 
@@ -7,10 +6,7 @@ const App = require("near-ledger-js");
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     transport.setScrambleKey("NEAR");
     const client = await App.createClient(transport);
     const response = await client.getPublicKey(
@@ -22,7 +18,7 @@ export class LEDGER {
   /*
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     // ...
@@ -30,7 +26,7 @@ export class LEDGER {
 
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

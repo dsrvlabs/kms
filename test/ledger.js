@@ -1,8 +1,8 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 const { getAccount } = require("./ledger/_getAccount");
-const { COIN } = require("../lib");
+const { CHAIN } = require("../lib");
 
-const TYPE = COIN.NEAR;
+const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
 async function run() {

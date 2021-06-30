@@ -1,15 +1,11 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import { BIP44 } from "../../types";
 
 const FlowApp = require("@onflow/ledger").default;
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     const instance = new FlowApp(transport);
     const response = await instance.getAddressAndPubKey(
       `m/44'/1'/${path.type}/0/${path.index}`
@@ -20,7 +16,7 @@ export class LEDGER {
   /*
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     // ...
@@ -28,7 +24,7 @@ export class LEDGER {
 
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

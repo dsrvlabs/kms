@@ -17,7 +17,7 @@
 // @flow
 
 // FIXME drop:
-import type Transport from "@ledgerhq/hw-transport";
+import Transport from "@ledgerhq/hw-transport";
 import { BigNumber } from "bignumber.js";
 import { encode, decode } from "rlp";
 import { splitPath, foreach } from "./utils";
@@ -67,9 +67,9 @@ const remapTransactionRelatedErrors = (e: any) => {
  * const celo = new Celo(transport)
  */
 export default class Ledger {
-  transport: Transport<any>;
+  transport: Transport;
 
-  constructor(transport: Transport<any>, scrambleKey: string = "w0w") {
+  constructor(transport: Transport, scrambleKey: string = "w0w") {
     this.transport = transport;
     transport.decorateAppAPIMethods(
       this,
@@ -127,7 +127,7 @@ export default class Ledger {
         boolChaincode ? 0x01 : 0x00,
         buffer
       )
-      .then((response) => {
+      .then((response: any) => {
         const publicKeyLength = response[0];
         const addressLength = response[1 + publicKeyLength];
         const publicKey = response
@@ -176,7 +176,7 @@ export default class Ledger {
   provideERC20TokenInformation({ data }: { data: Buffer }): Promise<boolean> {
     return this.transport.send(0xe0, 0x0a, 0x00, 0x00, data).then(
       () => true,
-      (e) => {
+      (e: any) => {
         if (e && e.statusCode === 0x6d00) {
           // this case happen for older version of ETH app, since older app version had the ERC20 data hardcoded, it's fine to assume it worked.
           // we return a flag to know if the call was effective or not
@@ -240,7 +240,7 @@ export default class Ledger {
     return foreach(toSend, (data, i) =>
       this.transport
         .send(0xe0, 0x04, i === 0 ? 0x00 : 0x80, 0x00, data)
-        .then((apduResponse) => {
+        .then((apduResponse: any) => {
           response = apduResponse;
         })
     ).then(
@@ -250,7 +250,7 @@ export default class Ledger {
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { v, r, s };
       },
-      (e) => {
+      (e: any) => {
         throw remapTransactionRelatedErrors(e);
       }
     );
@@ -335,7 +335,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     return foreach(toSend, (data, i) =>
       this.transport
         .send(0xe0, 0x08, i === 0 ? 0x00 : 0x80, 0x00, data)
-        .then((apduResponse) => {
+        .then((apduResponse: any) => {
           response = apduResponse;
         })
     ).then(() => {
@@ -382,7 +382,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     hashStruct.copy(buffer, offset);
     return this.transport
       .send(0xe0, 0x0c, 0x00, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         const v = response[0];
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
@@ -405,7 +405,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     });
     return this.transport
       .send(0xf0, 0x02, boolDisplay ? 0x01 : 0x00, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         return response.slice(0, response.length - 2);
       });
   }
@@ -488,7 +488,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     buffer.writeUInt32BE(timestamp, offset);
     return this.transport
       .send(0xf0, 0x04, 0x01, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { r, s };
@@ -629,7 +629,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     buffer.writeUInt32BE(timestamp, offset);
     return this.transport
       .send(0xf0, 0x04, 0x03, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { r, s };
@@ -698,7 +698,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     buffer.writeUInt32BE(timestamp, offset);
     return this.transport
       .send(0xf0, 0x04, 0x02, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { r, s };
@@ -822,7 +822,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
         0x00,
         buffer
       )
-      .then((response) => {
+      .then((response: any) => {
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { r, s };
@@ -852,7 +852,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     ).copy(buffer, 20);
     return this.transport.send(0xf0, 0x08, 0x00, 0x00, buffer).then(
       () => true,
-      (e) => {
+      (e: any) => {
         if (e && e.statusCode === 0x6d00) {
           // this case happen for ETH application versions not supporting Stark extensions
           return false;
@@ -914,7 +914,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
       )
       .then(
         () => true,
-        (e) => {
+        (e: any) => {
           if (e && e.statusCode === 0x6d00) {
             // this case happen for ETH application versions not supporting Stark extensions
             return false;
@@ -947,7 +947,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     hashHex.copy(buffer, offset);
     return this.transport
       .send(0xf0, 0x0a, 0x00, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         const r = response.slice(1, 1 + 32).toString("hex");
         const s = response.slice(1 + 32, 1 + 32 + 32).toString("hex");
         return { r, s };
@@ -976,7 +976,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     });
     return this.transport
       .send(0xe0, 0x0e, boolDisplay ? 0x01 : 0x00, 0x00, buffer)
-      .then((response) => {
+      .then((response: any) => {
         return {
           publicKey: response.slice(0, -2).toString("hex"),
         };
@@ -996,7 +996,7 @@ eth.signPersonalMessage("44'/60'/0'/0/0", Buffer.from("test").toString("hex")).t
     buffer.writeUInt32BE(withdrawalIndex, 0);
     return this.transport.send(0xe0, 0x10, 0x00, 0x00, buffer).then(
       () => true,
-      (e) => {
+      (e: any) => {
         if (e && e.statusCode === 0x6d00) {
           // this case happen for ETH application versions not supporting ETH 2
           return false;

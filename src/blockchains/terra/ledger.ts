@@ -1,15 +1,11 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import TerraApp, { AddressResponse } from "@terra-money/ledger-terra-js";
 import * as secp256k1 from "secp256k1";
 import { BIP44, RawTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     const instance = new TerraApp(transport);
     await instance.initialize();
     const response = (await instance.getAddressAndPubKey(
@@ -21,7 +17,7 @@ export class LEDGER {
 
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     const instance = new TerraApp(transport);
@@ -39,7 +35,7 @@ export class LEDGER {
   /*
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }
