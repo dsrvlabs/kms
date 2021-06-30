@@ -89,7 +89,7 @@ export class KEYSTORE {
     }
     return {
       ...signedTransaction,
-      verifySignature: verify,
+      verifyTransferSignature: verify,
     };
   }
 
