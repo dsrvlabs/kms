@@ -71,16 +71,6 @@ export class KEYSTORE {
 
     const verify = keyPair.verify(serializedTxHash, signature.signature);
 
-    /* send transaction
-    const signedSerializedTx = signedTransaction.encode();
-    const result = await provider.sendJsonRpc(
-      'broadcast_tx_commit', 
-      [Buffer.from(signedSerializedTx).toString('base64')]
-    );
-
-    return result.transaction
-    */
-
     if (rawTx.isStake) {
       return {
         ...signedTransaction,
@@ -92,7 +82,6 @@ export class KEYSTORE {
       verifyTransferSignature: verify,
     };
   }
-
 
   /*
   export signMessage(node: BIP32Interface, msg: string) {

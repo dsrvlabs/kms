@@ -62,24 +62,6 @@ export class LEDGER {
       transaction.encode(), `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
 
-    /* send transaction
-  const signedTransaction = new nearAPI.transactions.SignedTransaction({
-    transaction,
-    signature: new nearAPI.transactions.Signature({ 
-    keyType: transaction.publicKey.keyType, 
-    data: response
-    })
-  });
-
-  const signedSerializedTx = signedTransaction.encode();
-  const result = await provider.sendJsonRpc(
-    'broadcast_tx_commit', 
-    [Buffer.from(signedSerializedTx).toString('base64')]
-  );
-
-  return result.transaction
-  */
-
   return response
   }
 
