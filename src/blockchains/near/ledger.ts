@@ -62,7 +62,7 @@ export class LEDGER {
       transaction.encode(), `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
 
-    /*
+    /* send transaction
   const signedTransaction = new nearAPI.transactions.SignedTransaction({
     transaction,
     signature: new nearAPI.transactions.Signature({ 
