@@ -25,14 +25,12 @@ export class LEDGER {
     transport: TransportWebUSB | TransportNodeHid,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
-    
     const client = await App.createClient(transport);
     const rawPublicKey = await client.getPublicKey(`44'/${path.type}'/${path.account}'/0'/${path.index}'`);
     const publicKey = new nearAPI.utils.PublicKey({
       keyType: nearAPI.utils.key_pair.KeyType.ED25519,
       data: rawPublicKey,
     }); 
-
     const sender = rawTx.sender;
     const receiver = rawTx.receiver;
     const networkId = rawTx.networkId;
@@ -43,12 +41,10 @@ export class LEDGER {
         `access_key/${sender}/${publicKey.toString()}`, ''
     );
     const nonce = ++accessKey.nonce;
-
     var actions = [nearAPI.transactions.transfer(amount)];
     if (rawTx.isStake) {
       actions = [nearAPI.transactions.stake(amount, publicKey)];
     }
-
     const recentBlockHash = nearAPI.utils.serialize.base_decode(accessKey.block_hash);
     const transaction = nearAPI.transactions.createTransaction(
       sender, 
@@ -57,12 +53,10 @@ export class LEDGER {
       nonce, 
       actions, 
       recentBlockHash);
-    
     const response = await client.sign(
       transaction.encode(), `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
-
-  return response
+    return response
   }
 
   /*

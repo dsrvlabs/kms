@@ -26,11 +26,9 @@ async function signTx(transport, type, index) {
         isStake,
       }
     );
-    // eslint-disable-next-line no-console
     console.log("response - ", response);
 
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.log(error);
   }
 }

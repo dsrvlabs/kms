@@ -33,19 +33,16 @@ export class KEYSTORE {
     const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
     const provider = new nearAPI.providers
         .JsonRpcProvider(`https://rpc.${networkId}.near.org`);
-    
     const keyPair = nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
     const publicKey = keyPair.getPublicKey();
     const accessKey = await provider.query(
         `access_key/${sender}/${publicKey.toString()}`, ''
     );
     const nonce = ++accessKey.nonce;
-
     var actions = [nearAPI.transactions.transfer(amount)];
     if (rawTx.isStake) {
       actions = [nearAPI.transactions.stake(amount, publicKey)];
     }
-
     const recentBlockHash = nearAPI.utils.serialize.base_decode(accessKey.block_hash);
     const transaction = nearAPI.transactions.createTransaction(
         sender, 
@@ -68,9 +65,7 @@ export class KEYSTORE {
         data: signature.signature 
         })
     });
-
     const verify = keyPair.verify(serializedTxHash, signature.signature);
-
     if (rawTx.isStake) {
       return {
         ...signedTransaction,

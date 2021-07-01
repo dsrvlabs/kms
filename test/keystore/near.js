@@ -10,7 +10,6 @@ const {
 } = require("./_getAccount");
 
 const MNEMONIC = require("../mnemonic.json");
-
 const TYPE = COIN.NEAR;
 const INDEX = 1;
 
@@ -35,7 +34,6 @@ async function signTx(seed, path) {
         isStake,
       }
     );
-
     console.log("response - ", response);
 
   } catch (error) {
