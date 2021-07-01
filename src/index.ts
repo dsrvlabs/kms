@@ -67,6 +67,7 @@ export class KMS {
 
   close(): void {
     this.transport?.close();
+    this.transport = null;
   }
 }
 
