@@ -36,7 +36,7 @@ export class KMS {
     return !!this.transport;
   }
 
-  async getAccount(path: BIP44): Promise<string> {
+  async getAccount(path: BIP44): Promise<string | null> {
     if (this.keyStore) {
       const account = await getAccountFromKeyStore(
         path,
@@ -49,10 +49,13 @@ export class KMS {
       const account = await getAccountFromLedger(path, this.transport);
       return account;
     }
-    return "";
+    return null;
   }
 
-  async signTx(path: BIP44, rawTx: RawTx): Promise<{ [key: string]: any }> {
+  async signTx(
+    path: BIP44,
+    rawTx: RawTx
+  ): Promise<{ [key: string]: any } | null> {
     if (this.keyStore) {
       const signedTx = await signTxFromKeyStore(
         path,
@@ -66,7 +69,7 @@ export class KMS {
       const response = await signTxFromLedger(path, this.transport, rawTx);
       return response;
     }
-    return {};
+    return null;
   }
 
   close(): void {
