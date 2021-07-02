@@ -9,7 +9,7 @@ export interface RawTx {
   [key: string]: any;
 }
 
-export const COIN = {
+export const CHAIN = {
   MINA: 12586,
   TERRA: 330,
   FLOW: 539,

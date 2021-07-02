@@ -1,15 +1,11 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import Tezos from "@ledgerhq/hw-app-tezos";
 import { BIP44 } from "../../types";
 // import { RawTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     const instance = new Tezos(transport as any);
     const response = await instance.getAddress(
       `44'/${path.type}'/${path.account}'/${path.index}'`
@@ -20,7 +16,7 @@ export class LEDGER {
   /*
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     // ...
@@ -28,7 +24,7 @@ export class LEDGER {
 
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

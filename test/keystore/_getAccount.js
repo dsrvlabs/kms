@@ -4,7 +4,7 @@ const { encode, decode } = require("bs58");
 const { randomBytes } = require("crypto");
 const { mnemonicToSeedSync } = require("bip39");
 const { fromSeed } = require("bip32");
-const { COIN } = require("../../lib");
+const { CHAIN } = require("../../lib");
 const mina = require("../../lib/blockchains/mina/keyStore");
 const celo = require("../../lib/blockchains/celo/keyStore");
 const cosmos = require("../../lib/blockchains/cosmos/keyStore");
@@ -60,40 +60,40 @@ async function getAccountFromKeyStore(path, keyStore, password) {
     );
     switch (path.type) {
       // blockchains
-      case COIN.MINA: {
+      case CHAIN.MINA: {
         const account = mina.KEYSTORE.getAccount(child);
         return account;
       }
-      case COIN.CELO: {
+      case CHAIN.CELO: {
         const account = celo.KEYSTORE.getAccount(child);
         return account;
       }
-      case COIN.COSMOS: {
+      case CHAIN.COSMOS: {
         const account = cosmos.KEYSTORE.getAccount(child);
         return account;
       }
-      case COIN.TERRA: {
+      case CHAIN.TERRA: {
         const account = terra.KEYSTORE.getAccount(child);
         return account;
       }
-      case COIN.SOLANA: {
+      case CHAIN.SOLANA: {
         const account = solana.KEYSTORE.getAccount(seed, path);
         return account;
       }
-      case COIN.NEAR: {
+      case CHAIN.NEAR: {
         const account = near.KEYSTORE.getAccount(seed, path);
         return account;
       }
       /*
-      case COIN.FLOW: {
+      case CHAIN.FLOW: {
         const account = flow.KEYSTORE.getAccount(seed, path);
         return account;
       }
-      case COIN.POLKADOT: {
+      case CHAIN.POLKADOT: {
         const account = polkadot.KEYSTORE.getAccount(seed, path);
         return account;
       }
-      case COIN.KUSAMA: {
+      case CHAIN.KUSAMA: {
         const account = kusama.KEYSTORE.getAccount(child);
         return account;
       }

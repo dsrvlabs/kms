@@ -1,9 +1,9 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 const CodaSDK = require("@o1labs/client-sdk");
-const { KMS, COIN } = require("../../lib");
+const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
-const TYPE = COIN.MINA;
+const TYPE = CHAIN.MINA;
 const INDEX = 0;
 
 async function signTx(transport, type, index, account) {

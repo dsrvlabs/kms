@@ -1,5 +1,4 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import Transport from "@ledgerhq/hw-transport";
 import * as secp256k1 from "secp256k1";
 import { BIP44, RawTx } from "../../types";
 
@@ -7,10 +6,7 @@ const CosmosApp = require("ledger-cosmos-js").default;
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(
-    path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid
-  ): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
     const instance = new CosmosApp(transport);
     const response = await instance.getAddressAndPubKey(
       [44, path.type, path.account, 0, path.index],
@@ -21,7 +17,7 @@ export class LEDGER {
 
   static async signTx(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     const instance = new CosmosApp(transport);
@@ -39,7 +35,7 @@ export class LEDGER {
   /*
   export function signMessage(
     path: BIP44,
-    transport: TransportWebUSB | TransportNodeHid,
+    transport: Transport,
     msg: string) {
     // ...
   }

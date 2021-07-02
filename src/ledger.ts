@@ -1,6 +1,5 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
-import { COIN, BIP44, RawTx } from "./types";
+import Transport from "@ledgerhq/hw-transport";
+import { CHAIN, BIP44, RawTx } from "./types";
 import { LEDGER as mina } from "./blockchains/mina/ledger";
 import { LEDGER as terra } from "./blockchains/terra/ledger";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
@@ -14,48 +13,48 @@ import { LEDGER as tezos } from "./blockchains/tezos/ledger";
 
 export async function getAccountFromLedger(
   path: BIP44,
-  transport: TransportWebUSB | TransportNodeHid
-): Promise<string> {
+  transport: Transport
+): Promise<string | null> {
   try {
     switch (path.type) {
       // blockchains
-      case COIN.MINA: {
+      case CHAIN.MINA: {
         const publicKey = await mina.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.TERRA: {
+      case CHAIN.TERRA: {
         const publicKey = await terra.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.FLOW: {
+      case CHAIN.FLOW: {
         const publicKey = await flow.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.SOLANA: {
+      case CHAIN.SOLANA: {
         const publicKey = await solana.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.NEAR: {
+      case CHAIN.NEAR: {
         const publicKey = await near.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.KUSAMA: {
+      case CHAIN.KUSAMA: {
         const publicKey = await kusama.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.POLKADOT: {
+      case CHAIN.POLKADOT: {
         const publicKey = await polkadot.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.COSMOS: {
+      case CHAIN.COSMOS: {
         const publicKey = await cosmos.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.CELO: {
+      case CHAIN.CELO: {
         const publicKey = await celo.getAccount(path, transport);
         return publicKey;
       }
-      case COIN.TEZOS: {
+      case CHAIN.TEZOS: {
         const publicKey = await tezos.getAccount(path, transport);
         return publicKey;
       }
@@ -64,31 +63,31 @@ export async function getAccountFromLedger(
       default:
         break;
     }
-    return "";
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return "";
+    return null;
   }
 }
 
 export async function signTxFromLedger(
   path: BIP44,
-  transport: TransportWebUSB | TransportNodeHid,
+  transport: Transport,
   rawTx: RawTx
-): Promise<{ [key: string]: any }> {
+): Promise<{ [key: string]: any } | null> {
   try {
     switch (path.type) {
       // blockchains
-      case COIN.MINA: {
+      case CHAIN.MINA: {
         const response = await mina.signTx(path, transport, rawTx);
         return { ...response };
       }
-      case COIN.TERRA: {
+      case CHAIN.TERRA: {
         const response = await terra.signTx(path, transport, rawTx);
         return { ...response };
       }
-      case COIN.COSMOS: {
+      case CHAIN.COSMOS: {
         const response = await cosmos.signTx(path, transport, rawTx);
         return { ...response };
       }
@@ -97,10 +96,10 @@ export async function signTxFromLedger(
       default:
         break;
     }
-    return {};
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return {};
+    return null;
   }
 }

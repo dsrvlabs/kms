@@ -1,6 +1,6 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
-import { COIN, BIP44, RawTx } from "./types";
+import Transport from "@ledgerhq/hw-transport";
+import { CHAIN, BIP44, RawTx } from "./types";
 import {
   createKeyStore,
   getAccountFromKeyStore,
@@ -8,7 +8,7 @@ import {
 } from "./keyStore";
 import { getAccountFromLedger, signTxFromLedger } from "./ledger";
 
-export { createKeyStore, COIN, BIP44, RawTx };
+export { createKeyStore, CHAIN, BIP44, RawTx };
 
 interface KeyStore {
   t: number;
@@ -19,20 +19,24 @@ interface KeyStore {
 
 interface Ledger {
   keyStore: KeyStore | null;
-  transport: TransportWebUSB | TransportNodeHid | null;
+  transport: Transport | null;
 }
 
 export class KMS {
   private keyStore: KeyStore | null;
 
-  private transport: TransportWebUSB | TransportNodeHid | null;
+  private transport: Transport | null;
 
   constructor(ledger: Ledger) {
     this.keyStore = ledger.keyStore;
     this.transport = ledger.transport;
   }
 
-  async getAccount(path: BIP44): Promise<string> {
+  isLedger(): boolean {
+    return !!this.transport;
+  }
+
+  async getAccount(path: BIP44): Promise<string | null> {
     if (this.keyStore) {
       const account = await getAccountFromKeyStore(
         path,
@@ -45,10 +49,13 @@ export class KMS {
       const account = await getAccountFromLedger(path, this.transport);
       return account;
     }
-    return "";
+    return null;
   }
 
-  async signTx(path: BIP44, rawTx: RawTx): Promise<{ [key: string]: any }> {
+  async signTx(
+    path: BIP44,
+    rawTx: RawTx
+  ): Promise<{ [key: string]: any } | null> {
     if (this.keyStore) {
       const signedTx = await signTxFromKeyStore(
         path,
@@ -62,7 +69,12 @@ export class KMS {
       const response = await signTxFromLedger(path, this.transport, rawTx);
       return response;
     }
-    return {};
+    return null;
+  }
+
+  close(): void {
+    this.transport?.close();
+    this.transport = null;
   }
 }
 
@@ -76,7 +88,7 @@ export async function CreateKMS(
   if (keyStoreJson) {
     ledger.keyStore = keyStoreJson;
   } else {
-    ledger.transport = await TransportWebUSB.create();
+    ledger.transport = await TransportWebUSB.create(1000);
   }
   return new KMS(ledger);
 }
