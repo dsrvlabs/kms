@@ -14,7 +14,7 @@ import { LEDGER as tezos } from "./blockchains/tezos/ledger";
 export async function getAccountFromLedger(
   path: BIP44,
   transport: Transport
-): Promise<string> {
+): Promise<string | null> {
   try {
     switch (path.type) {
       // blockchains
@@ -63,11 +63,11 @@ export async function getAccountFromLedger(
       default:
         break;
     }
-    return "";
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return "";
+    return null;
   }
 }
 
@@ -75,7 +75,7 @@ export async function signTxFromLedger(
   path: BIP44,
   transport: Transport,
   rawTx: RawTx
-): Promise<{ [key: string]: any }> {
+): Promise<{ [key: string]: any } | null> {
   try {
     switch (path.type) {
       // blockchains
@@ -96,10 +96,10 @@ export async function signTxFromLedger(
       default:
         break;
     }
-    return {};
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return {};
+    return null;
   }
 }

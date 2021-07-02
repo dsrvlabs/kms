@@ -70,7 +70,7 @@ export async function getAccountFromKeyStore(
   path: BIP44,
   keyStore: KeyStore,
   password: string
-): Promise<string> {
+): Promise<string | null> {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
     if (key && keyStore) {
@@ -131,11 +131,11 @@ export async function getAccountFromKeyStore(
       }
     }
 
-    return "";
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log(error);
-    return "";
+    console.error(error);
+    return null;
   }
 }
 
@@ -144,7 +144,7 @@ export async function signTxFromKeyStore(
   keyStore: KeyStore,
   password: string,
   rawTx: RawTx
-): Promise<{ [key: string]: any }> {
+): Promise<{ [key: string]: any } | null> {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
     if (key && keyStore) {
@@ -170,10 +170,10 @@ export async function signTxFromKeyStore(
       }
     }
 
-    return {};
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return {};
+    return null;
   }
 }
