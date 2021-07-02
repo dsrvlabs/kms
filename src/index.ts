@@ -32,6 +32,10 @@ export class KMS {
     this.transport = ledger.transport;
   }
 
+  isLedger(): boolean {
+    return !!this.transport;
+  }
+
   async getAccount(path: BIP44): Promise<string> {
     if (this.keyStore) {
       const account = await getAccountFromKeyStore(
