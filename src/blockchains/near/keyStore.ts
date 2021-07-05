@@ -7,15 +7,6 @@ const nearAPI = require("near-api-js");
 const sha256 = require('js-sha256');
 
 export class KEYSTORE {
-  static getAccount(seed: Buffer, path: BIP44): string {
-    const { key } = derivePath(
-      `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
-      seed.toString("hex")
-    );
-    const keyPair = nacl.sign.keyPair.fromSeed(key);
-    return `ed25519:${encode(Buffer.from(keyPair.publicKey))}`;
-  }
-  
   private static getPrivateKey(seed: Buffer, path: BIP44): string {
     const { key } = derivePath(
       `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
@@ -24,21 +15,27 @@ export class KEYSTORE {
     const keyPair = nacl.sign.keyPair.fromSeed(key);
     return `${encode(Buffer.from(keyPair.secretKey))}`
   }
+  
+  static getAccount(seed: Buffer, path: BIP44): string {
+    const privateKey = KEYSTORE.getPrivateKey(seed, path);
+    const keyPair = nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
+    return `${keyPair.publicKey}`;
+  }
 
   static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
     const privateKey = KEYSTORE.getPrivateKey(seed, path);
     const sender = rawTx.sender;
     const receiver = rawTx.receiver;
-    const networkId = rawTx.networkId;
     const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    const provider = new nearAPI.providers
-        .JsonRpcProvider(`https://rpc.${networkId}.near.org`
-    );
+    const provider = new nearAPI.providers.JsonRpcProvider(rawTx.provider);
     const keyPair = nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
     const publicKey = keyPair.getPublicKey();
-    const accessKey = await provider.query(
-        `access_key/${sender}/${publicKey.toString()}`, ''
-    );
+    const accessKey = await provider.query(rawTx.accessKey, '');
+    if(accessKey.permission !== 'FullAccess') {
+      return console.log(
+        `Account [ ${sender} ] does not have permission to send tokens using key: [ ${publicKey} ]`
+      );
+    }
     const nonce = ++accessKey.nonce;
     var actions = [nearAPI.transactions.transfer(amount)];
     if (rawTx.isStake) {

@@ -19,7 +19,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<any> {
     const client = await App.createClient(transport);
     const rawPublicKey = await client.getPublicKey(`44'/${path.type}'/${path.account}'/0'/${path.index}'`);
     const publicKey = new nearAPI.utils.PublicKey({
@@ -28,14 +28,14 @@ export class LEDGER {
     }); 
     const sender = rawTx.sender;
     const receiver = rawTx.receiver;
-    const networkId = rawTx.networkId;
     const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    const provider = new nearAPI.providers
-        .JsonRpcProvider(`https://rpc.${networkId}.near.org`
-    );
-    const accessKey = await provider.query(
-        `access_key/${sender}/${publicKey.toString()}`, ''
-    );
+    const provider = new nearAPI.providers.JsonRpcProvider(rawTx.provider);
+    const accessKey = await provider.query(rawTx.accessKey, '');
+    if(accessKey.permission !== 'FullAccess') {
+      return console.log(
+        `Account [ ${sender} ] does not have permission to send tokens using key: [ ${publicKey} ]`
+      );
+    }
     const nonce = ++accessKey.nonce;
     var actions = [nearAPI.transactions.transfer(amount)];
     if (rawTx.isStake) {

@@ -5,13 +5,13 @@ const { getAccount } = require("./_getAccount");
 const TYPE = CHAIN.NEAR;
 const INDEX = 1;
 
-async function signTx(transport, type, index) {
+async function signTx(transport, type, index, account) {
   const kms = new KMS({
     keyStore: null,
     transport,
   });
   try {
-    const isStake = true;
+    const isStake = false;
     const response = await kms.signTx(
       {
         type,
@@ -21,8 +21,9 @@ async function signTx(transport, type, index) {
       {
         sender: "kms.testnet",
         receiver: "kms.testnet",
-        networkId: "testnet",
-        amount: "35400",
+        provider: "https://rpc.testnet.near.org",
+        amount: "1.2",
+        accessKey: `access_key/kms.testnet/${account}`,
         isStake,
         validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3",
       }
@@ -36,8 +37,8 @@ async function signTx(transport, type, index) {
 
 async function run() {
   const transport = await TransportNodeHid.create(1000);
-  await getAccount(transport, TYPE, INDEX);
-  await signTx(transport, TYPE, INDEX);
+  const account = await getAccount(transport, TYPE, INDEX);
+  await signTx(transport, TYPE, INDEX, account);
   transport.close();
 }
 

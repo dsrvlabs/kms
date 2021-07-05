@@ -20,7 +20,7 @@ async function getSeed(keyStore, password) {
   return seed
 }
 
-async function signTx(seed, path) {
+async function signTx(seed, path, account) {
   try {
     const isStake = false;
     const response = await near.KEYSTORE.signTx( 
@@ -29,8 +29,9 @@ async function signTx(seed, path) {
       {
         sender: "kms.testnet",
         receiver: "kms.testnet",
-        networkId: "testnet",
+        provider: "https://rpc.testnet.near.org",
         amount: "1.7",
+        accessKey: `access_key/kms.testnet/${account}`,
         isStake,
         validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3", 
       }
@@ -49,14 +50,15 @@ async function run() {
     keyStore,
     PASSWORD
   );
-  await getAccount(
+  const account = await getAccount(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD
   );
   await signTx(
     SEED, 
-    { type: TYPE, account: 0, index: INDEX }
+    { type: TYPE, account: 0, index: INDEX },
+    account
   );
 }
 
