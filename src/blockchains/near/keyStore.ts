@@ -27,10 +27,9 @@ export class KEYSTORE {
     const sender = rawTx.sender;
     const receiver = rawTx.receiver;
     const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    const provider = new nearAPI.providers.JsonRpcProvider(rawTx.provider);
     const keyPair = nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
     const publicKey = keyPair.getPublicKey();
-    const accessKey = await provider.query(rawTx.accessKey, '');
+    const accessKey = rawTx.accessKey;
     if(accessKey.permission !== 'FullAccess') {
       return console.log(
         `Account [ ${sender} ] does not have permission to send tokens using key: [ ${publicKey} ]`

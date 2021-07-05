@@ -2,6 +2,7 @@ const { JWE } = require("node-jose");
 const { mnemonicToSeedSync } = require("bip39");
 const { CHAIN } = require("../../lib");
 const near = require("../../lib/blockchains/near/keyStore");
+const nearAPI = require("near-api-js");
 
 const {
   createKeyStore,
@@ -23,15 +24,17 @@ async function getSeed(keyStore, password) {
 async function signTx(seed, path, account) {
   try {
     const isStake = false;
+    const rpc = "https://rpc.testnet.near.org";
+    const provider = new nearAPI.providers.JsonRpcProvider(rpc);
+    const accessKey = await provider.query(`access_key/kms.testnet/${account}`, '');
     const response = await near.KEYSTORE.signTx( 
       seed,
       path,
       {
         sender: "kms.testnet",
         receiver: "kms.testnet",
-        provider: "https://rpc.testnet.near.org",
         amount: "1.7",
-        accessKey: `access_key/kms.testnet/${account}`,
+        accessKey: accessKey,
         isStake,
         validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3", 
       }
