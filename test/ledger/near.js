@@ -1,7 +1,7 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
+const nearAPI = require("near-api-js");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
-const nearAPI = require("near-api-js");
 
 const TYPE = CHAIN.NEAR;
 const INDEX = 1;
@@ -12,10 +12,13 @@ async function signTx(transport, type, index, account) {
     transport,
   });
   try {
-    const isStake = false;
+    const isStake = true;
     const rpc = "https://rpc.testnet.near.org";
     const provider = new nearAPI.providers.JsonRpcProvider(rpc);
-    const accessKey = await provider.query(`access_key/kms.testnet/${account}`, '');
+    const accessKey = await provider.query(
+      `access_key/kms.testnet/${account}`,
+      ""
+    );
     const response = await kms.signTx(
       {
         type,
@@ -26,14 +29,15 @@ async function signTx(transport, type, index, account) {
         sender: "kms.testnet",
         receiver: "kms.testnet",
         amount: "1.2",
-        accessKey: accessKey,
+        accessKey,
         isStake,
         validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3",
       }
     );
+    // eslint-disable-next-line no-console
     console.log("response - ", response);
-
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 }
