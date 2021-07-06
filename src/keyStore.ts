@@ -163,6 +163,10 @@ export async function signTxFromKeyStore(
           const response = mina.signTx(child, rawTx);
           return { ...response };
         }
+        case CHAIN.NEAR: {
+          const response = near.signTx(seed, path, rawTx);
+          return { ...response };
+        }
         // add blockchains....
         // blockchains
         default:
