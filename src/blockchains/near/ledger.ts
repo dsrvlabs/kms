@@ -22,9 +22,8 @@ export class LEDGER {
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
     const client = await App.createClient(transport);
-    const rawPublicKey = await client.getPublicKey(
-      `44'/${path.type}'/${path.account}'/0'/${path.index}'`
-    );
+    const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
+    const rawPublicKey = await client.getPublicKey(PATH);
     const publicKey = new nearAPI.utils.PublicKey({
       keyType: nearAPI.utils.key_pair.KeyType.ED25519,
       data: new Uint8Array(rawPublicKey),
@@ -53,10 +52,7 @@ export class LEDGER {
       actions,
       recentBlockHash
     );
-    const response = await client.sign(
-      transaction.encode(),
-      `44'/${path.type}'/${path.account}'/0'/${path.index}'`
-    );
+    const response = await client.sign(transaction.encode(), PATH);
     const signature = new Uint8Array(response);
     const signedTransaction = new nearAPI.transactions.SignedTransaction({
       transaction,
