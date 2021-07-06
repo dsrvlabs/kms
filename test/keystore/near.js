@@ -1,8 +1,8 @@
 const { JWE } = require("node-jose");
 const { mnemonicToSeedSync } = require("bip39");
+const nearAPI = require("near-api-js");
 const { CHAIN } = require("../../lib");
 const near = require("../../lib/blockchains/near/keyStore");
-const nearAPI = require("near-api-js");
 
 const {
   createKeyStore,
@@ -11,6 +11,7 @@ const {
 } = require("./_getAccount");
 
 const MNEMONIC = require("../mnemonic.json");
+
 const TYPE = CHAIN.NEAR;
 const INDEX = 1;
 
@@ -18,7 +19,7 @@ async function getSeed(keyStore, password) {
   const key = await getAlgo2HashKey(password, keyStore);
   const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
   const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
-  return seed
+  return seed;
 }
 
 async function signTx(seed, path, account) {
@@ -26,22 +27,22 @@ async function signTx(seed, path, account) {
     const isStake = false;
     const rpc = "https://rpc.testnet.near.org";
     const provider = new nearAPI.providers.JsonRpcProvider(rpc);
-    const accessKey = await provider.query(`access_key/kms.testnet/${account}`, '');
-    const response = await near.KEYSTORE.signTx( 
-      seed,
-      path,
-      {
-        sender: "kms.testnet",
-        receiver: "kms.testnet",
-        amount: "1.7",
-        accessKey: accessKey,
-        isStake,
-        validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3", 
-      }
+    const accessKey = await provider.query(
+      `access_key/kms.testnet/${account}`,
+      ""
     );
+    const response = await near.KEYSTORE.signTx(seed, path, {
+      sender: "kms.testnet",
+      receiver: "kms.testnet",
+      amount: "1.7",
+      accessKey,
+      isStake,
+      validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3",
+    });
+    // eslint-disable-next-line no-console
     console.log("response - ", response);
-
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 }
@@ -49,22 +50,13 @@ async function signTx(seed, path, account) {
 async function run() {
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
-  const SEED = await getSeed(
-    keyStore,
-    PASSWORD
-  );
+  const SEED = await getSeed(keyStore, PASSWORD);
   const account = await getAccount(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD
   );
-  await signTx(
-    SEED, 
-    { type: TYPE, account: 0, index: INDEX },
-    account
-  );
+  await signTx(SEED, { type: TYPE, account: 0, index: INDEX }, account);
 }
 
 run();
-
-

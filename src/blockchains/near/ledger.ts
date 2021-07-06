@@ -1,9 +1,10 @@
 import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
+import * as nearAPI from "near-api-js";
+import BN from "bn.js";
 import { BIP44, RawTx } from "../../types";
 
 const App = require("near-ledger-js");
-const nearAPI = require("near-api-js");
 
 export class LEDGER {
   static async getAccount(path: BIP44, transport: Transport): Promise<string> {
@@ -19,41 +20,52 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<any> {
+  ): Promise<{ [key: string]: any }> {
     const client = await App.createClient(transport);
-    const rawPublicKey = await client.getPublicKey(`44'/${path.type}'/${path.account}'/0'/${path.index}'`);
+    const rawPublicKey = await client.getPublicKey(
+      `44'/${path.type}'/${path.account}'/0'/${path.index}'`
+    );
     const publicKey = new nearAPI.utils.PublicKey({
       keyType: nearAPI.utils.key_pair.KeyType.ED25519,
-      data: rawPublicKey,
-    }); 
-    const sender = rawTx.sender;
-    const receiver = rawTx.receiver;
+      data: new Uint8Array(rawPublicKey),
+    });
+    const { sender } = rawTx;
+    const { receiver } = rawTx;
     const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    const accessKey = rawTx.accessKey;
-    if(accessKey.permission !== 'FullAccess') {
-      return console.log(
-        `Account [ ${sender} ] does not have permission to send tokens using key: [ ${publicKey} ]`
-      );
+    if (!amount) {
+      throw new Error("Type 'null' is not assignable to amount");
     }
-    const nonce = ++accessKey.nonce;
-    var actions = [nearAPI.transactions.transfer(amount)];
+    const { accessKey } = rawTx;
+    const nonce = accessKey.nonce + 1;
+    let actions = [nearAPI.transactions.transfer(new BN(amount))];
     if (rawTx.isStake) {
-      const validator = await nearAPI.utils.PublicKey.fromString(rawTx.validator);
-      actions = [nearAPI.transactions.stake(amount, validator)];
+      const validator = nearAPI.utils.PublicKey.fromString(rawTx.validator);
+      actions = [nearAPI.transactions.stake(new BN(amount), validator)];
     }
-    const recentBlockHash = nearAPI.utils.serialize.base_decode(accessKey.block_hash);
+    const recentBlockHash = nearAPI.utils.serialize.base_decode(
+      accessKey.block_hash
+    );
     const transaction = nearAPI.transactions.createTransaction(
-      sender, 
-      publicKey, 
-      receiver, 
-      nonce, 
-      actions, 
+      sender,
+      publicKey,
+      receiver,
+      nonce,
+      actions,
       recentBlockHash
     );
     const response = await client.sign(
-      transaction.encode(), `44'/${path.type}'/${path.account}'/0'/${path.index}'`
+      transaction.encode(),
+      `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
-    return response    
+    const signature = new Uint8Array(response);
+    const signedTransaction = new nearAPI.transactions.SignedTransaction({
+      transaction,
+      signature: new nearAPI.transactions.Signature({
+        keyType: transaction.publicKey.keyType,
+        data: signature,
+      }),
+    });
+    return signedTransaction;
   }
 
   /*
