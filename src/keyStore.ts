@@ -167,6 +167,10 @@ export async function signTxFromKeyStore(
           const response = near.signTx(seed, path, rawTx);
           return { ...response };
         }
+        case CHAIN.SOLANA: {
+          const response = solana.signTx(seed, path, rawTx);
+          return { ...response };
+        }
         // add blockchains....
         // blockchains
         default:

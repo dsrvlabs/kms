@@ -95,6 +95,10 @@ export async function signTxFromLedger(
         const response = await near.signTx(path, transport, rawTx);
         return { ...response };
       }
+      case CHAIN.SOLANA: {
+        const response = await solana.signTx(path, transport, rawTx);
+        return { ...response };
+      }
       // add blockchains....
       // blockchains
       default:
