@@ -9,6 +9,7 @@ import {
   Signer,
   LAMPORTS_PER_SOL,
   Lockup,
+  SystemProgram,
 } from "@solana/web3.js";
 import { BIP44, RawTx } from "../../types";
 
@@ -31,31 +32,58 @@ export class KEYSTORE {
     return encode(keypair.secretKey);
   }
 
-  static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
-    const payer = KEYSTORE.getKeypair(seed, path);
-    const authorized = new Authorized(payer.publicKey, payer.publicKey);
-    const lamports = Number(rawTx.amountOfSOL) * LAMPORTS_PER_SOL;
-    const createStakeAccountInstruction = StakeProgram.createAccountWithSeed({
-      fromPubkey: payer.publicKey,
-      stakePubkey: rawTx.stakePubkey,
-      basePubkey: payer.publicKey,
-      seed: rawTx.stakeAccountSeed,
-      authorized,
-      lockup: new Lockup(0, 0, new PublicKey(0)),
-      lamports,
-    });
-    const votePubkey = new PublicKey(rawTx.votePubkey);
-    const delegateTransactionInstruction = StakeProgram.delegate({
-      stakePubkey: rawTx.stakePubkey,
-      authorizedPubkey: payer.publicKey,
-      votePubkey,
-    });
+  static createTransaction(rawTx: RawTx): any {
     const transaction = new Transaction({
       recentBlockhash: rawTx.recentBlockhash,
-      feePayer: payer.publicKey,
-      signatures: [],
-    }).add(createStakeAccountInstruction);
-    transaction.add(delegateTransactionInstruction);
+      feePayer: rawTx.feePayer,
+    });
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < rawTx.ixs.length; i++) {
+      const ix = rawTx.ixs[i];
+      if (ix.transactionType === 0) {
+        const payerPublicKey = ix.fromPubkey;
+        const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
+        const toPubkey = new PublicKey(ix.toPubkey);
+        const transferInstruction = SystemProgram.transfer({
+          fromPubkey: payerPublicKey,
+          lamports,
+          toPubkey,
+        });
+        transaction.add(transferInstruction);
+      }
+      if (ix.transactionType === 1) {
+        const payerPublicKey = ix.fromPubkey;
+        const authorized = new Authorized(
+          ix.stakerAuthorizePubkey,
+          ix.withdrawerAuthorizePubkey
+        );
+        const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
+        const createStakeAccountInstruction =
+          StakeProgram.createAccountWithSeed({
+            fromPubkey: payerPublicKey,
+            stakePubkey: ix.stakePubkey,
+            basePubkey: payerPublicKey,
+            seed: ix.stakeAccountSeed,
+            authorized,
+            lockup: new Lockup(0, 0, new PublicKey(0)),
+            lamports,
+          });
+        const votePubkey = new PublicKey(ix.votePubkey);
+        const delegateTransactionInstruction = StakeProgram.delegate({
+          stakePubkey: ix.stakePubkey,
+          authorizedPubkey: payerPublicKey,
+          votePubkey,
+        });
+        transaction.add(createStakeAccountInstruction);
+        transaction.add(delegateTransactionInstruction);
+      }
+    }
+    return transaction;
+  }
+
+  static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
+    const payer = KEYSTORE.getKeypair(seed, path);
+    const transaction = KEYSTORE.createTransaction(rawTx);
     transaction.sign(<Signer>payer);
     return {
       signatures: {
