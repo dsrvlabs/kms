@@ -40,10 +40,17 @@ export class KEYSTORE {
     }
     const { accessKey } = rawTx;
     const nonce = accessKey.nonce + 1;
+    const { gas } = rawTx;
     let actions = [nearAPI.transactions.transfer(new BN(amount))];
     if (rawTx.isStake) {
-      const validator = nearAPI.utils.PublicKey.fromString(rawTx.validator);
-      actions = [nearAPI.transactions.stake(new BN(amount), validator)];
+      actions = [
+        nearAPI.transactions.functionCall(
+          "deposit_and_stake",
+          new Uint8Array(),
+          new BN(gas),
+          new BN(amount)
+        ),
+      ];
     }
     const recentBlockHash = nearAPI.utils.serialize.base_decode(
       accessKey.block_hash

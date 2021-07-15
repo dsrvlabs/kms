@@ -24,7 +24,7 @@ async function getSeed(keyStore, password) {
 
 async function signTx(seed, path, account) {
   try {
-    const isStake = false;
+    const isStake = true;
     const rpc = "https://rpc.testnet.near.org";
     const provider = new nearAPI.providers.JsonRpcProvider(rpc);
     const accessKey = await provider.query(
@@ -33,11 +33,11 @@ async function signTx(seed, path, account) {
     );
     const response = await near.KEYSTORE.signTx(seed, path, {
       sender: "kms.testnet",
-      receiver: "kms.testnet",
+      receiver: "masternode24.pool.f863973.m0",
       amount: "1.7",
       accessKey,
       isStake,
-      validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3",
+      gas: "300000000000000",
     });
     // eslint-disable-next-line no-console
     console.log("response - ", response);

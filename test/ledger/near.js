@@ -27,11 +27,11 @@ async function signTx(transport, type, index, account) {
       },
       {
         sender: "kms.testnet",
-        receiver: "kms.testnet",
+        receiver: "masternode24.pool.f863973.m0",
         amount: "1.2",
         accessKey,
         isStake,
-        validator: "ed25519:DiogP36wBXKFpFeqirrxN8G2Mq9vnakgBvgnHdL9CcN3",
+        gas: "300000000000000",
       }
     );
     // eslint-disable-next-line no-console
