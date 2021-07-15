@@ -10,6 +10,7 @@ import {
   LAMPORTS_PER_SOL,
   Lockup,
   SystemProgram,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { BIP44, RawTx } from "../../types";
 
@@ -32,15 +33,15 @@ export class KEYSTORE {
     return encode(keypair.secretKey);
   }
 
-  static createTransaction(rawTx: RawTx): any {
-    const transaction = new Transaction({
-      recentBlockhash: rawTx.recentBlockhash,
-      feePayer: rawTx.feePayer,
-    });
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < rawTx.ixs.length; i++) {
-      const ix = rawTx.ixs[i];
-      if (ix.transactionType === 0) {
+  private static createInstruction(
+    ix: any
+  ): Transaction | TransactionInstruction {
+    if (typeof ix.transactionType !== "number") {
+      throw new Error("Instruction has no transaction type");
+    }
+    switch (ix.transactionType) {
+      case 0: {
+        // SystemProgram.transfer
         const payerPublicKey = ix.fromPubkey;
         const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
         const toPubkey = new PublicKey(ix.toPubkey);
@@ -49,9 +50,13 @@ export class KEYSTORE {
           lamports,
           toPubkey,
         });
-        transaction.add(transferInstruction);
+        return transferInstruction;
       }
-      if (ix.transactionType === 1) {
+      case 1: {
+        // StakeProgram.createAccountWithSeed
+        if (typeof ix.amountOfSOL !== "number") {
+          throw new Error("Amount is required number");
+        }
         const payerPublicKey = ix.fromPubkey;
         const authorized = new Authorized(
           ix.stakerAuthorizePubkey,
@@ -68,22 +73,49 @@ export class KEYSTORE {
             lockup: new Lockup(0, 0, new PublicKey(0)),
             lamports,
           });
+        return createStakeAccountInstruction;
+      }
+      case 2: {
+        // StakeProgram.delegate
+        const payerPublicKey = ix.fromPubkey;
         const votePubkey = new PublicKey(ix.votePubkey);
         const delegateTransactionInstruction = StakeProgram.delegate({
           stakePubkey: ix.stakePubkey,
           authorizedPubkey: payerPublicKey,
           votePubkey,
         });
-        transaction.add(createStakeAccountInstruction);
-        transaction.add(delegateTransactionInstruction);
+        return delegateTransactionInstruction;
       }
+      default:
+        break;
     }
-    return transaction;
+    throw new Error("error");
+  }
+
+  private static createTransaction(rawTx: RawTx): Transaction {
+    try {
+      const transaction = new Transaction({
+        recentBlockhash: rawTx.recentBlockhash,
+        feePayer: rawTx.feePayer,
+      });
+      for (let i = 0; i < rawTx.ixs.length; i += 1) {
+        const instruction = KEYSTORE.createInstruction(rawTx.ixs[i]);
+        if (instruction) {
+          transaction.add(instruction);
+        }
+      }
+      return transaction;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
     const payer = KEYSTORE.getKeypair(seed, path);
     const transaction = KEYSTORE.createTransaction(rawTx);
+    if (transaction.instructions.length === 0) {
+      throw new Error("No instructions provided");
+    }
     transaction.sign(<Signer>payer);
     return {
       signatures: {

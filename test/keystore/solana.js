@@ -28,7 +28,8 @@ const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
 
 const TRANSFER = 0;
-const DELEGATE = 1;
+const CREATESTAKEACCONUT = 1;
+const DELEGATE = 2;
 
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
@@ -46,15 +47,10 @@ async function getSeed(keyStore, password) {
   return seed;
 }
 
-async function createTransaction(response) {
-  const transaction = new Transaction({
-    recentBlockhash: response.rawTransaction.recentBlockhash,
-    feePayer: response.rawTransaction.feePayer,
-  });
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < response.rawTransaction.ixs.length; i++) {
-    const ix = response.rawTransaction.ixs[i];
-    if (ix.transactionType === 0) {
+function createInstruction(ix) {
+  switch (ix.transactionType) {
+    case 0: {
+      // SystemProgram.transfer
       const payerPublicKey = ix.fromPubkey;
       const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
       const toPubkey = new PublicKey(ix.toPubkey);
@@ -63,9 +59,13 @@ async function createTransaction(response) {
         lamports,
         toPubkey,
       });
-      transaction.add(transferInstruction);
+      return transferInstruction;
     }
-    if (ix.transactionType === 1) {
+    case 1: {
+      // StakeProgram.createAccountWithSeed
+      if (typeof ix.amountOfSOL !== "number") {
+        throw new Error("Amount is required number");
+      }
       const payerPublicKey = ix.fromPubkey;
       const authorized = new Authorized(
         ix.stakerAuthorizePubkey,
@@ -81,14 +81,34 @@ async function createTransaction(response) {
         lockup: new Lockup(0, 0, new PublicKey(0)),
         lamports,
       });
+      return createStakeAccountInstruction;
+    }
+    case 2: {
+      // StakeProgram.delegate
+      const payerPublicKey = ix.fromPubkey;
       const votePubkey = new PublicKey(ix.votePubkey);
       const delegateTransactionInstruction = StakeProgram.delegate({
         stakePubkey: ix.stakePubkey,
         authorizedPubkey: payerPublicKey,
         votePubkey,
       });
-      transaction.add(createStakeAccountInstruction);
-      transaction.add(delegateTransactionInstruction);
+      return delegateTransactionInstruction;
+    }
+    default:
+      break;
+  }
+  return null;
+}
+
+async function createTransaction(rawTx) {
+  const transaction = new Transaction({
+    recentBlockhash: rawTx.recentBlockhash,
+    feePayer: rawTx.feePayer,
+  });
+  for (let i = 0; i < rawTx.ixs.length; i += 1) {
+    const instruction = createInstruction(rawTx.ixs[i]);
+    if (instruction) {
+      transaction.add(instruction);
     }
   }
   return transaction;
@@ -119,19 +139,25 @@ async function signTx(seed, path, account) {
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
       ixs: [
-        // Delegate
+        // Create Stake Account
         {
           fromPubkey: ACCOUNTPUBKEY,
           stakerAuthorizePubkey: ACCOUNTPUBKEY,
           withdrawerAuthorizePubkey: ACCOUNTPUBKEY,
-          votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
-          amountOfSOL: 0.3,
           stakePubkey: STAKEPUBKEY,
+          amountOfSOL: 0.1,
           stakeAccountSeed: STAKEACCOUNTSEED,
+          transactionType: CREATESTAKEACCONUT,
+        },
+        // Delegate
+        {
+          fromPubkey: ACCOUNTPUBKEY,
+          votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
+          stakePubkey: STAKEPUBKEY,
           transactionType: DELEGATE,
         },
         /*
-        // Transfer 
+        // Transfer
         {
           fromPubkey: ACCOUNTPUBKEY,
           toPubkey: "4GnH1wZuKDAbWvdgVp6Dap7o2SUbjoFPLPkeNgBxqZRQ",
@@ -142,7 +168,7 @@ async function signTx(seed, path, account) {
       ],
     });
     console.log("response - ", response);
-    const transaction = await createTransaction(response);
+    const transaction = await createTransaction(response.rawTransaction);
     transaction.addSignature(
       response.signatures.publicKey,
       response.signatures.signature
