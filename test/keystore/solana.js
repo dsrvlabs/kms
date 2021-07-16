@@ -37,6 +37,8 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
     stakeAccountSeed,
     StakeProgram.programId
   );
+  // eslint-disable-next-line no-console
+  console.log("stakePubkey - ", stakePubkey.toString());
   return stakePubkey;
 }
 
@@ -48,6 +50,9 @@ async function getSeed(keyStore, password) {
 }
 
 function createInstruction(ix) {
+  if (typeof ix.transactionType !== "number") {
+    throw new Error("Instruction has no transaction type");
+  }
   switch (ix.transactionType) {
     case 0: {
       // SystemProgram.transfer
@@ -97,21 +102,22 @@ function createInstruction(ix) {
     default:
       break;
   }
-  return null;
+  throw new Error("Create instrauction error");
 }
 
 async function createTransaction(rawTx) {
-  const transaction = new Transaction({
-    recentBlockhash: rawTx.recentBlockhash,
-    feePayer: rawTx.feePayer,
-  });
-  for (let i = 0; i < rawTx.ixs.length; i += 1) {
-    const instruction = createInstruction(rawTx.ixs[i]);
-    if (instruction) {
-      transaction.add(instruction);
+  try {
+    const transaction = new Transaction({
+      recentBlockhash: rawTx.recentBlockhash,
+      feePayer: rawTx.feePayer,
+    });
+    for (let i = 0; i < rawTx.ixs.length; i += 1) {
+      transaction.add(createInstruction(rawTx.ixs[i]));
     }
+    return transaction;
+  } catch (error) {
+    throw new Error(error);
   }
-  return transaction;
 }
 
 async function sendTransation(connection, transaction) {
@@ -120,6 +126,7 @@ async function sendTransation(connection, transaction) {
       preflightCommitment: "confirmed",
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 }
@@ -132,7 +139,6 @@ async function signTx(seed, path, account) {
     const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
     const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
-    console.log("stakePubkey - ", STAKEPUBKEY.toString());
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
     const response = await solana.KEYSTORE.signTx(seed, path, {
       connection: CONNECTION,
@@ -167,16 +173,19 @@ async function signTx(seed, path, account) {
         */
       ],
     });
+    // eslint-disable-next-line no-console
     console.log("response - ", response);
     const transaction = await createTransaction(response.rawTransaction);
     transaction.addSignature(
       response.signatures.publicKey,
       response.signatures.signature
     );
+    // eslint-disable-next-line no-console
     console.log("verifySignature - ", transaction.verifySignatures());
     // Send Transaction
     // sendTransation(response.rawTransaction.connection, transaction);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 }

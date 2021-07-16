@@ -89,7 +89,7 @@ export class KEYSTORE {
       default:
         break;
     }
-    throw new Error("error");
+    throw new Error("Create instrauction error");
   }
 
   private static createTransaction(rawTx: RawTx): Transaction {
@@ -99,10 +99,7 @@ export class KEYSTORE {
         feePayer: rawTx.feePayer,
       });
       for (let i = 0; i < rawTx.ixs.length; i += 1) {
-        const instruction = KEYSTORE.createInstruction(rawTx.ixs[i]);
-        if (instruction) {
-          transaction.add(instruction);
-        }
+        transaction.add(KEYSTORE.createInstruction(rawTx.ixs[i]));
       }
       return transaction;
     } catch (error) {
