@@ -51,7 +51,13 @@ B62qpgyAmA5yNgY4buNhTxTKYTvkqSFf442KkHzYHribCFjDmXcfHHm
 1. yarn build
 2. modify test/mnemonic.json
 3. node test/keystore
+4. node test/keystore/mina
+5. node test/keystore/near
+6. node test/keystore/solana
 
 ## Test ledger nano s, nano x
 1. yarn build
-2. node test/ledger/mina o node test/ledger/cosmos
+2. node test/ledger/mina
+3. node test/ledger/cosmos
+4. node test/ledger/near
+5. node test/ledger/solana
