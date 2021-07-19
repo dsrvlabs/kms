@@ -1,15 +1,6 @@
 // https://github.com/solana-labs/wallet-provider/blob/master/packages/wallet-ledger/src/core.ts
 import type Transport from "@ledgerhq/hw-transport";
-import {
-  PublicKey,
-  LAMPORTS_PER_SOL,
-  Authorized,
-  StakeProgram,
-  Lockup,
-  Transaction,
-} from "@solana/web3.js";
-
-import { RawTx } from "../../../types";
+import { PublicKey, Transaction } from "@solana/web3.js";
 
 const INS_GET_PUBKEY = 0x05;
 const INS_SIGN_MESSAGE = 0x06;
@@ -148,38 +139,4 @@ export async function getPublicKey(
   );
 
   return new PublicKey(publicKeyBytes);
-}
-
-export async function getDelegateTransaction(
-  transport: Transport,
-  derivationPath: Buffer = getSolanaDerivationPath(),
-  rawTx: RawTx
-) {
-  const payerPublicKey = await getPublicKey(transport, derivationPath);
-  const authorized = new Authorized(payerPublicKey, payerPublicKey);
-  const lamports = Number(rawTx.amountOfSOL) * LAMPORTS_PER_SOL;
-  const createStakeAccountInstruction = StakeProgram.createAccountWithSeed({
-    fromPubkey: payerPublicKey,
-    stakePubkey: rawTx.stakePubkey,
-    basePubkey: payerPublicKey,
-    seed: rawTx.stakeAccountSeed,
-    authorized,
-    lockup: new Lockup(0, 0, new PublicKey(0)),
-    lamports,
-  });
-
-  const votePubkey = new PublicKey(rawTx.votePubkey);
-  const delegateTransactionInstruction = StakeProgram.delegate({
-    stakePubkey: rawTx.stakePubkey,
-    authorizedPubkey: payerPublicKey,
-    votePubkey,
-  });
-
-  const transaction = new Transaction({
-    recentBlockhash: rawTx.recentBlockhash,
-    feePayer: payerPublicKey,
-    signatures: [],
-  }).add(createStakeAccountInstruction);
-  transaction.add(delegateTransactionInstruction);
-  return transaction;
 }
