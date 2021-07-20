@@ -1,9 +1,9 @@
 import { encode } from "bs58";
 import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
-import * as nearAPI from "near-api-js";
 import sha256 from "js-sha256";
 import BN from "bn.js";
+import { transactions, utils } from "near-api-js";
 import { BIP44, RawTx } from "../../types";
 
 export class KEYSTORE {
@@ -16,11 +16,99 @@ export class KEYSTORE {
     return `${encode(Buffer.from(keyPair.secretKey))}`;
   }
 
-  static getAccount(seed: Buffer, path: BIP44): string {
+  // eslint-disable-next-line camelcase
+  private static getKeyPair(seed: Buffer, path: BIP44): utils.key_pair.KeyPair {
     const privateKey = KEYSTORE.getPrivateKey(seed, path);
-    const keyPair =
-      nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
+    const keyPair = utils.key_pair.KeyPairEd25519.fromString(privateKey);
+    return keyPair;
+  }
+
+  static getAccount(seed: Buffer, path: BIP44): string {
+    const keyPair = KEYSTORE.getKeyPair(seed, path);
     return `${keyPair.getPublicKey()}`;
+  }
+
+  // eslint-disable-next-line consistent-return
+  private static createInstruction(ix: any): any {
+    if (typeof ix.transactionType !== "number") {
+      throw new Error("Instruction has no transaction type");
+    }
+    switch (ix.transactionType) {
+      case 0: {
+        // transfer
+        const amount = utils.format.parseNearAmount(ix.amount);
+        if (!amount) {
+          throw new Error("Type 'null' is not assignable to amount");
+        }
+        const actions = [transactions.transfer(new BN(amount))];
+
+        const instruction = {
+          actions,
+        };
+        return instruction;
+      }
+      case 1: {
+        // deposit_and_stake
+        if (!ix.amount) {
+          throw new Error("Amount is required");
+        }
+        if (!ix.gas) {
+          throw new Error("Gas is required");
+        }
+        const amount = utils.format.parseNearAmount(ix.amount);
+        if (!amount) {
+          throw new Error("Type 'null' is not assignable to amount");
+        }
+        const { gas } = ix;
+        const actions = [
+          transactions.functionCall(
+            "deposit_and_stake",
+            new Uint8Array(),
+            new BN(gas),
+            new BN(amount)
+          ),
+        ];
+        const instruction = {
+          actions,
+        };
+        return instruction;
+      }
+      default:
+        break;
+    }
+    throw new Error("Create instruction error");
+  }
+
+  private static createTransaction(rawTx: RawTx): transactions.Transaction {
+    try {
+      const { signerId } = rawTx;
+      const { receiverId } = rawTx;
+      const { nonce } = rawTx;
+      const { recentBlockHash } = rawTx;
+      const { publicKey } = rawTx;
+      let actions = null;
+      for (let i = 0; i < rawTx.ixs.length; i += 1) {
+        const instruction = KEYSTORE.createInstruction(rawTx.ixs[i]);
+        if (instruction.length === 0) {
+          throw new Error("No instructions provided");
+        }
+        actions = instruction.actions;
+        if (actions == null) {
+          throw new Error("No actions provided");
+        }
+      }
+      const transaction = transactions.createTransaction(
+        signerId,
+        publicKey,
+        receiverId,
+        nonce,
+        actions,
+        recentBlockHash
+      );
+      return transaction;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   static async signTx(
@@ -28,55 +116,24 @@ export class KEYSTORE {
     path: BIP44,
     rawTx: RawTx
   ): Promise<{ [key: string]: any }> {
-    const privateKey = KEYSTORE.getPrivateKey(seed, path);
-    const keyPair =
-      nearAPI.utils.key_pair.KeyPairEd25519.fromString(privateKey);
-    const publicKey = keyPair.getPublicKey();
-    const { sender } = rawTx;
-    const { receiver } = rawTx;
-    const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    if (!amount) {
-      throw new Error("Type 'null' is not assignable to amount");
-    }
-    const { accessKey } = rawTx;
-    const nonce = accessKey.nonce + 1;
-    const { gas } = rawTx;
-    let actions = [nearAPI.transactions.transfer(new BN(amount))];
-    if (rawTx.isStake) {
-      actions = [
-        nearAPI.transactions.functionCall(
-          "deposit_and_stake",
-          new Uint8Array(),
-          new BN(gas),
-          new BN(amount)
-        ),
-      ];
-    }
-    const recentBlockHash = nearAPI.utils.serialize.base_decode(
-      accessKey.block_hash
-    );
-    const transaction = nearAPI.transactions.createTransaction(
-      sender,
-      publicKey,
-      receiver,
-      nonce,
-      actions,
-      recentBlockHash
-    );
-    const serializedTx = nearAPI.utils.serialize.serialize(
-      nearAPI.transactions.SCHEMA,
+    const transaction = KEYSTORE.createTransaction(rawTx);
+    const serializedTx = utils.serialize.serialize(
+      transactions.SCHEMA,
       transaction
     );
     const serializedTxHash = new Uint8Array(sha256.sha256.array(serializedTx));
+    const keyPair = KEYSTORE.getKeyPair(seed, path);
     const signature = keyPair.sign(serializedTxHash);
-    const signedTransaction = new nearAPI.transactions.SignedTransaction({
+    const signedTransaction = new transactions.SignedTransaction({
       transaction,
-      signature: new nearAPI.transactions.Signature({
+      signature: new transactions.Signature({
         keyType: transaction.publicKey.keyType,
         data: signature.signature,
       }),
     });
-    return signedTransaction;
+    return {
+      signedTx: signedTransaction,
+    };
   }
 
   /*
