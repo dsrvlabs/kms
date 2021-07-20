@@ -105,17 +105,14 @@ export class LEDGER {
     if (transaction.instructions.length === 0) {
       throw new Error("No instructions provided");
     }
-    const response = await signTransaction(
+    const signature = await signTransaction(
       transport,
       transaction,
       getSolanaDerivationPath(path.account, path.index)
     );
+    transaction.addSignature(rawTx.feePayer, signature);
     return {
-      signatures: {
-        signature: response,
-        publicKey: rawTx.feePayer,
-      },
-      rawTransaction: rawTx,
+      signedTx: transaction,
     };
   }
 

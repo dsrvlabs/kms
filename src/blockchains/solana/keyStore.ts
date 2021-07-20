@@ -115,11 +115,7 @@ export class KEYSTORE {
     }
     transaction.sign(<Signer>payer);
     return {
-      signatures: {
-        signature: transaction.signatures[0].signature,
-        publicKey: transaction.signatures[0].publicKey,
-      },
-      rawTransaction: rawTx,
+      signedTx: transaction,
     };
   }
 
