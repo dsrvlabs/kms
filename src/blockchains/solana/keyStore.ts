@@ -9,6 +9,8 @@ import {
   Signer,
   LAMPORTS_PER_SOL,
   Lockup,
+  SystemProgram,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { BIP44, RawTx } from "../../types";
 
@@ -31,38 +33,89 @@ export class KEYSTORE {
     return encode(keypair.secretKey);
   }
 
+  private static createInstruction(
+    ix: any
+  ): Transaction | TransactionInstruction {
+    if (typeof ix.transactionType !== "number") {
+      throw new Error("Instruction has no transaction type");
+    }
+    switch (ix.transactionType) {
+      case 0: {
+        // SystemProgram.transfer
+        const payerPublicKey = ix.fromPubkey;
+        const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
+        const toPubkey = new PublicKey(ix.toPubkey);
+        const transferInstruction = SystemProgram.transfer({
+          fromPubkey: payerPublicKey,
+          lamports,
+          toPubkey,
+        });
+        return transferInstruction;
+      }
+      case 1: {
+        // StakeProgram.createAccountWithSeed
+        if (typeof ix.amountOfSOL !== "number") {
+          throw new Error("Amount is required number");
+        }
+        const payerPublicKey = ix.fromPubkey;
+        const authorized = new Authorized(
+          ix.stakerAuthorizePubkey,
+          ix.withdrawerAuthorizePubkey
+        );
+        const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
+        const createStakeAccountInstruction =
+          StakeProgram.createAccountWithSeed({
+            fromPubkey: payerPublicKey,
+            stakePubkey: ix.stakePubkey,
+            basePubkey: payerPublicKey,
+            seed: ix.stakeAccountSeed,
+            authorized,
+            lockup: new Lockup(0, 0, new PublicKey(0)),
+            lamports,
+          });
+        return createStakeAccountInstruction;
+      }
+      case 2: {
+        // StakeProgram.delegate
+        const payerPublicKey = ix.fromPubkey;
+        const votePubkey = new PublicKey(ix.votePubkey);
+        const delegateTransactionInstruction = StakeProgram.delegate({
+          stakePubkey: ix.stakePubkey,
+          authorizedPubkey: payerPublicKey,
+          votePubkey,
+        });
+        return delegateTransactionInstruction;
+      }
+      default:
+        break;
+    }
+    throw new Error("Create instrauction error");
+  }
+
+  private static createTransaction(rawTx: RawTx): Transaction {
+    try {
+      const transaction = new Transaction({
+        recentBlockhash: rawTx.recentBlockhash,
+        feePayer: rawTx.feePayer,
+      });
+      for (let i = 0; i < rawTx.ixs.length; i += 1) {
+        transaction.add(KEYSTORE.createInstruction(rawTx.ixs[i]));
+      }
+      return transaction;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
     const payer = KEYSTORE.getKeypair(seed, path);
-    const authorized = new Authorized(payer.publicKey, payer.publicKey);
-    const lamports = Number(rawTx.amountOfSOL) * LAMPORTS_PER_SOL;
-    const createStakeAccountInstruction = StakeProgram.createAccountWithSeed({
-      fromPubkey: payer.publicKey,
-      stakePubkey: rawTx.stakePubkey,
-      basePubkey: payer.publicKey,
-      seed: rawTx.stakeAccountSeed,
-      authorized,
-      lockup: new Lockup(0, 0, new PublicKey(0)),
-      lamports,
-    });
-    const votePubkey = new PublicKey(rawTx.votePubkey);
-    const delegateTransactionInstruction = StakeProgram.delegate({
-      stakePubkey: rawTx.stakePubkey,
-      authorizedPubkey: payer.publicKey,
-      votePubkey,
-    });
-    const transaction = new Transaction({
-      recentBlockhash: rawTx.recentBlockhash,
-      feePayer: payer.publicKey,
-      signatures: [],
-    }).add(createStakeAccountInstruction);
-    transaction.add(delegateTransactionInstruction);
+    const transaction = KEYSTORE.createTransaction(rawTx);
+    if (transaction.instructions.length === 0) {
+      throw new Error("No instructions provided");
+    }
     transaction.sign(<Signer>payer);
     return {
-      signatures: {
-        signature: transaction.signatures[0].signature,
-        publicKey: transaction.signatures[0].publicKey,
-      },
-      rawTransaction: rawTx,
+      signedTx: transaction,
     };
   }
 

@@ -1,18 +1,21 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
+
 const {
   StakeProgram,
   PublicKey,
   Connection,
-  Transaction,
-  Authorized,
-  LAMPORTS_PER_SOL,
-  Lockup,
+  sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
+
 const { KMS, CHAIN } = require("../../lib");
 // const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
+
+const TRANSFER = 0;
+const CREATESTAKEACCONUT = 1;
+const DELEGATE = 2;
 
 async function getAccount(transport, type, index) {
   const kms = new KMS({
@@ -36,36 +39,20 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
     stakeAccountSeed,
     StakeProgram.programId
   );
+  // eslint-disable-next-line no-console
+  console.log("stakePubkey - ", stakePubkey.toString());
   return stakePubkey;
 }
 
-async function createTransaction(response) {
-  const payerPublicKey = response.rawTransaction.accountPubkey;
-  const authorized = new Authorized(payerPublicKey, payerPublicKey);
-  const lamports =
-    Number(response.rawTransaction.amountOfSOL) * LAMPORTS_PER_SOL;
-  const createStakeAccountInstruction = StakeProgram.createAccountWithSeed({
-    fromPubkey: payerPublicKey,
-    stakePubkey: response.rawTransaction.stakePubkey,
-    basePubkey: payerPublicKey,
-    seed: response.rawTransaction.stakeAccountSeed,
-    authorized,
-    lockup: new Lockup(0, 0, new PublicKey(0)),
-    lamports,
-  });
-  const votePubkey = new PublicKey(response.rawTransaction.votePubkey);
-  const delegateTransactionInstruction = StakeProgram.delegate({
-    stakePubkey: response.rawTransaction.stakePubkey,
-    authorizedPubkey: payerPublicKey,
-    votePubkey,
-  });
-  const transaction = new Transaction({
-    recentBlockhash: response.rawTransaction.recentBlockhash,
-    feePayer: payerPublicKey,
-    signatures: [],
-  }).add(createStakeAccountInstruction);
-  transaction.add(delegateTransactionInstruction);
-  return transaction;
+async function sendTransation(connection, transaction) {
+  try {
+    await sendAndConfirmRawTransaction(connection, transaction.serialize(), {
+      preflightCommitment: "confirmed",
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
 }
 
 async function signTx(transport, type, index, account) {
@@ -80,7 +67,6 @@ async function signTx(transport, type, index, account) {
     const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
     const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
-    console.log("stakePubkey - ", STAKEPUBKEY.toString());
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
     const response = await kms.signTx(
       {
@@ -89,23 +75,45 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        accountPubkey: ACCOUNTPUBKEY,
-        amountOfSOL: 0.3,
-        votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
         connection: CONNECTION,
-        stakePubkey: STAKEPUBKEY,
-        stakeAccountSeed: STAKEACCOUNTSEED,
         recentBlockhash: RECENTBLOCKHASH.blockhash,
+        feePayer: ACCOUNTPUBKEY,
+        ixs: [
+          // Create Stake Account
+          {
+            fromPubkey: ACCOUNTPUBKEY,
+            stakerAuthorizePubkey: ACCOUNTPUBKEY,
+            withdrawerAuthorizePubkey: ACCOUNTPUBKEY,
+            stakePubkey: STAKEPUBKEY,
+            amountOfSOL: 0.1,
+            stakeAccountSeed: STAKEACCOUNTSEED,
+            transactionType: CREATESTAKEACCONUT,
+          },
+          // Delegate
+          {
+            fromPubkey: ACCOUNTPUBKEY,
+            votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
+            stakePubkey: STAKEPUBKEY,
+            transactionType: DELEGATE,
+          },
+          /*
+          // Transfer
+          {
+            fromPubkey: ACCOUNTPUBKEY,
+            toPubkey: "4GnH1wZuKDAbWvdgVp6Dap7o2SUbjoFPLPkeNgBxqZRQ",
+            amountOfSOL: 0.1,
+            transactionType: TRANSFER,
+          },
+          */
+        ],
       }
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    const transaction = await createTransaction(response);
-    transaction.addSignature(
-      response.signatures.publicKey,
-      response.signatures.signature
-    );
-    console.log("verifySignature - ", transaction.verifySignatures());
+    // eslint-disable-next-line no-console
+    console.log("verifySignature - ", response.signedTx.verifySignatures());
+    // Send Transaction
+    // sendTransation(CONNECTION, response.signedTx);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -114,7 +122,7 @@ async function signTx(transport, type, index, account) {
 
 async function run() {
   const transport = await TransportNodeHid.create(1000);
-  const account = await getAccount(transport, TYPE, INDEX); // const account = await getAccount(transport, TYPE, INDEX);
+  const account = await getAccount(transport, TYPE, INDEX);
   await signTx(transport, TYPE, INDEX, account);
   transport.close();
 }
