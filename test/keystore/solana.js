@@ -5,11 +5,6 @@ const {
   Connection,
   StakeProgram,
   PublicKey,
-  Authorized,
-  LAMPORTS_PER_SOL,
-  Lockup,
-  Transaction,
-  SystemProgram,
   sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
 
@@ -47,77 +42,6 @@ async function getSeed(keyStore, password) {
   const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
   const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
   return seed;
-}
-
-function createInstruction(ix) {
-  if (typeof ix.transactionType !== "number") {
-    throw new Error("Instruction has no transaction type");
-  }
-  switch (ix.transactionType) {
-    case 0: {
-      // SystemProgram.transfer
-      const payerPublicKey = ix.fromPubkey;
-      const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
-      const toPubkey = new PublicKey(ix.toPubkey);
-      const transferInstruction = SystemProgram.transfer({
-        fromPubkey: payerPublicKey,
-        lamports,
-        toPubkey,
-      });
-      return transferInstruction;
-    }
-    case 1: {
-      // StakeProgram.createAccountWithSeed
-      if (typeof ix.amountOfSOL !== "number") {
-        throw new Error("Amount is required number");
-      }
-      const payerPublicKey = ix.fromPubkey;
-      const authorized = new Authorized(
-        ix.stakerAuthorizePubkey,
-        ix.withdrawerAuthorizePubkey
-      );
-      const lamports = Number(ix.amountOfSOL) * LAMPORTS_PER_SOL;
-      const createStakeAccountInstruction = StakeProgram.createAccountWithSeed({
-        fromPubkey: payerPublicKey,
-        stakePubkey: ix.stakePubkey,
-        basePubkey: payerPublicKey,
-        seed: ix.stakeAccountSeed,
-        authorized,
-        lockup: new Lockup(0, 0, new PublicKey(0)),
-        lamports,
-      });
-      return createStakeAccountInstruction;
-    }
-    case 2: {
-      // StakeProgram.delegate
-      const payerPublicKey = ix.fromPubkey;
-      const votePubkey = new PublicKey(ix.votePubkey);
-      const delegateTransactionInstruction = StakeProgram.delegate({
-        stakePubkey: ix.stakePubkey,
-        authorizedPubkey: payerPublicKey,
-        votePubkey,
-      });
-      return delegateTransactionInstruction;
-    }
-    default:
-      break;
-  }
-  throw new Error("Create instrauction error");
-}
-
-async function createTransaction(rawTx) {
-  try {
-    const transaction = new Transaction({
-      recentBlockhash: rawTx.recentBlockhash,
-      feePayer: rawTx.feePayer,
-    });
-    for (let i = 0; i < rawTx.ixs.length; i += 1) {
-      transaction.add(createInstruction(rawTx.ixs[i]));
-    }
-    return transaction;
-  } catch (error) {
-    throw new Error(error);
-  }
 }
 
 async function sendTransation(connection, transaction) {
@@ -175,15 +99,10 @@ async function signTx(seed, path, account) {
     });
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    const transaction = await createTransaction(response.rawTransaction);
-    transaction.addSignature(
-      response.signatures.publicKey,
-      response.signatures.signature
-    );
     // eslint-disable-next-line no-console
-    console.log("verifySignature - ", transaction.verifySignatures());
+    console.log("verifySignature - ", response.signedTx.verifySignatures());
     // Send Transaction
-    // sendTransation(response.rawTransaction.connection, transaction);
+    // sendTransation(CONNECTION, response.signedTx);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
