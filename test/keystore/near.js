@@ -145,11 +145,11 @@ async function signTx(seed, path, account) {
       publicKey,
       ixs: [
         {
-          amount: "1.2",
+          amount: "1.4",
           transactionType: TRANSFER,
         },
         {
-          amount: "1.7",
+          amount: "2.9",
           gas: "300000000000000",
           transactionType: DEPOSITANDSTAKE,
         },

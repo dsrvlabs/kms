@@ -29,7 +29,7 @@ export class KEYSTORE {
   }
 
   // eslint-disable-next-line consistent-return
-  private static createInstruction(ix: any): any {
+  private static createInstruction(ix: any): transactions.Action {
     if (typeof ix.transactionType !== "number") {
       throw new Error("Instruction has no transaction type");
     }
@@ -40,12 +40,7 @@ export class KEYSTORE {
         if (!amount) {
           throw new Error("Type 'null' is not assignable to amount");
         }
-        const actions = [transactions.transfer(new BN(amount))];
-
-        const instruction = {
-          actions,
-        };
-        return instruction;
+        return transactions.transfer(new BN(amount));
       }
       case 1: {
         // deposit_and_stake
@@ -60,18 +55,12 @@ export class KEYSTORE {
           throw new Error("Type 'null' is not assignable to amount");
         }
         const { gas } = ix;
-        const actions = [
-          transactions.functionCall(
-            "deposit_and_stake",
-            new Uint8Array(),
-            new BN(gas),
-            new BN(amount)
-          ),
-        ];
-        const instruction = {
-          actions,
-        };
-        return instruction;
+        return transactions.functionCall(
+          "deposit_and_stake",
+          new Uint8Array(),
+          new BN(gas),
+          new BN(amount)
+        );
       }
       default:
         break;
@@ -86,13 +75,10 @@ export class KEYSTORE {
       const { nonce } = rawTx;
       const { recentBlockHash } = rawTx;
       const { publicKey } = rawTx;
-      let actions = null;
+      const actions: transactions.Action[] = [];
       for (let i = 0; i < rawTx.ixs.length; i += 1) {
-        const instruction = KEYSTORE.createInstruction(rawTx.ixs[i]);
-        if (instruction.length === 0) {
-          throw new Error("No instructions provided");
-        }
-        actions = instruction.actions;
+        const action = KEYSTORE.createInstruction(rawTx.ixs[i]);
+        actions.push(action);
         if (actions == null) {
           throw new Error("No actions provided");
         }
