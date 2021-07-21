@@ -28,7 +28,6 @@ export class KEYSTORE {
     return `${keyPair.getPublicKey()}`;
   }
 
-  // eslint-disable-next-line consistent-return
   private static createInstruction(ix: any): transactions.Action {
     if (typeof ix.transactionType !== "number") {
       throw new Error("Instruction has no transaction type");

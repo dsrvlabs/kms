@@ -16,7 +16,6 @@ export class LEDGER {
     return response ? `ed25519:${encode(response)}` : "";
   }
 
-  // eslint-disable-next-line consistent-return
   private static createInstruction(ix: any): transactions.Action {
     if (typeof ix.transactionType !== "number") {
       throw new Error("Instruction has no transaction type");
