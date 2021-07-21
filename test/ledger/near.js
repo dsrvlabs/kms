@@ -12,7 +12,6 @@ const INDEX = 1;
 const TRANSFER = 0;
 const DEPOSITANDSTAKE = 1;
 
-// eslint-disable-next-line consistent-return
 function createInstruction(ix) {
   if (typeof ix.transactionType !== "number") {
     throw new Error("Instruction has no transaction type");
@@ -24,12 +23,7 @@ function createInstruction(ix) {
       if (!amount) {
         throw new Error("Type 'null' is not assignable to amount");
       }
-      const actions = [transactions.transfer(new BN(amount))];
-
-      const instruction = {
-        actions,
-      };
-      return instruction;
+      return transactions.transfer(new BN(amount));
     }
     case 1: {
       // deposit_and_stake
@@ -44,18 +38,12 @@ function createInstruction(ix) {
         throw new Error("Type 'null' is not assignable to amount");
       }
       const { gas } = ix;
-      const actions = [
-        transactions.functionCall(
-          "deposit_and_stake",
-          new Uint8Array(),
-          new BN(gas),
-          new BN(amount)
-        ),
-      ];
-      const instruction = {
-        actions,
-      };
-      return instruction;
+      return transactions.functionCall(
+        "deposit_and_stake",
+        new Uint8Array(),
+        new BN(gas),
+        new BN(amount)
+      );
     }
     default:
       break;
@@ -70,13 +58,10 @@ function createTransaction(rawTx) {
     const { nonce } = rawTx;
     const { recentBlockHash } = rawTx;
     const { publicKey } = rawTx;
-    let actions = null;
+    const actions = [];
     for (let i = 0; i < rawTx.ixs.length; i += 1) {
-      const instruction = near.LEDGER.createInstruction(rawTx.ixs[i]);
-      if (instruction.length === 0) {
-        throw new Error("No instructions provided");
-      }
-      actions = instruction.actions;
+      const action = near.LEDGER.createInstruction(rawTx.ixs[i]);
+      actions.push(action);
       if (actions == null) {
         throw new Error("No actions provided");
       }
