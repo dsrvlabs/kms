@@ -1,6 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
-import * as nearAPI from "near-api-js";
+import { transactions, utils } from "near-api-js";
 import BN from "bn.js";
 import { BIP44, RawTx } from "../../types";
 
@@ -16,6 +16,74 @@ export class LEDGER {
     return response ? `ed25519:${encode(response)}` : "";
   }
 
+  private static createInstruction(ix: any): transactions.Action {
+    if (typeof ix.transactionType !== "number") {
+      throw new Error("Instruction has no transaction type");
+    }
+    switch (ix.transactionType) {
+      case 0: {
+        // transfer
+        const amount = utils.format.parseNearAmount(ix.amount);
+        if (!amount) {
+          throw new Error("Type 'null' is not assignable to amount");
+        }
+        return transactions.transfer(new BN(amount));
+      }
+      case 1: {
+        // deposit_and_stake
+        if (!ix.amount) {
+          throw new Error("Amount is required");
+        }
+        if (!ix.gas) {
+          throw new Error("Gas is required");
+        }
+        const amount = utils.format.parseNearAmount(ix.amount);
+        if (!amount) {
+          throw new Error("Type 'null' is not assignable to amount");
+        }
+        const { gas } = ix;
+        return transactions.functionCall(
+          "deposit_and_stake",
+          new Uint8Array(),
+          new BN(gas),
+          new BN(amount)
+        );
+      }
+      default:
+        break;
+    }
+    throw new Error("Create instruction error");
+  }
+
+  private static createTransaction(rawTx: RawTx): transactions.Transaction {
+    try {
+      const { signerId } = rawTx;
+      const { receiverId } = rawTx;
+      const { nonce } = rawTx;
+      const { recentBlockHash } = rawTx;
+      const { publicKey } = rawTx;
+      const actions: transactions.Action[] = [];
+      for (let i = 0; i < rawTx.ixs.length; i += 1) {
+        const action = LEDGER.createInstruction(rawTx.ixs[i]);
+        actions.push(action);
+        if (actions == null) {
+          throw new Error("No actions provided");
+        }
+      }
+      const transaction = transactions.createTransaction(
+        signerId,
+        publicKey,
+        receiverId,
+        nonce,
+        actions,
+        recentBlockHash
+      );
+      return transaction;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   static async signTx(
     path: BIP44,
     transport: Transport,
@@ -23,45 +91,19 @@ export class LEDGER {
   ): Promise<{ [key: string]: any }> {
     const client = await App.createClient(transport);
     const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
-    const rawPublicKey = await client.getPublicKey(PATH);
-    const publicKey = new nearAPI.utils.PublicKey({
-      keyType: nearAPI.utils.key_pair.KeyType.ED25519,
-      data: new Uint8Array(rawPublicKey),
-    });
-    const { sender } = rawTx;
-    const { receiver } = rawTx;
-    const amount = nearAPI.utils.format.parseNearAmount(rawTx.amount);
-    if (!amount) {
-      throw new Error("Type 'null' is not assignable to amount");
-    }
-    const { accessKey } = rawTx;
-    const nonce = accessKey.nonce + 1;
-    let actions = [nearAPI.transactions.transfer(new BN(amount))];
-    if (rawTx.isStake) {
-      const validator = nearAPI.utils.PublicKey.fromString(rawTx.validator);
-      actions = [nearAPI.transactions.stake(new BN(amount), validator)];
-    }
-    const recentBlockHash = nearAPI.utils.serialize.base_decode(
-      accessKey.block_hash
-    );
-    const transaction = nearAPI.transactions.createTransaction(
-      sender,
-      publicKey,
-      receiver,
-      nonce,
-      actions,
-      recentBlockHash
-    );
+    const transaction = LEDGER.createTransaction(rawTx);
     const response = await client.sign(transaction.encode(), PATH);
     const signature = new Uint8Array(response);
-    const signedTransaction = new nearAPI.transactions.SignedTransaction({
+    const signedTransaction = new transactions.SignedTransaction({
       transaction,
-      signature: new nearAPI.transactions.Signature({
+      signature: new transactions.Signature({
         keyType: transaction.publicKey.keyType,
         data: signature,
       }),
     });
-    return signedTransaction;
+    return {
+      signedTx: signedTransaction,
+    };
   }
 
   /*
