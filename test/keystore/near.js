@@ -106,8 +106,7 @@ async function sendTransaction(response) {
 
 async function signTx(seed, path, account) {
   try {
-    const keyPair = await near.KEYSTORE.getKeyPair(seed, path);
-    const publicKey = keyPair.getPublicKey();
+    const publicKey = account;
     const helperURL = `https://helper.testnet.near.org/publicKey/${publicKey}/accounts`;
     // eslint-disable-next-line no-undef
     const accountIds = await fetch(helperURL).then((res) => res.json());

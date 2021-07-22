@@ -96,14 +96,7 @@ async function signTx(transport, type, index, account) {
     transport,
   });
   try {
-    const client = await App.createClient(transport);
-    const path = { type: TYPE, account: 0, index: INDEX };
-    const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
-    const rawPublicKey = await client.getPublicKey(PATH);
-    const publicKey = new utils.PublicKey({
-      keyType: utils.key_pair.KeyType.ED25519,
-      data: new Uint8Array(rawPublicKey),
-    });
+    const publicKey = account;
     const helperURL = `https://helper.testnet.near.org/publicKey/${publicKey}/accounts`;
     // eslint-disable-next-line no-undef
     const accountIds = await fetch(helperURL).then((res) => res.json());
