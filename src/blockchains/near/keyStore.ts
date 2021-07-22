@@ -73,7 +73,7 @@ export class KEYSTORE {
       const { receiverId } = rawTx;
       const { nonce } = rawTx;
       const { recentBlockHash } = rawTx;
-      const { publicKey } = rawTx;
+      const publicKey = utils.PublicKey.fromString(rawTx.encodedPubKey);
       const actions: transactions.Action[] = [];
       for (let i = 0; i < rawTx.ixs.length; i += 1) {
         const action = KEYSTORE.createInstruction(rawTx.ixs[i]);

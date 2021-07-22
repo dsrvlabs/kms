@@ -1,7 +1,6 @@
 const BN = require("bn.js");
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 const { transactions, providers, utils } = require("near-api-js");
-const App = require("near-ledger-js");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 const near = require("../../lib/blockchains/near/ledger");
@@ -57,7 +56,7 @@ function createTransaction(rawTx) {
     const { receiverId } = rawTx;
     const { nonce } = rawTx;
     const { recentBlockHash } = rawTx;
-    const { publicKey } = rawTx;
+    const publicKey = utils.PublicKey.fromString(rawTx.encodedPubKey);
     const actions = [];
     for (let i = 0; i < rawTx.ixs.length; i += 1) {
       const action = near.LEDGER.createInstruction(rawTx.ixs[i]);
@@ -96,15 +95,8 @@ async function signTx(transport, type, index, account) {
     transport,
   });
   try {
-    const client = await App.createClient(transport);
-    const path = { type: TYPE, account: 0, index: INDEX };
-    const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
-    const rawPublicKey = await client.getPublicKey(PATH);
-    const publicKey = new utils.PublicKey({
-      keyType: utils.key_pair.KeyType.ED25519,
-      data: new Uint8Array(rawPublicKey),
-    });
-    const helperURL = `https://helper.testnet.near.org/publicKey/${publicKey}/accounts`;
+    const encodedPubKey = account;
+    const helperURL = `https://helper.testnet.near.org/publicKey/${account}/accounts`;
     // eslint-disable-next-line no-undef
     const accountIds = await fetch(helperURL).then((res) => res.json());
     const signerId = accountIds[Object.keys(accountIds).length - 1];
@@ -129,7 +121,7 @@ async function signTx(transport, type, index, account) {
         nonce,
         signerId,
         receiverId,
-        publicKey,
+        encodedPubKey,
         ixs: [
           {
             amount: "1.4",

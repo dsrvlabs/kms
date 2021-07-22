@@ -71,7 +71,7 @@ function createTransaction(rawTx) {
     const { receiverId } = rawTx;
     const { nonce } = rawTx;
     const { recentBlockHash } = rawTx;
-    const { publicKey } = rawTx;
+    const publicKey = utils.PublicKey.fromString(rawTx.encodedPubKey);
     const actions = [];
     for (let i = 0; i < rawTx.ixs.length; i += 1) {
       const action = near.KEYSTORE.createInstruction(rawTx.ixs[i]);
@@ -106,9 +106,8 @@ async function sendTransaction(response) {
 
 async function signTx(seed, path, account) {
   try {
-    const keyPair = await near.KEYSTORE.getKeyPair(seed, path);
-    const publicKey = keyPair.getPublicKey();
-    const helperURL = `https://helper.testnet.near.org/publicKey/${publicKey}/accounts`;
+    const encodedPubKey = account;
+    const helperURL = `https://helper.testnet.near.org/publicKey/${account}/accounts`;
     // eslint-disable-next-line no-undef
     const accountIds = await fetch(helperURL).then((res) => res.json());
     const signerId = accountIds[Object.keys(accountIds).length - 1];
@@ -127,7 +126,7 @@ async function signTx(seed, path, account) {
       nonce,
       signerId,
       receiverId,
-      publicKey,
+      encodedPubKey,
       ixs: [
         {
           amount: "1.4",
