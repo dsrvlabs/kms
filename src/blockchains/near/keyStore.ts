@@ -4,7 +4,7 @@ import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
 import BN from "bn.js";
 import { transactions, utils } from "near-api-js";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   private static getPrivateKey(seed: Buffer, path: BIP44): string {
@@ -100,7 +100,7 @@ export class KEYSTORE {
     seed: Buffer,
     path: BIP44,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     const transaction = KEYSTORE.createTransaction(rawTx);
     const serializedTx = utils.serialize.serialize(
       transactions.SCHEMA,

@@ -1,6 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import Ledger from "./hw";
-import { BIP44 } from "../../types";
+import { BIP44 /* ,RawTx, SignedTx */ } from "../../types";
 
 // LEDGER
 export class LEDGER {
@@ -23,7 +23,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     // ...
   }
 

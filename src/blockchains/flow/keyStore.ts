@@ -10,7 +10,7 @@ export class KEYSTORE {
     return keyPair.getPublic().encode("hex", false).slice(2);
   }
   /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     // ...
   }
   */

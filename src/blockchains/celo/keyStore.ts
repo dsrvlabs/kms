@@ -1,6 +1,6 @@
 import { BIP32Interface } from "bip32";
 import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
-// import { RawTx } from "../../types";
+// import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getAccount(node: BIP32Interface): string {
@@ -11,7 +11,7 @@ export class KEYSTORE {
   }
 
   /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     // ...
   }
   */

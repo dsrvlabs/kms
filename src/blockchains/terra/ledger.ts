@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import TerraApp, { AddressResponse } from "@terra-money/ledger-terra-js";
 import * as secp256k1 from "secp256k1";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
@@ -19,7 +19,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     const instance = new TerraApp(transport);
     const response = await instance.sign(
       [44, path.type, path.account, 0, path.index],
@@ -29,7 +29,10 @@ export class LEDGER {
     const signature = secp256k1.signatureImport(
       Buffer.from(response.signature.data)
     );
-    return { signature };
+    return {
+      rawTx,
+      signedTx: signature,
+    };
   }
 
   /*
