@@ -102,6 +102,7 @@ export class LEDGER {
       }),
     });
     return {
+      rawTx,
       signedTx: signedTransaction,
     };
   }

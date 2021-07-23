@@ -117,6 +117,7 @@ export class KEYSTORE {
       }),
     });
     return {
+      rawTx,
       signedTx: signedTransaction,
     };
   }
