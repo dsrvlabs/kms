@@ -9,6 +9,11 @@ export interface RawTx {
   [key: string]: any;
 }
 
+export interface SignedTx {
+  rawTx: RawTx;
+  signedTx?: any;
+}
+
 export const CHAIN = {
   MINA: 12586,
   TERRA: 330,

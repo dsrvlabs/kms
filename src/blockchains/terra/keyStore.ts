@@ -1,7 +1,7 @@
 import { BIP32Interface } from "bip32";
 import CryptoJS from "crypto-js";
 import { bech32 } from "bech32";
-// import { RawTx } from "../../types";
+// import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static bech32ify(address: string, prefix: string) {
@@ -17,7 +17,7 @@ export class KEYSTORE {
   }
 
   /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     // ...
   }
   */

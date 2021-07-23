@@ -3,7 +3,7 @@ import { derivePath } from "near-hd-key";
 import { BIP44 } from "../../types";
 import { encodeAddress } from "./hw";
 
-// import { RawTx } from "../../types";
+// import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getAccount(seed: Buffer, path: BIP44): string {
@@ -16,7 +16,7 @@ export class KEYSTORE {
   }
 
   /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     // ...
   }
   */

@@ -12,7 +12,7 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getKeypair(seed: Buffer, path: BIP44): Keypair {
@@ -107,7 +107,11 @@ export class KEYSTORE {
     }
   }
 
-  static async signTx(seed: Buffer, path: BIP44, rawTx: RawTx) {
+  static async signTx(
+    seed: Buffer,
+    path: BIP44,
+    rawTx: RawTx
+  ): Promise<SignedTx> {
     const payer = KEYSTORE.getKeypair(seed, path);
     const transaction = KEYSTORE.createTransaction(rawTx);
     if (transaction.instructions.length === 0) {
@@ -115,6 +119,7 @@ export class KEYSTORE {
     }
     transaction.sign(<Signer>payer);
     return {
+      rawTx,
       signedTx: transaction,
     };
   }

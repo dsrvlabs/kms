@@ -13,7 +13,7 @@ export class KEYSTORE {
     );
   }
   /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     // ...
   }
   */

@@ -10,7 +10,7 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import { getPublicKey, getSolanaDerivationPath, signTransaction } from "./hw";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
@@ -100,7 +100,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     const transaction = LEDGER.createTransaction(rawTx);
     if (transaction.instructions.length === 0) {
       throw new Error("No instructions provided");
@@ -112,6 +112,7 @@ export class LEDGER {
     );
     transaction.addSignature(rawTx.feePayer, signature);
     return {
+      rawTx,
       signedTx: transaction,
     };
   }

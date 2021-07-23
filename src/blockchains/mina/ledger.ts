@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 const BN = require("bn.js");
 const { MinaLedgerJS, TxType, Networks } = require("mina-ledger-js");
@@ -16,7 +16,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     const instance = new MinaLedgerJS(transport);
     const payload = {
       txType: rawTx.isDelegation ? TxType.DELEGATION : TxType.PAYMENT,
@@ -33,15 +33,20 @@ export class LEDGER {
       receiverAddress: rawTx.to,
     });
     return {
-      publicKey: rawTx.from,
-      signature: {
-        field: new BN(response.signature.substring(0, 64), 16).toString(10),
-        scalar: new BN(response.signature.substring(64, 128), 16).toString(10),
-      },
-      payload: {
-        ...payload,
-        from: rawTx.from,
-        to: rawTx.to,
+      rawTx,
+      signedTx: {
+        publicKey: rawTx.from,
+        signature: {
+          field: new BN(response.signature.substring(0, 64), 16).toString(10),
+          scalar: new BN(response.signature.substring(64, 128), 16).toString(
+            10
+          ),
+        },
+        payload: {
+          ...payload,
+          from: rawTx.from,
+          to: rawTx.to,
+        },
       },
     };
   }

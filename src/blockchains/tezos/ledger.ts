@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import Tezos from "@ledgerhq/hw-app-tezos";
 import { BIP44 } from "../../types";
-// import { RawTx } from "../../types";
+// import { RawTx, SignedTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
@@ -18,7 +18,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     // ...
   }
 

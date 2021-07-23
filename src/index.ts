@@ -1,6 +1,6 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx } from "./types";
+import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import {
   createKeyStore,
   getAccountFromKeyStore,
@@ -8,7 +8,7 @@ import {
 } from "./keyStore";
 import { getAccountFromLedger, signTxFromLedger } from "./ledger";
 
-export { createKeyStore, CHAIN, BIP44, RawTx };
+export { createKeyStore, CHAIN, BIP44, RawTx, SignedTx };
 
 interface KeyStore {
   t: number;

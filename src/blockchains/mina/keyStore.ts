@@ -1,6 +1,6 @@
 import { BIP32Interface } from "bip32";
 import * as CodaSDK from "@o1labs/client-sdk";
-import { RawTx } from "../../types";
+import { RawTx, SignedTx } from "../../types";
 
 const base58check = require("base58check");
 const { TxType, Networks } = require("mina-ledger-js");
@@ -19,7 +19,7 @@ export class KEYSTORE {
     return CodaSDK.derivePublicKey(privateKey);
   }
 
-  static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     const privateKey = KEYSTORE.getPrivateKey(node);
     const publicKey = KEYSTORE.getAccount(node);
 
@@ -38,11 +38,14 @@ export class KEYSTORE {
         }
       );
       return {
-        ...signedPayment,
-        payload: {
-          ...signedPayment.payload,
-          txType: TxType.PAYMENT,
-          networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+        rawTx,
+        signedTx: {
+          ...signedPayment,
+          payload: {
+            ...signedPayment.payload,
+            txType: TxType.PAYMENT,
+            networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+          },
         },
       };
     }
@@ -59,11 +62,14 @@ export class KEYSTORE {
       }
     );
     return {
-      ...signedStakeDelegation,
-      payload: {
-        ...signedStakeDelegation.payload,
-        txType: TxType.DELEGATION,
-        networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+      rawTx,
+      signedTx: {
+        ...signedStakeDelegation,
+        payload: {
+          ...signedStakeDelegation.payload,
+          txType: TxType.DELEGATION,
+          networkId: rawTx.isDevNet ? Networks.DEVNET : Networks.MAINNET,
+        },
       },
     };
   }

@@ -2,7 +2,7 @@ import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
 import { transactions, utils } from "near-api-js";
 import BN from "bn.js";
-import { BIP44, RawTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../types";
 
 const App = require("near-ledger-js");
 
@@ -88,7 +88,7 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     rawTx: RawTx
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<SignedTx> {
     const client = await App.createClient(transport);
     const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
     const transaction = LEDGER.createTransaction(rawTx);
