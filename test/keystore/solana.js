@@ -25,6 +25,7 @@ const INDEX = 0;
 const TRANSFER = 0;
 const CREATESTAKEACCONUT = 1;
 const DELEGATE = 2;
+const UNDELEGATE = 3;
 
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
@@ -72,6 +73,7 @@ async function signTx(seed, path, account) {
         // Create Stake Account
         {
           fromPubkey: ACCOUNTPUBKEY,
+          basePubkey: ACCOUNTPUBKEY,
           stakerAuthorizePubkey: ACCOUNTPUBKEY,
           withdrawerAuthorizePubkey: ACCOUNTPUBKEY,
           stakePubkey: STAKEPUBKEY,
@@ -81,12 +83,18 @@ async function signTx(seed, path, account) {
         },
         // Delegate
         {
-          fromPubkey: ACCOUNTPUBKEY,
+          authorizedPubkey: ACCOUNTPUBKEY,
           votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
           stakePubkey: STAKEPUBKEY,
           transactionType: DELEGATE,
         },
         /*
+        // Undelegate
+        {
+          authorizedPubkey: ACCOUNTPUBKEY,
+          stakePubkey: "DmS2tb8dvRYx8Utmw5CdUEpLzGPur3RtshjHRLUzjLWT",
+          transactionType: UNDELEGATE,
+        },
         // Transfer
         {
           fromPubkey: ACCOUNTPUBKEY,

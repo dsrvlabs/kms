@@ -16,6 +16,7 @@ const INDEX = 0;
 const TRANSFER = 0;
 const CREATESTAKEACCONUT = 1;
 const DELEGATE = 2;
+const UNDELEGATE = 3;
 
 async function getAccount(transport, type, index) {
   const kms = new KMS({
@@ -82,6 +83,7 @@ async function signTx(transport, type, index, account) {
           // Create Stake Account
           {
             fromPubkey: ACCOUNTPUBKEY,
+            basePubkey: ACCOUNTPUBKEY,
             stakerAuthorizePubkey: ACCOUNTPUBKEY,
             withdrawerAuthorizePubkey: ACCOUNTPUBKEY,
             stakePubkey: STAKEPUBKEY,
@@ -91,10 +93,17 @@ async function signTx(transport, type, index, account) {
           },
           // Delegate
           {
-            fromPubkey: ACCOUNTPUBKEY,
+            authorizedPubkey: ACCOUNTPUBKEY,
             votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
             stakePubkey: STAKEPUBKEY,
             transactionType: DELEGATE,
+          },
+          /*
+          // Undelegate
+          {
+            authorizedPubkey: ACCOUNTPUBKEY,
+            stakePubkey: "5vGVDMjFfcPs5F7km5BhM6c9E6H9kFR2z5VzsgRrsvpS",
+            transactionType: UNDELEGATE,
           },
           /*
           // Transfer
