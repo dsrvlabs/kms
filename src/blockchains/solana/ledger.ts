@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { createTransaction } from "./createInstruction";
+import { createTransaction } from "./createTransaction";
 import { getPublicKey, getSolanaDerivationPath, signTransaction } from "./hw";
 import { BIP44, RawTx, SignedTx } from "../../types";
 

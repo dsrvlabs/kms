@@ -1,7 +1,7 @@
 import { encode } from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair, Signer } from "@solana/web3.js";
-import { createTransaction } from "./createInstruction";
+import { createTransaction } from "./createTransaction";
 import { BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
