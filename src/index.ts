@@ -52,10 +52,7 @@ export class KMS {
     return null;
   }
 
-  async signTx(
-    path: BIP44,
-    rawTx: RawTx
-  ): Promise<{ [key: string]: any } | null> {
+  async signTx(path: BIP44, rawTx: RawTx): Promise<SignedTx> {
     if (this.keyStore) {
       const signedTx = await signTxFromKeyStore(
         path,
@@ -69,7 +66,7 @@ export class KMS {
       const response = await signTxFromLedger(path, this.transport, rawTx);
       return response;
     }
-    return null;
+    return { rawTx };
   }
 
   close(): void {
