@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx } from "./types";
+import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import { LEDGER as mina } from "./blockchains/mina/ledger";
 import { LEDGER as terra } from "./blockchains/terra/ledger";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
@@ -75,7 +75,7 @@ export async function signTxFromLedger(
   path: BIP44,
   transport: Transport,
   rawTx: RawTx
-): Promise<{ [key: string]: any } | null> {
+): Promise<SignedTx> {
   try {
     switch (path.type) {
       // blockchains
@@ -104,10 +104,10 @@ export async function signTxFromLedger(
       default:
         break;
     }
-    return null;
+    return { rawTx };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return null;
+    return { rawTx };
   }
 }

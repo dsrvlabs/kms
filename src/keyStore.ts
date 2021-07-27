@@ -3,7 +3,7 @@ import { encode, decode } from "bs58";
 import { JWK, JWE, util } from "node-jose";
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import { CHAIN, BIP44, RawTx } from "./types";
+import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
@@ -144,7 +144,7 @@ export async function signTxFromKeyStore(
   keyStore: KeyStore,
   password: string,
   rawTx: RawTx
-): Promise<{ [key: string]: any } | null> {
+): Promise<SignedTx> {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
     if (key && keyStore) {
@@ -178,10 +178,10 @@ export async function signTxFromKeyStore(
       }
     }
 
-    return null;
+    return { rawTx };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return null;
+    return { rawTx };
   }
 }
