@@ -65,7 +65,7 @@ async function signTx(seed, path, account) {
     const ACCOUNTPUBKEY = new PublicKey(account);
     const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
-    const response = await solana.KEYSTORE.signTx(seed, path, {
+    const response = solana.KEYSTORE.signTx(seed, path, {
       connection: CONNECTION,
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,

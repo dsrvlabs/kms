@@ -23,11 +23,7 @@ export class KEYSTORE {
     return encode(keypair.secretKey);
   }
 
-  static async signTx(
-    seed: Buffer,
-    path: BIP44,
-    rawTx: RawTx
-  ): Promise<SignedTx> {
+  static signTx(seed: Buffer, path: BIP44, rawTx: RawTx): SignedTx {
     const payer = KEYSTORE.getKeypair(seed, path);
     const transaction = createTransaction(rawTx);
     if (transaction.instructions.length === 0) {

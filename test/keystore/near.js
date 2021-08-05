@@ -53,7 +53,7 @@ async function signTx(seed, path, account) {
     );
     const nonce = accessKey.nonce + 1;
     const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
-    const response = await near.KEYSTORE.signTx(seed, path, {
+    const response = near.KEYSTORE.signTx(seed, path, {
       provider,
       recentBlockHash,
       nonce,
