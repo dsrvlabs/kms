@@ -1,4 +1,5 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
 import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import {
@@ -87,5 +88,14 @@ export async function CreateKMS(
   } else {
     ledger.transport = await TransportWebUSB.create(1000);
   }
+  return new KMS(ledger);
+}
+
+export async function CreateKMSBLE(): Promise<KMS> {
+  const ledger: Ledger = {
+    keyStore: null,
+    transport: null,
+  };
+  ledger.transport = await TransportWebBLE.create(1000);
   return new KMS(ledger);
 }

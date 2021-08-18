@@ -10,6 +10,7 @@ export class LEDGER {
     const response = await instance.getAddressAndPubKey(
       `m/44'/1'/${path.type}/0/${path.index}`
     );
+    // console.log(response);
     return response.address;
   }
 
