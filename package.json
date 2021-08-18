@@ -1,6 +1,6 @@
 {
   "name": "@dsrv/kms",
-  "version": "0.1.12",
+  "version": "0.1.14",
   "description": "blockchain key managament system",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -41,6 +41,7 @@
     "@ledgerhq/errors": "^6.0.2",
     "@ledgerhq/hw-app-tezos": "^6.0.2",
     "@ledgerhq/hw-transport": "^6.0.2",
+    "@ledgerhq/hw-transport-web-ble": "^6.0.2",
     "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@o1labs/client-sdk": "^1.0.1",
     "@onflow/ledger": "^0.1.0",
