@@ -5,6 +5,8 @@ import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import { getAccountFromKeyStore, signTxFromKeyStore } from "./keyStore";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import { getAccountFromLedger, signTxFromLedger } from "./ledger";
+import { createWeb3 } from "./provider/web3";
+import { createExtension } from "./provider/extension";
 
 export {
   createKeyStore,
@@ -15,6 +17,8 @@ export {
   RawTx,
   SignedTx,
   getAlgo2HashKey,
+  createWeb3,
+  createExtension,
 };
 
 interface KeyStore {

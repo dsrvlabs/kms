@@ -8,7 +8,7 @@ const {
 } = require("@solana/web3.js");
 
 const { KMS, CHAIN } = require("../../lib");
-// const { getAccount } = require("./_getAccount");
+const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
@@ -17,22 +17,6 @@ const TRANSFER = 0;
 const CREATESTAKEACCONUT = 1;
 const DELEGATE = 2;
 const UNDELEGATE = 3;
-
-async function getAccount(transport, type, index) {
-  const kms = new KMS({
-    keyStore: null,
-    transport,
-  });
-
-  const account = await kms.getAccount({
-    type,
-    account: 0,
-    index,
-  });
-  // eslint-disable-next-line no-console
-  console.log("account - ", account);
-  return account;
-}
 
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
