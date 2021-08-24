@@ -61,14 +61,12 @@ export default class Web3 {
           );
           this.extension.emit("receive", {
             isSuccess: true,
-            buffer,
-            error: "",
+            result: buffer,
           });
         } catch (error) {
           this.extension.emit("receive", {
             isSuccess: false,
-            buffer: [],
-            error,
+            result: error,
           });
         }
       }

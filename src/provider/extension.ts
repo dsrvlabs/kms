@@ -49,11 +49,11 @@ export default class Extension {
     statusList: Array<number> = [StatusCodes.OK]
   ): Promise<Buffer> => {
     return new Promise((resoleve, reject) => {
-      this.extension.once("receive", ({ isSuccess, buffer, error }) => {
+      this.extension.once("receive", ({ isSuccess, result }) => {
         if (isSuccess) {
-          resoleve(buffer);
+          resoleve(result);
         } else {
-          reject(error);
+          reject(result);
         }
       });
       this.web3.emit("send", cla, ins, p1, p2, data, statusList);
