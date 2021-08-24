@@ -50,15 +50,27 @@ export default class Web3 {
         data: Buffer = Buffer.alloc(0),
         statusList: Array<number> = [StatusCodes.OK]
       ): Promise<void> => {
-        const buffer: Buffer = await this.ledger.send(
-          cla,
-          ins,
-          p1,
-          p2,
-          data,
-          statusList
-        );
-        this.extension.emit("receive", buffer);
+        try {
+          const buffer: Buffer = await this.ledger.send(
+            cla,
+            ins,
+            p1,
+            p2,
+            data,
+            statusList
+          );
+          this.extension.emit("receive", {
+            isSuccess: true,
+            buffer,
+            error: "",
+          });
+        } catch (error) {
+          this.extension.emit("receive", {
+            isSuccess: false,
+            buffer: [],
+            error,
+          });
+        }
       }
     );
   }

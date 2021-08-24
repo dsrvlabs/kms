@@ -48,8 +48,14 @@ export default class Extension {
     data: Buffer = Buffer.alloc(0),
     statusList: Array<number> = [StatusCodes.OK]
   ): Promise<Buffer> => {
-    return new Promise((resoleve) => {
-      this.extension.once("receive", resoleve);
+    return new Promise((resoleve, reject) => {
+      this.extension.once("receive", ({ isSuccess, buffer, error }) => {
+        if (isSuccess) {
+          resoleve(buffer);
+        } else {
+          reject(error);
+        }
+      });
       this.web3.emit("send", cla, ins, p1, p2, data, statusList);
     });
   };
