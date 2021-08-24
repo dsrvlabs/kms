@@ -1,59 +1,42 @@
-const { JWE } = require("node-jose");
-const { mnemonicToSeedSync } = require("bip39");
-const { fromSeed } = require("bip32");
 const CodaSDK = require("@o1labs/client-sdk");
-
-const { CHAIN } = require("../../lib");
-const mina = require("../../lib/blockchains/mina/keyStore");
 
 const {
   createKeyStore,
   getAccount,
-  getAlgo2HashKey,
+  getMnemonic,
+  CHAIN,
+  signTxFromKeyStore,
+  MNEMONIC,
 } = require("./_getAccount");
-
-const MNEMONIC = require("../mnemonic.json");
 
 const TYPE = CHAIN.MINA;
 const INDEX = 0;
 
-async function getDerivePath(path, keyStore, password) {
-  const key = await getAlgo2HashKey(password, keyStore);
-  const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-  const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
-  const node = fromSeed(seed);
-  return node.derivePath(
-    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-  );
-}
-
 async function signTx(path, keyStore, password, account) {
   try {
     const isPayment = false;
-    const response = mina.KEYSTORE.signTx(
-      await getDerivePath(path, keyStore, password),
-      {
-        from: account,
-        to: "B62qoBEWahYw3CzeFLBkekmT8B7Z1YsfhNcP32cantDgApQ97RNUMhT",
-        amount: 3000000,
-        fee: 1000000000,
-        nonce: 1,
-        isPayment,
-      }
-    );
+    const mnemonic = await getMnemonic(password, keyStore);
+    const response = await signTxFromKeyStore(path, mnemonic, {
+      from: account,
+      to: "B62qoBEWahYw3CzeFLBkekmT8B7Z1YsfhNcP32cantDgApQ97RNUMhT",
+      amount: 3000000,
+      fee: 1000000000,
+      nonce: 1,
+      isPayment,
+    });
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    if (response.payload.txType === 0) {
+    if (response.signedTx.payload.txType === 0) {
       // eslint-disable-next-line no-console
       console.log(
         "verifyPaymentSignature - ",
-        CodaSDK.verifyPaymentSignature(response)
+        CodaSDK.verifyPaymentSignature(response.signedTx)
       );
     } else {
       // eslint-disable-next-line no-console
       console.log(
         "verifyStakeDelegationSignature - ",
-        CodaSDK.verifyStakeDelegationSignature(response)
+        CodaSDK.verifyStakeDelegationSignature(response.signedTx)
       );
     }
   } catch (error) {

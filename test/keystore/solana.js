@@ -1,31 +1,26 @@
-const { JWE } = require("node-jose");
-const { mnemonicToSeedSync } = require("bip39");
-
 const {
   Connection,
   StakeProgram,
   PublicKey,
-  sendAndConfirmRawTransaction,
+  // sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
-
-const { CHAIN } = require("../../lib");
-const solana = require("../../lib/blockchains/solana/keyStore");
 
 const {
   createKeyStore,
   getAccount,
-  getAlgo2HashKey,
+  getMnemonic,
+  CHAIN,
+  signTxFromKeyStore,
+  MNEMONIC,
 } = require("./_getAccount");
-
-const MNEMONIC = require("../mnemonic.json");
 
 const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
 
-const TRANSFER = 0;
+// const TRANSFER = 0;
 const CREATESTAKEACCONUT = 1;
 const DELEGATE = 2;
-const UNDELEGATE = 3;
+// const UNDELEGATE = 3;
 
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
@@ -37,14 +32,7 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   console.log("stakePubkey - ", stakePubkey.toString());
   return stakePubkey;
 }
-
-async function getSeed(keyStore, password) {
-  const key = await getAlgo2HashKey(password, keyStore);
-  const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-  const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
-  return seed;
-}
-
+/*
 async function sendTransation(connection, transaction) {
   try {
     await sendAndConfirmRawTransaction(connection, transaction.serialize(), {
@@ -55,8 +43,8 @@ async function sendTransation(connection, transaction) {
     console.log(error);
   }
 }
-
-async function signTx(seed, path, account) {
+*/
+async function signTx(path, mnemonic, account) {
   try {
     const RPC = "https://api.devnet.solana.com"; // DEV NET
     const CONNECTION = new Connection(RPC, "confirmed");
@@ -65,7 +53,7 @@ async function signTx(seed, path, account) {
     const ACCOUNTPUBKEY = new PublicKey(account);
     const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
-    const response = solana.KEYSTORE.signTx(seed, path, {
+    const response = await signTxFromKeyStore(path, mnemonic, {
       connection: CONNECTION,
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
@@ -120,13 +108,13 @@ async function signTx(seed, path, account) {
 async function run() {
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
-  const SEED = await getSeed(keyStore, PASSWORD);
+  const mnemonic = await getMnemonic(PASSWORD, keyStore);
   const account = await getAccount(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD
   );
-  await signTx(SEED, { type: TYPE, account: 0, index: INDEX }, account);
+  await signTx({ type: TYPE, account: 0, index: INDEX }, mnemonic, account);
 }
 
 run();

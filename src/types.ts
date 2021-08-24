@@ -5,6 +5,13 @@ export interface BIP44 {
   password?: string;
 }
 
+export interface KeyStore {
+  t: number;
+  m: number;
+  s: string;
+  j: string[];
+}
+
 export interface RawTx {
   [key: string]: any;
 }
