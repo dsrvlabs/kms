@@ -104,7 +104,7 @@ export async function signTxFromKeyStore(
         return { ...response };
       }
       case CHAIN.CELO: {
-        const response = solana.signTx(seed, path, rawTx);
+        const response = celo.signTx(child, rawTx);
         return { ...response };
       }
       // add blockchains....
