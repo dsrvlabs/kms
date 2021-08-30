@@ -103,6 +103,10 @@ export async function signTxFromKeyStore(
         const response = solana.signTx(seed, path, rawTx);
         return { ...response };
       }
+      case CHAIN.CELO: {
+        const response = solana.signTx(seed, path, rawTx);
+        return { ...response };
+      }
       // add blockchains....
       // blockchains
       default:
