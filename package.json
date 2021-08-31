@@ -38,7 +38,9 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@celo/connect": "^1.2.4",
     "@celo/contractkit": "^1.2.4",
+    "@celo/wallet-local": "^1.2.4",
     "@ledgerhq/errors": "^6.2.0",
     "@ledgerhq/hw-app-tezos": "^6.3.0",
     "@ledgerhq/hw-transport": "^6.3.0",
