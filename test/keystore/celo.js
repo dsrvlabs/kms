@@ -9,27 +9,19 @@ const {
 
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
+const { web3 } = require("web3");
 
 async function signTx(path, keyStore, password, account) {
   try {
     const mnemonic = await getMnemonic(password, keyStore);
     const response = await signTxFromKeyStore(path, mnemonic, {
-      raw: "string",
-      tx: {
-        nonce: 0,
-        gasPrice: "1111",
-        gas: "1111",
-        feeCurrency: "1111",
-        gatewayFeeRecipient: "1111",
-        gatewayFee: "1111",
-        to: "1111",
-        value: "1111",
-        input: "1111",
-        r: "1111",
-        s: "1111",
-        v: "1111",
-        hash: "1111",
-      },
+      nonce: "0x00",
+      gasPrice: "0x09184e72a000",
+      gasLimit: "0x2710",
+      to: "0xdcb6702936a4C257c7e715BF780925a93B217e37",
+      value: "0x00",
+      data: "0x7f7465737432000000000000000000000000000000000000000000000000000000600057",
+      chainId: 100,
     });
     console.log("celo.js account: ", account);
     // eslint-disable-next-line no-console

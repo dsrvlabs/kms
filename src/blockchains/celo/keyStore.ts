@@ -1,23 +1,23 @@
 import { BIP32Interface } from "bip32";
 import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
-import { RawTx } from "../../types";
-// import { newKit } from "@celo/contractkit";
-// import { RawTx, SignedTx } from "../../types";
-import { LocalSigner } from "@celo/wallet-local";
-import { CeloTx, RLPEncodedTx } from "@celo/connect";
-import { inputCeloTxFormatter } from "@celo/connect/lib/utils/formatter";
-import { rlpEncodedTx } from "@celo/wallet-base";
 
-const base58check = require("base58check");
+import { utils } from "ethers";
+// import { Signer } from "@ethersproject/abstract-signer";
+// import { resolveProperties } from "@ethersproject/properties";
+// import { TransactionRequest } from "@ethersproject/abstract-provider";
+// import { getAddress } from "@ethersproject/address";
+// import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
+// import { keccak256 } from "@ethersproject/keccak256";
+import { SigningKey } from "@ethersproject/signing-key";
+import { RawTx, SignedTx } from "../../types";
+import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
+
+//const logger = new utils.Logger("CeloWallet");
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
-    const privateKey = base58check.encode(
-      node.privateKey ? `01${node.privateKey.toString("hex")}` : "",
-      "5a"
-    );
-    console.log("getPrivateKey 실행");
-    return privateKey;
+    const privateKey = node.privateKey?.toString("hex");
+    return "0x" + privateKey;
   }
 
   static getAccount(node: BIP32Interface): string {
@@ -27,29 +27,20 @@ export class KEYSTORE {
       : "";
   }
 
-  static signTx(node: BIP32Interface, rawTx: RawTx): any {
-    //const transaction = createTransaction();
-    console.log("********get private key: ", KEYSTORE.getPrivateKey(node));
-    const signer = new LocalSigner(KEYSTORE.getPrivateKey(node));
-    console.log("node: ", node);
-    console.log("rawTx: ", rawTx);
+  static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {
+    const signer = new SigningKey(this.getPrivateKey(node));
     console.log("signer: ", signer);
-    const transaction: CeloTx = inputCeloTxFormatter(rawTx);
-    const encodedTx: RLPEncodedTx = rlpEncodedTx(transaction);
-    console.log("encodedTx: ", encodedTx);
-    const result = signer.signTransaction(1, encodedTx);
-    console.log("Result: ", result);
 
-    // const kit = newKit("https://alfajores-forno.celo-testnet.org");
-    // console.log("kit: ", kit);
-    // const result = kit.web3.eth.signTransaction(rawTx);
-    // console.log("result: ", result);
-
-    // const account = kit.web3.eth.accounts.privateKeyToAccount(
-    //   KEYSTORE.getPrivateKey(node)
-    // );
-    // console.log("in keystore ts: ", account);
-    // account.signTransaction();
+    console.log(rawTx);
+    const tx: any = await utils.resolveProperties(rawTx);
+    console.log("tx: ", tx);
+    console.log("serialize: ", serializeCeloTransaction(tx));
+    const signature = signer.signDigest(
+      utils.keccak256(serializeCeloTransaction(tx))
+    );
+    const serialized = serializeCeloTransaction(tx, signature);
+    console.log(signature);
+    return { rawTx, signedTx: serialized };
   }
 
   /*
