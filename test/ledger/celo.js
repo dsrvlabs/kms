@@ -10,7 +10,6 @@ async function signTx(transport, type, index, account) {
     keyStore: null,
     transport,
   });
-  console.log("kms: ", kms);
   try {
     const response = await kms.signTx(
       {
@@ -19,7 +18,7 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        nonce: "0x01",
+        nonce: "0x10",
         gasPrice: "0x09184e72a000",
         gasLimit: "0x9710",
         to: "0xdcb6702936a4C257c7e715BF780925a93B217e37",
