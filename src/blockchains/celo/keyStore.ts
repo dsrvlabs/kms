@@ -7,9 +7,6 @@ import { RawTx, SignedTx } from "../../types";
 import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
 import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
 
-// import { Connection } from "@celo/connect";
-// import Web3 from "web3";
-
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
     const privateKey = node.privateKey?.toString("hex");
