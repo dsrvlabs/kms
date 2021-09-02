@@ -29,10 +29,7 @@ export class LEDGER {
     const signature = secp256k1.signatureImport(
       Buffer.from(response.signature)
     );
-    return {
-      rawTx,
-      signedTx: signature,
-    };
+    return { rawTx, signedTx: { signature } };
   }
 
   /*

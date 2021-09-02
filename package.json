@@ -38,6 +38,8 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@cosmjs/amino": "^0.26.0",
+    "@cosmjs/launchpad": "^0.26.0",
     "@ledgerhq/errors": "^6.2.0",
     "@ledgerhq/hw-app-tezos": "^6.3.0",
     "@ledgerhq/hw-transport": "^6.3.0",
@@ -49,6 +51,7 @@
     "@polkadot/util-crypto": "^6.10.1",
     "@solana/web3.js": "^1.20.0",
     "@terra-money/ledger-terra-js": "^1.1.0",
+    "@terra-money/terra.js": "^2.0.4",
     "@types/node-jose": "^1.1.7",
     "@zondax/ledger-polkadot": "^0.14.0",
     "argon2-browser": "^1.18.0",
