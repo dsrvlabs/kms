@@ -4,8 +4,11 @@ import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
 import { utils } from "ethers";
 import { SigningKey } from "@ethersproject/signing-key";
 import { RawTx, SignedTx } from "../../types";
-import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
-//import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
+import {
+  serializeCeloTransaction,
+  parseCeloTransaction,
+} from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
+// import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
@@ -20,15 +23,14 @@ export class KEYSTORE {
       : "";
   }
 
-  static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {
+  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     const signer = new SigningKey(this.getPrivateKey(node));
-    const tx: any = await utils.resolveProperties(rawTx);
-
+    const transaction = utils.resolveProperties(rawTx);
     const signature = signer.signDigest(
-      utils.keccak256(serializeCeloTransaction(tx))
+      utils.keccak256(serializeCeloTransaction(transaction))
     );
-    const serializedTx = await serializeCeloTransaction(tx, signature);
-
+    const serializedTx = serializeCeloTransaction(transaction, signature);
+    const signedTransaction = parseCeloTransaction(serializedTx);
     /*
     transaction send test code 
     */
@@ -39,7 +41,7 @@ export class KEYSTORE {
     // const result = provider.sendTransaction(serializedTx);
     // console.log("sendTxResult: ", result);
 
-    return { rawTx, signedTx: serializedTx };
+    return { rawTx, signedTx: signedTransaction };
   }
 
   /*

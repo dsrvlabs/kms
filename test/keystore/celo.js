@@ -23,7 +23,7 @@ async function signTx(path, keyStore, password, account) {
       chainId: 44787,
     });
     // eslint-disable-next-line no-console
-    console.log("response - ", response);
+    console.log("Transation signed - ", response);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
