@@ -105,3 +105,4 @@ dist
 
 /lib
 /test/mnemonic.json
+.DS_Store
