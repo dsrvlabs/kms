@@ -33,12 +33,13 @@ export class KEYSTORE {
       utils.keccak256(serializeCeloTransaction(tx))
     );
     const serializedTx = serializeCeloTransaction(tx, signature);
+    console.log("sig", signature);
     const parsedTx = parseCeloTransaction(serializedTx);
     const signedTx = { ...parsedTx, v: parsedTx.v?.toString(10) };
+
     /*
     transaction send test code 
     */
-
     // const provider = new CeloProvider(
     //   "https://alfajores-forno.celo-testnet.org"
     // );
