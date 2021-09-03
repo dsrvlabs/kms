@@ -1,7 +1,13 @@
 import { BIP32Interface } from "bip32";
 import CryptoJS from "crypto-js";
 import { bech32 } from "bech32";
-// import { RawTx, SignedTx } from "../../types";
+import {
+  Secp256k1Wallet,
+  AminoMsg,
+  StdFee,
+  makeSignDoc as aMakeSignDoc,
+} from "@cosmjs/amino";
+import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static bech32ify(address: string, prefix: string) {
@@ -16,11 +22,30 @@ export class KEYSTORE {
     return address;
   }
 
-  /*
-  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
-    // ...
+  static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {
+    if (node.privateKey) {
+      const wallet = await Secp256k1Wallet.fromKey(
+        new Uint8Array(node.privateKey),
+        "cosmos"
+      );
+      const signDoc = aMakeSignDoc(
+        rawTx.msgs as AminoMsg[],
+        rawTx.fee as StdFee,
+        rawTx.chain_id,
+        rawTx.memo,
+        rawTx.account_number,
+        rawTx.sequence
+      );
+
+      const address = KEYSTORE.getAccount(node);
+      const response = await wallet.signAmino(address, signDoc);
+      const signature = new Uint8Array(
+        Buffer.from(response.signature.signature, "base64")
+      );
+      return { rawTx, signedTx: { signature } };
+    }
+    return { rawTx };
   }
-  */
 
   /*
   export signMessage(node: BIP32Interface, msg: string) {
