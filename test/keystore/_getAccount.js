@@ -39,11 +39,13 @@ exports.getAccount = async function getAccount(path, keyStore, password) {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
     const decryped = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-    const mnemonic = await getAccountFromKeyStore(
+    const account = await getAccountFromKeyStore(
       path,
       decryped.plaintext.toString()
     );
-    return mnemonic;
+    // eslint-disable-next-line no-console
+    console.log("account - ", account);
+    return account;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);

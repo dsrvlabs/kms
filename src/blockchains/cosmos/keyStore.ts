@@ -39,12 +39,10 @@ export class KEYSTORE {
 
       const address = KEYSTORE.getAccount(node);
       const response = await wallet.signAmino(address, signDoc);
-      return {
-        rawTx,
-        signedTx: new Uint8Array(
-          Buffer.from(response.signature.signature, "base64")
-        ),
-      };
+      const signature = new Uint8Array(
+        Buffer.from(response.signature.signature, "base64")
+      );
+      return { rawTx, signedTx: { signature } };
     }
     return { rawTx };
   }

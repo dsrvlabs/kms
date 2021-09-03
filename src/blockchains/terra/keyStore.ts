@@ -39,41 +39,11 @@ export class KEYSTORE {
 
       const address = KEYSTORE.getAccount(node);
       const response = await wallet.signAmino(address, signDoc);
-      return {
-        rawTx,
-        signedTx: new Uint8Array(
-          Buffer.from(response.signature.signature, "base64")
-        ),
-      };
+      const signature = new Uint8Array(
+        Buffer.from(response.signature.signature, "base64")
+      );
+      return { rawTx, signedTx: { signature } };
     }
     return { rawTx };
   }
-
-  // static signTx(node: BIP32Interface, rawTx: RawTx): { [key: string]: any } {
-  //   const signature;
-  //   const publicKey;
-  //   const { sequence, account_number, chain_id } = request;
-  //   const _req = { sequence, accountNumber: account_number, chainId: chain_id };
-  //   const signMessage = createSignMessage(tx, _req);
-
-  //   try {
-  //     ({ signature, publicKey } = await signer(signMessage));
-  //   } catch (err) {
-  //     throw new Error(`Signing failed: ${err.message}`);
-  //   }
-
-  //   const signatureObject = createSignature(
-  //     signature,
-  //     sequence,
-  //     account_number,
-  //     publicKey
-  //   );
-  //   return createSignedTransactionObject(tx, signatureObject);
-  // }
-
-  /*
-  export signMessage(node: BIP32Interface, msg: string) {
-    // ...
-  }
-  */
 }
