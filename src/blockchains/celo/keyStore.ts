@@ -8,6 +8,7 @@ import {
   serializeCeloTransaction,
   parseCeloTransaction,
 } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
+
 // import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
 
 export class KEYSTORE {
@@ -23,14 +24,17 @@ export class KEYSTORE {
       : "";
   }
 
-  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
+  static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {
     const signer = new SigningKey(this.getPrivateKey(node));
-    const transaction = utils.resolveProperties(rawTx);
+    const tx = await utils.resolveProperties(rawTx);
+
+    //https://github.com/celo-tools/celo-ethers-wrapper/blob/d38601317eee84d853eb369b9165100bad4bdb54/src/lib/CeloWallet.ts
     const signature = signer.signDigest(
-      utils.keccak256(serializeCeloTransaction(transaction))
+      utils.keccak256(serializeCeloTransaction(tx))
     );
-    const serializedTx = serializeCeloTransaction(transaction, signature);
-    const signedTransaction = parseCeloTransaction(serializedTx);
+    const serializedTx = serializeCeloTransaction(tx, signature);
+    const parsedTx = parseCeloTransaction(serializedTx);
+    const signedTx = { ...parsedTx, v: parsedTx.v?.toString(10) };
     /*
     transaction send test code 
     */
@@ -38,10 +42,10 @@ export class KEYSTORE {
     // const provider = new CeloProvider(
     //   "https://alfajores-forno.celo-testnet.org"
     // );
-    // const result = provider.sendTransaction(serializedTx);
+    // const result = await provider.sendTransaction(serializedTx);
     // console.log("sendTxResult: ", result);
 
-    return { rawTx, signedTx: signedTransaction };
+    return { rawTx, signedTx: signedTx };
   }
 
   /*
