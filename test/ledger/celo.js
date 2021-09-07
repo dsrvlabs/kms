@@ -42,7 +42,7 @@ async function signTx(transport, type, index) {
         index,
       },
       {
-        nonce: "0x1",
+        nonce: "0x1e",
         gasPrice: "0x09184e72a000",
         gasLimit: "0x9710",
         feeCurrency: "",
