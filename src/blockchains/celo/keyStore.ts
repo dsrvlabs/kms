@@ -31,7 +31,10 @@ export class KEYSTORE {
     const parsedTx = parseCeloTransaction(serializedTx);
     const signedTx = { ...parsedTx, v: parsedTx.v?.toString(10) };
 
-    return { rawTx, signedTx: { v: signedTx.v, r: signedTx.r, s: signedTx.s } };
+    return {
+      rawTx,
+      signedTx: { signature: { v: signedTx.v, r: signedTx.r, s: signedTx.s } },
+    };
   }
 
   /*

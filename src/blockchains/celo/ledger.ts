@@ -41,7 +41,13 @@ export class LEDGER {
 
     return {
       rawTx,
-      signedTx: signature,
+      signedTx: {
+        signature: {
+          ...signature,
+          r: `0x${signature.r}`,
+          s: `0x${signature.s}`,
+        },
+      },
     };
   }
 
