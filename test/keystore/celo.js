@@ -1,8 +1,10 @@
+/* transaction send
 const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
 const {
   serializeCeloTransaction,
 } = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
 const { utils } = require("ethers");
+*/
 
 const {
   createKeyStore,
@@ -16,6 +18,8 @@ const {
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
+/* transaction send
+
 async function sendTx(rawTx, signedTx) {
   const tx = await utils.resolveProperties(rawTx);
   const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
@@ -27,7 +31,7 @@ async function sendTx(rawTx, signedTx) {
   );
   console.log("sendTxResult: ", result);
 }
-
+*/
 async function signTx(path, keyStore, password) {
   let response;
   try {
@@ -61,13 +65,13 @@ async function run() {
     keyStore,
     PASSWORD
   );
-  const signedTx = await signTx(
+  await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
     account
   );
-  await sendTx(signedTx.rawTx, signedTx.signedTx);
+  // await sendTx(signedTx.rawTx, signedTx.signedTx);
 }
 
 run();

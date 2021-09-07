@@ -1,3 +1,4 @@
+/* transaction send
 // eslint-disable-next-line import/order
 const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
 const {
@@ -5,6 +6,7 @@ const {
   // eslint-disable-next-line import/order
 } = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
 const { utils } = require("ethers");
+*/
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
@@ -13,6 +15,8 @@ const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
+
+/* transaction send
 
 async function sendTx(rawTx, signedTx) {
   const tx = await utils.resolveProperties(rawTx);
@@ -27,7 +31,7 @@ async function sendTx(rawTx, signedTx) {
   );
   console.log("sendTxResult: ", result);
 }
-
+*/
 async function signTx(transport, type, index) {
   const kms = new KMS({
     keyStore: null,
@@ -66,8 +70,8 @@ async function signTx(transport, type, index) {
 async function run() {
   const transport = await TransportNodeHid.create(1000);
   const account = await getAccount(transport, TYPE, INDEX);
-  const signedTx = await signTx(transport, TYPE, INDEX, account);
-  await sendTx(signedTx.rawTx, signedTx.signedTx);
+  await signTx(transport, TYPE, INDEX, account);
+  //await sendTx(signedTx.rawTx, signedTx.signedTx);
   transport.close();
 }
 
