@@ -1,3 +1,9 @@
+const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
+const {
+  serializeCeloTransaction,
+} = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
+const { utils } = require("ethers");
+
 const {
   createKeyStore,
   getAccount,
@@ -10,29 +16,24 @@ const {
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
-const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
-const {
-  serializeCeloTransaction,
-} = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
-const { utils } = require("ethers");
-
 async function sendTx(rawTx, signedTx) {
   const tx = await utils.resolveProperties(rawTx);
   const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
   const result = await provider.sendTransaction(
     serializeCeloTransaction(tx, {
       ...signedTx,
-      v: parseInt(signedTx.v),
+      v: parseInt(signedTx.v, 10),
     })
   );
   console.log("sendTxResult: ", result);
 }
 
-async function signTx(path, keyStore, password, account) {
+async function signTx(path, keyStore, password) {
+  let response;
   try {
     const mnemonic = await getMnemonic(password, keyStore);
-    const response = await signTxFromKeyStore(path, mnemonic, {
-      nonce: "0x19",
+    response = await signTxFromKeyStore(path, mnemonic, {
+      nonce: "0x1b",
       gasPrice: "0x09184e72a000",
       gasLimit: "0x9710",
       feeCurrency: "",
@@ -45,11 +46,11 @@ async function signTx(path, keyStore, password, account) {
     });
     console.log("response - ", response);
     // eslint-disable-next-line no-console
-    return response;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
   }
+  return response;
 }
 
 async function run() {

@@ -1,18 +1,18 @@
-import { BIP32Interface } from "bip32";
-import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
-
-import { utils } from "ethers";
-import { SigningKey } from "@ethersproject/signing-key";
-import { RawTx, SignedTx } from "../../types";
 import {
   serializeCeloTransaction,
   parseCeloTransaction,
 } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
+import { utils } from "ethers";
+import { SigningKey } from "@ethersproject/signing-key";
+
+import { BIP32Interface } from "bip32";
+import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
+import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
     const privateKey = node.privateKey?.toString("hex");
-    return "0x" + privateKey;
+    return `0x${privateKey}`;
   }
 
   static getAccount(node: BIP32Interface): string {

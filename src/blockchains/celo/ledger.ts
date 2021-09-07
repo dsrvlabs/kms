@@ -1,8 +1,7 @@
+import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
 import Transport from "@ledgerhq/hw-transport";
 import Ledger from "./hw";
 import { BIP44, RawTx, SignedTx } from "../../types";
-
-import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
 
 // LEDGER
 export class LEDGER {
@@ -33,6 +32,7 @@ export class LEDGER {
 
     let addToV = rawTx.chainId * 2 + 35;
     const rv = parseInt(signature.v, 16);
+    // eslint-disable-next-line no-bitwise
     if (rv !== addToV && (rv & addToV) !== rv) {
       addToV += 1;
     }
