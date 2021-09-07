@@ -14,7 +14,7 @@ async function signTx(path, keyStore, password, account) {
   try {
     const mnemonic = await getMnemonic(password, keyStore);
     const response = await signTxFromKeyStore(path, mnemonic, {
-      nonce: "0x08",
+      nonce: "0x0a",
       gasPrice: "0x09184e72a000",
       gasLimit: "0x9710",
       feeCurrency: "",

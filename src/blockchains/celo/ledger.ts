@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import Ledger from "@ledgerhq/hw-app-eth";
+import Ledger from "./hw";
 import { BIP44, RawTx, SignedTx } from "../../types";
 
 import { serializeCeloTransaction } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
@@ -40,24 +40,19 @@ export class LEDGER {
   ): Promise<SignedTx> {
     const ledger = new Ledger(transport);
     const encodedTx = serializeCeloTransaction(rawTx).slice(2);
-    const signedTx = await ledger.signTransaction(
+    const signature = await ledger.signTransaction(
       `44'/${path.type}'/${path.account}'/0/${path.index}`,
       encodedTx
     );
-
-    // let addToV = rawTx.chainId * 2 + 35;
-    // const rv = parseInt(signedTx.v, 16);
-    // if (rv !== addToV && (rv & addToV) !== rv) {
-    //   addToV += 1;
-    // }
-    // signedTx.v = addToV.toString(10);
-
-    // const sendTxResult = await this.sendTx(signedTx);
-    // console.log("send: ", sendTxResult);
-
-    const signature =
-      "0x" + signedTx.r + signedTx.s + "0" + parseInt(signedTx.v).toString(16);
-    console.log(signature);
+    console.log("signature: ", signature);
+    let addToV = rawTx.chainId * 2 + 35;
+    const rv = parseInt(signature.v, 16);
+    // eslint-disable-next-line no-bitwise
+    if (rv !== addToV && (rv & addToV) !== rv) {
+      addToV += 1; // add signature v bit.
+    }
+    signature.v = addToV.toString(10);
+    // console.log("signature: ", signature);
 
     const tx = await utils.resolveProperties(rawTx);
 
@@ -66,13 +61,18 @@ export class LEDGER {
     );
 
     const result = await provider.sendTransaction(
-      serializeCeloTransaction(tx, signature)
+      serializeCeloTransaction(tx, {
+        ...signature,
+        r: "0x" + signature.r,
+        s: "0x" + signature.s,
+        v: parseInt(signature.v),
+      })
     );
     console.log("sendTxResult: ", result);
 
     return {
       rawTx,
-      signedTx: signedTx,
+      signedTx: signature,
     };
   }
 

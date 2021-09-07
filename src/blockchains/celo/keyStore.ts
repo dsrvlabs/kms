@@ -9,7 +9,7 @@ import {
   parseCeloTransaction,
 } from "@celo-tools/celo-ethers-wrapper/build/main/lib/transactions";
 
-// import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
+import { CeloProvider } from "@celo-tools/celo-ethers-wrapper";
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
@@ -40,11 +40,11 @@ export class KEYSTORE {
     /*
     transaction send test code 
     */
-    // const provider = new CeloProvider(
-    //   "https://alfajores-forno.celo-testnet.org"
-    // );
-    // const result = await provider.sendTransaction(serializedTx);
-    // console.log("sendTxResult: ", result);
+    const provider = new CeloProvider(
+      "https://alfajores-forno.celo-testnet.org"
+    );
+    const result = await provider.sendTransaction(serializedTx);
+    console.log("sendTxResult: ", result);
 
     return { rawTx, signedTx: signedTx };
   }

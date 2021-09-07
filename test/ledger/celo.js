@@ -5,17 +5,6 @@ const { getAccount } = require("./_getAccount");
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
-const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
-const {
-  serializeCeloTransaction,
-} = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
-// import { newKit } from "@celo/contractkit";
-
-async function sendTransation(signedTx) {
-  const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
-  const result = await provider.sendTransaction(signedTx);
-  console.log("sendTxResult: ", result);
-}
 async function signTx(transport, type, index, account) {
   const kms = new KMS({
     keyStore: null,
@@ -29,7 +18,7 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        nonce: "0x08",
+        nonce: "0x0b",
         gasPrice: "0x09184e72a000",
         gasLimit: "0x9710",
         feeCurrency: "",
