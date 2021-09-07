@@ -5,6 +5,28 @@ const { getAccount } = require("./_getAccount");
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
+const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
+const {
+  serializeCeloTransaction,
+} = require("@celo-tools/celo-ethers-wrapper/build/main/lib/transactions");
+const { utils } = require("ethers");
+
+async function sendTx(rawTx, signedTx) {
+  const tx = await utils.resolveProperties(rawTx);
+
+  const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
+
+  const result = await provider.sendTransaction(
+    serializeCeloTransaction(tx, {
+      ...signedTx,
+      r: "0x" + signedTx.r,
+      s: "0x" + signedTx.s,
+      v: parseInt(signedTx.v),
+    })
+  );
+  console.log("sendTxResult: ", result);
+}
+
 async function signTx(transport, type, index, account) {
   const kms = new KMS({
     keyStore: null,
@@ -18,7 +40,7 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        nonce: "0x0b",
+        nonce: "0x14",
         gasPrice: "0x09184e72a000",
         gasLimit: "0x9710",
         feeCurrency: "",
@@ -32,6 +54,7 @@ async function signTx(transport, type, index, account) {
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
+    await sendTx(response.rawTx, response.signedTx);
     return response;
   } catch (error) {
     // eslint-disable-next-line no-console
