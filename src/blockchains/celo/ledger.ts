@@ -33,9 +33,8 @@ export class LEDGER {
 
     let addToV = rawTx.chainId * 2 + 35;
     const rv = parseInt(signature.v, 16);
-    // eslint-disable-next-line no-bitwise
     if (rv !== addToV && (rv & addToV) !== rv) {
-      addToV += 1; // add signature v bit.
+      addToV += 1;
     }
     signature.v = addToV.toString(10);
 

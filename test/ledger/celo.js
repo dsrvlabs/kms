@@ -13,9 +13,7 @@ const { utils } = require("ethers");
 
 async function sendTx(rawTx, signedTx) {
   const tx = await utils.resolveProperties(rawTx);
-
   const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
-
   const result = await provider.sendTransaction(
     serializeCeloTransaction(tx, {
       ...signedTx,
@@ -40,7 +38,7 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        nonce: "0x14",
+        nonce: "0x1a",
         gasPrice: "0x09184e72a000",
         gasLimit: "0x9710",
         feeCurrency: "",
@@ -54,7 +52,6 @@ async function signTx(transport, type, index, account) {
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    await sendTx(response.rawTx, response.signedTx);
     return response;
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -66,6 +63,7 @@ async function run() {
   const transport = await TransportNodeHid.create(1000);
   const account = await getAccount(transport, TYPE, INDEX);
   const signedTx = await signTx(transport, TYPE, INDEX, account);
+  await sendTx(signedTx.rawTx, signedTx.signedTx);
   transport.close();
 }
 
