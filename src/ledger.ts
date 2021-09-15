@@ -10,7 +10,6 @@ import { LEDGER as polkadot } from "./blockchains/polkadot/ledger";
 import { LEDGER as cosmos } from "./blockchains/cosmos/ledger/cosmos";
 import { LEDGER as celo } from "./blockchains/celo/ledger";
 import { LEDGER as tezos } from "./blockchains/tezos/ledger";
-import { LEDGER as persistence } from "./blockchains/cosmos/ledger/persistence";
 
 export async function getAccountFromLedger(
   path: BIP44,
@@ -29,10 +28,6 @@ export async function getAccountFromLedger(
       }
       case CHAIN.TERRA: {
         const publicKey = await terra.getAccount(path, transport);
-        return publicKey;
-      }
-      case CHAIN.PERSISTENCE: {
-        const publicKey = await persistence.getAccount(path, transport);
         return publicKey;
       }
       case CHAIN.FLOW: {
