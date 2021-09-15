@@ -23,8 +23,16 @@ export async function getAccountFromLedger(
         const publicKey = await mina.getAccount(path, transport);
         return publicKey;
       }
+      case CHAIN.COSMOS: {
+        const publicKey = await cosmos.getAccount(path, transport);
+        return publicKey;
+      }
       case CHAIN.TERRA: {
         const publicKey = await terra.getAccount(path, transport);
+        return publicKey;
+      }
+      case CHAIN.PERSISTENCE: {
+        const publicKey = await persistence.getAccount(path, transport);
         return publicKey;
       }
       case CHAIN.FLOW: {
@@ -47,20 +55,12 @@ export async function getAccountFromLedger(
         const publicKey = await polkadot.getAccount(path, transport);
         return publicKey;
       }
-      case CHAIN.COSMOS: {
-        const publicKey = await cosmos.getAccount(path, transport);
-        return publicKey;
-      }
       case CHAIN.CELO: {
         const publicKey = await celo.getAccount(path, transport);
         return publicKey;
       }
       case CHAIN.TEZOS: {
         const publicKey = await tezos.getAccount(path, transport);
-        return publicKey;
-      }
-      case CHAIN.PERSISTENCE: {
-        const publicKey = await persistence.getAccount(path, transport);
         return publicKey;
       }
       // add blockchains....
