@@ -4,7 +4,6 @@ import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
-import { KEYSTORE as terra } from "./blockchains/terra/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
 import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
 import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
@@ -33,11 +32,15 @@ export async function getAccountFromKeyStore(
         return account;
       }
       case CHAIN.COSMOS: {
-        const account = cosmos.getAccount(child);
+        const account = cosmos.getAccount(child, "cosmos");
         return account;
       }
       case CHAIN.TERRA: {
-        const account = terra.getAccount(child);
+        const account = cosmos.getAccount(child, "terra");
+        return account;
+      }
+      case CHAIN.PERSISTENCE: {
+        const account = cosmos.getAccount(child, "persistence");
         return account;
       }
       case CHAIN.SOLANA: {
@@ -101,10 +104,6 @@ export async function signTxFromKeyStore(
       }
       case CHAIN.SOLANA: {
         const response = solana.signTx(seed, path, rawTx);
-        return { ...response };
-      }
-      case CHAIN.CELO: {
-        const response = await celo.signTx(child, rawTx);
         return { ...response };
       }
       // add blockchains....

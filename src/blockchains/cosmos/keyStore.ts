@@ -15,18 +15,22 @@ export class KEYSTORE {
     return bech32.encode(prefix, words);
   }
 
-  static getAccount(node: BIP32Interface): string {
+  static getAccount(node: BIP32Interface, prefix: string): string {
     const message = CryptoJS.enc.Hex.parse(node.publicKey.toString("hex"));
     const temp = CryptoJS.RIPEMD160(CryptoJS.SHA256(message) as any).toString();
-    const address = KEYSTORE.bech32ify(temp, "cosmos");
+    const address = KEYSTORE.bech32ify(temp, prefix);
     return address;
   }
 
-  static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {
+  static async signTx(
+    node: BIP32Interface,
+    rawTx: RawTx,
+    prefix: string
+  ): Promise<SignedTx> {
     if (node.privateKey) {
       const wallet = await Secp256k1Wallet.fromKey(
         new Uint8Array(node.privateKey),
-        "cosmos"
+        prefix
       );
       const signDoc = aMakeSignDoc(
         rawTx.msgs as AminoMsg[],
@@ -37,7 +41,7 @@ export class KEYSTORE {
         rawTx.sequence
       );
 
-      const address = KEYSTORE.getAccount(node);
+      const address = KEYSTORE.getAccount(node, prefix);
       const response = await wallet.signAmino(address, signDoc);
       const signature = new Uint8Array(
         Buffer.from(response.signature.signature, "base64")
