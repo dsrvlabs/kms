@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import TerraApp, { AddressResponse } from "@terra-money/ledger-terra-js";
 import * as secp256k1 from "secp256k1";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { BIP44, RawTx, SignedTx } from "../../../types";
 
 // LEDGER
 export class LEDGER {

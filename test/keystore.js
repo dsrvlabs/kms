@@ -52,6 +52,7 @@ async function run() {
     ["TERRA", CHAIN.TERRA],
     ["TEZOS", CHAIN.TEZOS],
     ["FLOW", CHAIN.FLOW],
+    ["PERSISTENCE", CHAIN.PERSISTENCE],
     /*
     ["POLKADOT", CHAIN.POLKADOT],
     ["KUSAMA", CHAIN.KUSAMA],

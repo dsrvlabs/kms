@@ -1,15 +1,16 @@
 import Transport from "@ledgerhq/hw-transport";
 import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
 import { LEDGER as mina } from "./blockchains/mina/ledger";
-import { LEDGER as terra } from "./blockchains/terra/ledger";
+import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
 import { LEDGER as solana } from "./blockchains/solana/ledger";
 import { LEDGER as near } from "./blockchains/near/ledger";
 import { LEDGER as kusama } from "./blockchains/kusama/ledger";
 import { LEDGER as polkadot } from "./blockchains/polkadot/ledger";
-import { LEDGER as cosmos } from "./blockchains/cosmos/ledger";
+import { LEDGER as cosmos } from "./blockchains/cosmos/ledger/cosmos";
 import { LEDGER as celo } from "./blockchains/celo/ledger";
 import { LEDGER as tezos } from "./blockchains/tezos/ledger";
+import { LEDGER as persistence } from "./blockchains/cosmos/ledger/persistence";
 
 export async function getAccountFromLedger(
   path: BIP44,
@@ -58,6 +59,10 @@ export async function getAccountFromLedger(
         const publicKey = await tezos.getAccount(path, transport);
         return publicKey;
       }
+      case CHAIN.PERSISTENCE: {
+        const publicKey = await persistence.getAccount(path, transport);
+        return publicKey;
+      }
       // add blockchains....
       // blockchains
       default:
@@ -83,12 +88,12 @@ export async function signTxFromLedger(
         const response = await mina.signTx(path, transport, rawTx);
         return { ...response };
       }
-      case CHAIN.TERRA: {
-        const response = await terra.signTx(path, transport, rawTx);
-        return { ...response };
-      }
       case CHAIN.COSMOS: {
         const response = await cosmos.signTx(path, transport, rawTx);
+        return { ...response };
+      }
+      case CHAIN.TERRA: {
+        const response = await terra.signTx(path, transport, rawTx);
         return { ...response };
       }
       case CHAIN.NEAR: {
@@ -97,10 +102,6 @@ export async function signTxFromLedger(
       }
       case CHAIN.SOLANA: {
         const response = await solana.signTx(path, transport, rawTx);
-        return { ...response };
-      }
-      case CHAIN.CELO: {
-        const response = await celo.signTx(path, transport, rawTx);
         return { ...response };
       }
       // add blockchains....

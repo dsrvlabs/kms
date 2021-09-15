@@ -32,4 +32,5 @@ export const CHAIN = {
   COSMOS: 118,
   CELO: 52752,
   TEZOS: 1729,
+  PERSISTENCE: 750,
 } as const;
