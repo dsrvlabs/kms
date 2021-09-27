@@ -39,6 +39,11 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@celo-tools/celo-ethers-wrapper@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@celo-tools/celo-ethers-wrapper/-/celo-ethers-wrapper-0.0.5.tgz#a0bd4553e59c0fc4e97dcec97f719fd27dc4498b"
+  integrity sha512-an5TaLv/esjQLEYtF79f8isBUtHEN+ZiHci2H4gVTEAgRgS+nSp5QCq8/LV/biAh9kJJEpojEzlxJALSKu8Klg==
+
 "@cosmjs/amino@^0.26.0":
   version "0.26.0"
   resolved "https://registry.yarnpkg.com/@cosmjs/amino/-/amino-0.26.0.tgz#2999204fe21101ecdfb5f2f5632440d065914b51"

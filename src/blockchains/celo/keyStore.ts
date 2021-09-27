@@ -33,7 +33,10 @@ export class KEYSTORE {
 
     return {
       rawTx,
-      signedTx: { signature: { v: signedTx.v, r: signedTx.r, s: signedTx.s } },
+      signedTx: {
+        signature: { v: signedTx.v, r: signedTx.r, s: signedTx.s },
+        serializedTx,
+      },
     };
   }
 
