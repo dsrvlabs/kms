@@ -79,6 +79,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "@celo-tools/celo-ethers-wrapper": "^0.0.5",
     "@ledgerhq/hw-transport-node-hid": "^6.3.0",
     "@types/argon2-browser": "^1.18.1",
     "@types/bs58": "^4.0.1",

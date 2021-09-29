@@ -108,6 +108,10 @@ export async function signTxFromLedger(
         const response = await solana.signTx(path, transport, rawTx);
         return { ...response };
       }
+      case CHAIN.CELO: {
+        const response = await celo.signTx(path, transport, rawTx);
+        return { ...response };
+      }
       // add blockchains....
       // blockchains
       default:

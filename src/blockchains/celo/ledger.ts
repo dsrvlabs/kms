@@ -1,4 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
+import { utils } from "ethers";
 import { serializeCeloTransaction } from "./transactions";
 import Ledger from "./hw";
 import { BIP44, RawTx, SignedTx } from "../../types";
@@ -25,6 +26,7 @@ export class LEDGER {
     rawTx: RawTx
   ): Promise<SignedTx> {
     const ledger = new Ledger(transport);
+    const tx = await utils.resolveProperties(rawTx);
     const encodedTx = serializeCeloTransaction(rawTx).slice(2);
     const signature = await ledger.signTransaction(
       `44'/${path.type}'/${path.account}'/0/${path.index}`,
@@ -32,12 +34,21 @@ export class LEDGER {
     );
 
     let addToV = rawTx.chainId * 2 + 35;
+    let recoveryParam = 0;
     const rv = parseInt(signature.v, 16);
     // eslint-disable-next-line no-bitwise
     if (rv !== addToV && (rv & addToV) !== rv) {
       addToV += 1;
+      recoveryParam = 1;
     }
     signature.v = addToV.toString(10);
+
+    const serializedTx = serializeCeloTransaction(tx, {
+      r: `0x${signature.r}`,
+      s: `0x${signature.s}`,
+      v: addToV,
+      recoveryParam,
+    });
 
     return {
       rawTx,
@@ -47,6 +58,7 @@ export class LEDGER {
           r: `0x${signature.r}`,
           s: `0x${signature.s}`,
         },
+        serializedTx,
       },
     };
   }

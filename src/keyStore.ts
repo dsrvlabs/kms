@@ -118,6 +118,10 @@ export async function signTxFromKeyStore(
         const response = cosmos.signTx(child, rawTx, "persistence");
         return { ...response };
       }
+      case CHAIN.CELO: {
+        const response = await celo.signTx(child, rawTx);
+        return { ...response };
+      }
       // add blockchains....
       // blockchains
       default:
