@@ -106,6 +106,18 @@ export async function signTxFromKeyStore(
         const response = solana.signTx(seed, path, rawTx);
         return { ...response };
       }
+      case CHAIN.COSMOS: {
+        const response = cosmos.signTx(child, rawTx, "cosmos");
+        return { ...response };
+      }
+      case CHAIN.TERRA: {
+        const response = cosmos.signTx(child, rawTx, "terra");
+        return { ...response };
+      }
+      case CHAIN.PERSISTENCE: {
+        const response = cosmos.signTx(child, rawTx, "persistence");
+        return { ...response };
+      }
       case CHAIN.CELO: {
         const response = await celo.signTx(child, rawTx);
         return { ...response };
