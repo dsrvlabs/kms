@@ -39,7 +39,8 @@ async function signTx(path, keyStore, password) {
           },
         ],
         sequence: "0",
-      }
+      },
+      "terra"
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
