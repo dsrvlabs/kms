@@ -1,7 +1,4 @@
-const { mnemonicToSeedSync } = require("bip39");
-const { fromSeed } = require("bip32");
-const { CHAIN } = require("../../lib");
-const cosmos = require("../../lib/blockchains/cosmos/keyStore");
+const { KMS, CHAIN } = require("../../lib");
 
 const { createKeyStore, getAccount } = require("./_getAccount");
 
@@ -10,19 +7,14 @@ const MNEMONIC = require("../mnemonic.json");
 const TYPE = CHAIN.COSMOS;
 const INDEX = 0;
 
-async function getDerivePath(path) {
-  const mnemonic = MNEMONIC.bip44;
-  const seed = mnemonicToSeedSync(mnemonic);
-  const node = fromSeed(seed);
-  return node.derivePath(
-    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-  );
-}
-
 async function signTx(path, keyStore, password) {
+  const kms = new KMS({
+    keyStore,
+    transport: null,
+  });
   try {
-    const response = await cosmos.KEYSTORE.signTx(
-      await getDerivePath(path, keyStore, password),
+    const response = await kms.signTx(
+      { ...path, password },
       {
         account_number: "6571",
         chain_id: "cosmoshub-2",
@@ -41,8 +33,7 @@ async function signTx(path, keyStore, password) {
           },
         ],
         sequence: "0",
-      },
-      "cosmos"
+      }
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
