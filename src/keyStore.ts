@@ -107,15 +107,15 @@ export async function signTxFromKeyStore(
         return { ...response };
       }
       case CHAIN.COSMOS: {
-        const response = cosmos.signTx(child, rawTx, "cosmos");
+        const response = await cosmos.signTx(child, rawTx, "cosmos");
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = cosmos.signTx(child, rawTx, "terra");
+        const response = await cosmos.signTx(child, rawTx, "terra");
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
-        const response = cosmos.signTx(child, rawTx, "persistence");
+        const response = await cosmos.signTx(child, rawTx, "persistence");
         return { ...response };
       }
       case CHAIN.CELO: {
