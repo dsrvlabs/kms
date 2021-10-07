@@ -1,10 +1,18 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
-import { getAccountFromKeyStore, signTxFromKeyStore } from "./keyStore";
+import { CHAIN, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
-import { getAccountFromLedger, signTxFromLedger } from "./ledger";
+import {
+  getAccountFromKeyStore,
+  signTxFromKeyStore,
+  signMsgFromKeyStore,
+} from "./keyStore";
+import {
+  getAccountFromLedger,
+  signTxFromLedger,
+  signMsgFromLedger,
+} from "./ledger";
 import { createWeb3 } from "./provider/web3";
 import { createExtension } from "./provider/extension";
 
@@ -79,6 +87,19 @@ export class KMS {
       return response;
     }
     return { rawTx };
+  }
+
+  async signMsg(path: BIP44, msg: string): Promise<SignedMsg> {
+    if (this.keyStore) {
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const response = await signMsgFromKeyStore(path, mnemonic, msg);
+      return response;
+    }
+    if (this.transport) {
+      const response = await signMsgFromLedger(path, this.transport, msg);
+      return response;
+    }
+    return { msg };
   }
 
   async close(): Promise<void> {

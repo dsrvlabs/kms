@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
+import { CHAIN, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { LEDGER as mina } from "./blockchains/mina/ledger";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
@@ -10,7 +10,6 @@ import { LEDGER as polkadot } from "./blockchains/polkadot/ledger";
 import { LEDGER as cosmos } from "./blockchains/cosmos/ledger/cosmos";
 import { LEDGER as celo } from "./blockchains/celo/ledger";
 import { LEDGER as tezos } from "./blockchains/tezos/ledger";
-import { LEDGER as persistence } from "./blockchains/cosmos/ledger/persistence";
 
 export async function getAccountFromLedger(
   path: BIP44,
@@ -18,21 +17,31 @@ export async function getAccountFromLedger(
 ): Promise<string | null> {
   try {
     switch (path.type) {
+      /*
+      case CHAIN.DSRV: {
+        const publicKey = await cosmos.getAccount(path, transport, "dsrv");
+        return publicKey;
+      }
+      */
       // blockchains
       case CHAIN.MINA: {
         const publicKey = await mina.getAccount(path, transport);
         return publicKey;
       }
       case CHAIN.COSMOS: {
-        const publicKey = await cosmos.getAccount(path, transport);
+        const publicKey = await cosmos.getAccount(path, transport, "cosmos");
+        return publicKey;
+      }
+      case CHAIN.PERSISTENCE: {
+        const publicKey = await cosmos.getAccount(
+          path,
+          transport,
+          "persistence"
+        );
         return publicKey;
       }
       case CHAIN.TERRA: {
         const publicKey = await terra.getAccount(path, transport);
-        return publicKey;
-      }
-      case CHAIN.PERSISTENCE: {
-        const publicKey = await persistence.getAccount(path, transport);
         return publicKey;
       }
       case CHAIN.FLOW: {
@@ -83,6 +92,12 @@ export async function signTxFromLedger(
 ): Promise<SignedTx> {
   try {
     switch (path.type) {
+      /*
+      case CHAIN.DSRV: {
+        const response = await cosmos.signTx(path, transport, rawTx);
+        return { ...response };
+      }
+      */
       // blockchains
       case CHAIN.MINA: {
         const response = await mina.signTx(path, transport, rawTx);
@@ -92,12 +107,12 @@ export async function signTxFromLedger(
         const response = await cosmos.signTx(path, transport, rawTx);
         return { ...response };
       }
-      case CHAIN.TERRA: {
-        const response = await terra.signTx(path, transport, rawTx);
+      case CHAIN.PERSISTENCE: {
+        const response = await cosmos.signTx(path, transport, rawTx);
         return { ...response };
       }
-      case CHAIN.PERSISTENCE: {
-        const response = await persistence.signTx(path, transport, rawTx);
+      case CHAIN.TERRA: {
+        const response = await terra.signTx(path, transport, rawTx);
         return { ...response };
       }
       case CHAIN.NEAR: {
@@ -122,5 +137,26 @@ export async function signTxFromLedger(
     // eslint-disable-next-line no-console
     console.error(error);
     return { rawTx };
+  }
+}
+
+export async function signMsgFromLedger(
+  path: BIP44,
+  _transport: Transport,
+  msg: string
+): Promise<SignedMsg> {
+  try {
+    switch (path.type) {
+      // blockchains
+      // add blockchains....
+      // blockchains
+      default:
+        break;
+    }
+    return { msg };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return { msg };
   }
 }

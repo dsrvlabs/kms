@@ -21,7 +21,13 @@ export interface SignedTx {
   signedTx?: any;
 }
 
+export interface SignedMsg {
+  msg: string;
+  signedMsg?: any;
+}
+
 export const CHAIN = {
+  DSRV: 8080,
   MINA: 12586,
   TERRA: 330,
   FLOW: 539,

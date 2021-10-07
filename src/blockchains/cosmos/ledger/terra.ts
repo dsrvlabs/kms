@@ -33,10 +33,11 @@ export class LEDGER {
   }
 
   /*
-  export function signMessage(
+  static async signMessage(
     path: BIP44,
     transport: Transport,
-    msg: string) {
+    msg: string
+  ): Promise<SignedMsg> {
     // ...
   }
   */

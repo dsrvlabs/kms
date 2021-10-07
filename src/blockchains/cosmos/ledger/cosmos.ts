@@ -6,11 +6,15 @@ const CosmosApp = require("ledger-cosmos-js").default;
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(
+    path: BIP44,
+    transport: Transport,
+    prefix: string
+  ): Promise<string> {
     const instance = new CosmosApp(transport);
     const response = await instance.getAddressAndPubKey(
       [44, path.type, path.account, 0, path.index],
-      "cosmos"
+      prefix
     );
     return response.bech32_address;
   }
@@ -33,10 +37,11 @@ export class LEDGER {
   }
 
   /*
-  export function signMessage(
+  static async signMessage(
     path: BIP44,
     transport: Transport,
-    msg: string) {
+    msg: string
+  ): Promise<SignedMsg> {
     // ...
   }
   */
