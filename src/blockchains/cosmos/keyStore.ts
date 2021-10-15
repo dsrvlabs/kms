@@ -1,25 +1,24 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
-import CryptoJS from "crypto-js";
-import { bech32 } from "bech32";
+import { enc, SHA256 } from "crypto-js";
 import {
   Secp256k1Wallet,
   AminoMsg,
   StdFee,
+  pubkeyToAddress,
   makeSignDoc as aMakeSignDoc,
 } from "@cosmjs/amino";
 import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static bech32ify(address: string, prefix: string) {
-    const words = bech32.toWords(Buffer.from(address, "hex"));
-    return bech32.encode(prefix, words);
-  }
-
   static getAccount(node: BIP32Interface, prefix: string): string {
-    const message = CryptoJS.enc.Hex.parse(node.publicKey.toString("hex"));
-    const temp = CryptoJS.RIPEMD160(CryptoJS.SHA256(message) as any).toString();
-    const address = KEYSTORE.bech32ify(temp, prefix);
+    const address = pubkeyToAddress(
+      {
+        type: "tendermint/PubKeySecp256k1",
+        value: node.publicKey.toString("base64"),
+      },
+      prefix
+    );
     return address;
   }
 
@@ -55,10 +54,7 @@ export class KEYSTORE {
   static async signMessage(node: BIP32Interface, _prefix: string, msg: string) {
     if (node.privateKey) {
       const signature = secp256k1.ecdsaSign(
-        Buffer.from(
-          CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(msg)),
-          "base64"
-        ),
+        Buffer.from(enc.Base64.stringify(SHA256(msg)), "base64"),
         node.privateKey
       );
       return { msg, signedMsg: { ...signature } };
