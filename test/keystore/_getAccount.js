@@ -49,7 +49,7 @@ exports.getAccount = async function getAccount(path, keyStore, password) {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
-    return "";
+    return null;
   }
 };
 

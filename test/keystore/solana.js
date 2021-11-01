@@ -114,7 +114,11 @@ async function run() {
     keyStore,
     PASSWORD
   );
-  await signTx({ type: TYPE, account: 0, index: INDEX }, mnemonic, account);
+  await signTx(
+    { type: TYPE, account: 0, index: INDEX },
+    mnemonic,
+    account.address
+  );
 }
 
 run();

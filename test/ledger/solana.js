@@ -4,7 +4,7 @@ const {
   StakeProgram,
   PublicKey,
   Connection,
-  sendAndConfirmRawTransaction,
+  // sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
 
 const { KMS, CHAIN } = require("../../lib");
@@ -13,10 +13,10 @@ const { getAccount } = require("./_getAccount");
 const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
 
-const TRANSFER = 0;
+// const TRANSFER = 0;
 const CREATESTAKEACCONUT = 1;
 const DELEGATE = 2;
-const UNDELEGATE = 3;
+// const UNDELEGATE = 3;
 
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
@@ -28,7 +28,7 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   console.log("stakePubkey - ", stakePubkey.toString());
   return stakePubkey;
 }
-
+/*
 async function sendTransation(connection, transaction) {
   try {
     await sendAndConfirmRawTransaction(connection, transaction.serialize(), {
@@ -39,7 +39,7 @@ async function sendTransation(connection, transaction) {
     console.log(error);
   }
 }
-
+*/
 async function signTx(transport, type, index, account) {
   const kms = new KMS({
     keyStore: null,
@@ -116,7 +116,7 @@ async function signTx(transport, type, index, account) {
 async function run() {
   const transport = await TransportNodeHid.create(1000);
   const account = await getAccount(transport, TYPE, INDEX);
-  await signTx(transport, TYPE, INDEX, account);
+  await signTx(transport, TYPE, INDEX, account.address);
   transport.close();
 }
 

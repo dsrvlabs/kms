@@ -1,6 +1,6 @@
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import { CHAIN, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
@@ -14,7 +14,7 @@ import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 export async function getAccountFromKeyStore(
   path: BIP44,
   mnemonic: string
-): Promise<string | null> {
+): Promise<Account | null> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);

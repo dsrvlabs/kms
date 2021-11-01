@@ -12,6 +12,11 @@ export interface KeyStore {
   j: string[];
 }
 
+export interface Account {
+  address: string;
+  publicKey: string;
+}
+
 export interface RawTx {
   [key: string]: any;
 }

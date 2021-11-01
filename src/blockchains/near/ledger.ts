@@ -1,19 +1,22 @@
 import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
 import { transactions } from "near-api-js";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 import { createTransaction } from "./createTransaction";
 
 const App = require("near-ledger-js");
 
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
     transport.setScrambleKey("NEAR");
     const client = await App.createClient(transport);
     const response = await client.getPublicKey(
       `44'/${path.type}'/${path.account}'/0'/${path.index}'`
     );
-    return response ? `ed25519:${encode(response)}` : "";
+    return {
+      address: `ed25519:${encode(response)}`,
+      publicKey: `ed25519:${encode(response)}`,
+    };
   }
 
   static async signTx(

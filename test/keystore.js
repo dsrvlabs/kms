@@ -2,8 +2,6 @@ const { JWE } = require("node-jose");
 const { encode } = require("bs58");
 const { randomBytes } = require("crypto");
 const { CHAIN, getAccountFromKeyStore, getAlgo2HashKey } = require("../lib");
-// const polkadot = require("../lib/blockchains/polkadot/keyStore");
-// const kusama = require("../lib/blockchains/kusama/keyStore");
 
 const MNEMONIC = require("./mnemonic.json");
 
@@ -45,16 +43,16 @@ async function run() {
   const keyStore = await createKeyStore(PASSWORD);
   const chains = [
     ["DSRV", CHAIN.DSRV],
-    ["MINA", CHAIN.MINA],
-    ["NEAR", CHAIN.NEAR],
-    ["SOLANA", CHAIN.SOLANA],
     ["CELO", CHAIN.CELO],
     ["COSMOS", CHAIN.COSMOS],
     ["TERRA", CHAIN.TERRA],
-    ["TEZOS", CHAIN.TEZOS],
-    ["FLOW", CHAIN.FLOW],
     ["PERSISTENCE", CHAIN.PERSISTENCE],
+    ["MINA", CHAIN.MINA],
+    ["NEAR", CHAIN.NEAR],
+    ["SOLANA", CHAIN.SOLANA],
+    ["TEZOS", CHAIN.TEZOS],
     /*
+    ["FLOW", CHAIN.FLOW],
     ["POLKADOT", CHAIN.POLKADOT],
     ["KUSAMA", CHAIN.KUSAMA],
     */

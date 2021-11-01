@@ -1,6 +1,6 @@
 import { BIP32Interface } from "bip32";
 import * as CodaSDK from "@o1labs/client-sdk";
-import { RawTx, SignedTx } from "../../types";
+import { Account, RawTx, SignedTx } from "../../types";
 
 const base58check = require("base58check");
 const { TxType, Networks } = require("mina-ledger-js");
@@ -14,14 +14,17 @@ export class KEYSTORE {
     return privateKey;
   }
 
-  static getAccount(node: BIP32Interface): string {
+  static getAccount(node: BIP32Interface): Account {
     const privateKey = KEYSTORE.getPrivateKey(node);
-    return CodaSDK.derivePublicKey(privateKey);
+    return {
+      address: CodaSDK.derivePublicKey(privateKey),
+      publicKey: CodaSDK.derivePublicKey(privateKey),
+    };
   }
 
   static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     const privateKey = KEYSTORE.getPrivateKey(node);
-    const publicKey = KEYSTORE.getAccount(node);
+    const account = KEYSTORE.getAccount(node);
 
     if (rawTx.isPayment) {
       const signedPayment = CodaSDK.signPayment(
@@ -34,7 +37,7 @@ export class KEYSTORE {
         },
         {
           privateKey,
-          publicKey,
+          publicKey: account.publicKey,
         }
       );
       return {
@@ -58,7 +61,7 @@ export class KEYSTORE {
       },
       {
         privateKey,
-        publicKey,
+        publicKey: account.publicKey,
       }
     );
     return {

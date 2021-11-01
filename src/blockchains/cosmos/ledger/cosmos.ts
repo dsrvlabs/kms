@@ -1,6 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import * as secp256k1 from "secp256k1";
-import { BIP44, RawTx, SignedTx } from "../../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../../types";
 
 const CosmosApp = require("ledger-cosmos-js").default;
 
@@ -10,13 +10,16 @@ export class LEDGER {
     path: BIP44,
     transport: Transport,
     prefix: string
-  ): Promise<string> {
+  ): Promise<Account> {
     const instance = new CosmosApp(transport);
     const response = await instance.getAddressAndPubKey(
       [44, path.type, path.account, 0, path.index],
       prefix
     );
-    return response.bech32_address;
+    return {
+      address: response.bech32_address,
+      publicKey: (response.compressed_pk as Buffer).toString("base64"),
+    };
   }
 
   static async signTx(

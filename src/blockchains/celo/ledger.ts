@@ -2,22 +2,19 @@ import Transport from "@ledgerhq/hw-transport";
 import { utils } from "ethers";
 import { serializeCeloTransaction } from "./transactions";
 import Ledger from "./hw";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
-    try {
-      const instance = new Ledger(transport);
-      const response = await instance.getAddress(
-        `44'/${path.type}'/${path.account}'/0/${path.index}`
-      );
-      return response.address;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-    return "";
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
+    const instance = new Ledger(transport);
+    const response = await instance.getAddress(
+      `44'/${path.type}'/${path.account}'/0/${path.index}`
+    );
+    return {
+      address: response.address,
+      publicKey: response.publicKey,
+    };
   }
 
   static async signTx(

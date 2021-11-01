@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { LEDGER as mina } from "./blockchains/mina/ledger";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
@@ -14,7 +14,7 @@ import { LEDGER as tezos } from "./blockchains/tezos/ledger";
 export async function getAccountFromLedger(
   path: BIP44,
   transport: Transport
-): Promise<string | null> {
+): Promise<Account | null> {
   try {
     switch (path.type) {
       /*
@@ -25,52 +25,48 @@ export async function getAccountFromLedger(
       */
       // blockchains
       case CHAIN.MINA: {
-        const publicKey = await mina.getAccount(path, transport);
-        return publicKey;
+        const account = await mina.getAccount(path, transport);
+        return account;
       }
       case CHAIN.COSMOS: {
-        const publicKey = await cosmos.getAccount(path, transport, "cosmos");
-        return publicKey;
+        const account = await cosmos.getAccount(path, transport, "cosmos");
+        return account;
       }
       case CHAIN.PERSISTENCE: {
-        const publicKey = await cosmos.getAccount(
-          path,
-          transport,
-          "persistence"
-        );
-        return publicKey;
+        const account = await cosmos.getAccount(path, transport, "persistence");
+        return account;
       }
       case CHAIN.TERRA: {
-        const publicKey = await terra.getAccount(path, transport);
-        return publicKey;
+        const account = await terra.getAccount(path, transport);
+        return account;
       }
       case CHAIN.FLOW: {
-        const publicKey = await flow.getAccount(path, transport);
-        return publicKey;
+        const account = await flow.getAccount(path, transport);
+        return account;
       }
       case CHAIN.SOLANA: {
-        const publicKey = await solana.getAccount(path, transport);
-        return publicKey;
+        const account = await solana.getAccount(path, transport);
+        return account;
       }
       case CHAIN.NEAR: {
-        const publicKey = await near.getAccount(path, transport);
-        return publicKey;
+        const account = await near.getAccount(path, transport);
+        return account;
       }
       case CHAIN.KUSAMA: {
-        const publicKey = await kusama.getAccount(path, transport);
-        return publicKey;
+        const account = await kusama.getAccount(path, transport);
+        return account;
       }
       case CHAIN.POLKADOT: {
-        const publicKey = await polkadot.getAccount(path, transport);
-        return publicKey;
+        const account = await polkadot.getAccount(path, transport);
+        return account;
       }
       case CHAIN.CELO: {
-        const publicKey = await celo.getAccount(path, transport);
-        return publicKey;
+        const account = await celo.getAccount(path, transport);
+        return account;
       }
       case CHAIN.TEZOS: {
-        const publicKey = await tezos.getAccount(path, transport);
-        return publicKey;
+        const account = await tezos.getAccount(path, transport);
+        return account;
       }
       // add blockchains....
       // blockchains

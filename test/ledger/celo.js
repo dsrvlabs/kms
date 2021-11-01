@@ -54,7 +54,7 @@ async function signTx(transport, type, index, to) {
 async function run() {
   const transport = await TransportNodeHid.create(1000);
   const account = await getAccount(transport, TYPE, INDEX);
-  const signedTx = await signTx(transport, TYPE, INDEX, account);
+  const signedTx = await signTx(transport, TYPE, INDEX, account.address);
   console.log(signedTx);
   // await sendTx(signedTx.signedTx);
   transport.close();

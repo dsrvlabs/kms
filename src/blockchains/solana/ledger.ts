@@ -1,16 +1,19 @@
 import Transport from "@ledgerhq/hw-transport";
 import { createTransaction } from "./createTransaction";
 import { getPublicKey, getSolanaDerivationPath, signTransaction } from "./hw";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
     const response = await getPublicKey(
       transport,
       getSolanaDerivationPath(path.account, path.index)
     );
-    return response.toBase58();
+    return {
+      address: response.toBase58(),
+      publicKey: response.toBase58(),
+    };
   }
 
   static async signTx(

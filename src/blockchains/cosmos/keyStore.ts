@@ -8,10 +8,10 @@ import {
   pubkeyToAddress,
   makeSignDoc as aMakeSignDoc,
 } from "@cosmjs/amino";
-import { RawTx, SignedTx } from "../../types";
+import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface, prefix: string): string {
+  static getAccount(node: BIP32Interface, prefix: string): Account {
     const address = pubkeyToAddress(
       {
         type: "tendermint/PubKeySecp256k1",
@@ -19,7 +19,7 @@ export class KEYSTORE {
       },
       prefix
     );
-    return address;
+    return { address, publicKey: node.publicKey.toString("base64") };
   }
 
   static async signTx(
@@ -41,8 +41,8 @@ export class KEYSTORE {
         rawTx.sequence
       );
 
-      const address = KEYSTORE.getAccount(node, prefix);
-      const response = await wallet.signAmino(address, signDoc);
+      const account = KEYSTORE.getAccount(node, prefix);
+      const response = await wallet.signAmino(account.address, signDoc);
       const signature = new Uint8Array(
         Buffer.from(response.signature.signature, "base64")
       );

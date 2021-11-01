@@ -1,18 +1,23 @@
 import Transport from "@ledgerhq/hw-transport";
 import TerraApp, { AddressResponse } from "@terra-money/ledger-terra-js";
 import * as secp256k1 from "secp256k1";
-import { BIP44, RawTx, SignedTx } from "../../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../../types";
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
     const instance = new TerraApp(transport);
     await instance.initialize();
     const response = (await instance.getAddressAndPubKey(
       [44, path.type, path.account, 0, path.index],
       "terra"
     )) as AddressResponse;
-    return response.bech32_address;
+    return {
+      address: response.bech32_address,
+      publicKey: (response.compressed_pk as unknown as Buffer).toString(
+        "base64"
+      ),
+    };
   }
 
   static async signTx(

@@ -1,17 +1,20 @@
 import Transport from "@ledgerhq/hw-transport";
-import { BIP44 } from "../../types";
+import { Account, BIP44 } from "../../types";
 
 const FlowApp = require("@onflow/ledger").default;
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
     const instance = new FlowApp(transport);
     const response = await instance.getAddressAndPubKey(
       `m/44'/1'/${path.type}/0/${path.index}`
     );
     // console.log(response);
-    return response.address;
+    return {
+      address: response.address,
+      publicKey: (response.publicKey as Buffer).toString("hex"),
+    };
   }
 
   /*

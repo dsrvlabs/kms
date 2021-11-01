@@ -1,7 +1,7 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
   getAccountFromKeyStore,
@@ -15,18 +15,26 @@ import {
 } from "./ledger";
 import { createWeb3 } from "./provider/web3";
 import { createExtension } from "./provider/extension";
+import { createDid as create, verifyDid as verify } from "./did";
+
+const did = {
+  create,
+  verify,
+};
 
 export {
   createKeyStore,
   getAccountFromKeyStore,
   signTxFromKeyStore,
   CHAIN,
+  Account,
   BIP44,
   RawTx,
   SignedTx,
   getAlgo2HashKey,
   createWeb3,
   createExtension,
+  did,
 };
 
 interface KeyStore {
@@ -63,7 +71,7 @@ export class KMS {
     return !!this.transport;
   }
 
-  async getAccount(path: BIP44): Promise<string | null> {
+  async getAccount(path: BIP44): Promise<Account | null> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
       const account = await getAccountFromKeyStore(path, mnemonic);

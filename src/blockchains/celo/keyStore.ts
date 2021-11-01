@@ -4,7 +4,7 @@ import { SigningKey } from "@ethersproject/signing-key";
 import { BIP32Interface } from "bip32";
 import { privateToAddress, toChecksumAddress } from "ethereumjs-util";
 import { serializeCeloTransaction, parseCeloTransaction } from "./transactions";
-import { RawTx, SignedTx } from "../../types";
+import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   private static getPrivateKey(node: BIP32Interface): string {
@@ -12,11 +12,16 @@ export class KEYSTORE {
     return `0x${privateKey}`;
   }
 
-  static getAccount(node: BIP32Interface): string {
-    const { privateKey } = node;
+  static getAccount(node: BIP32Interface): Account | null {
+    const { privateKey, publicKey } = node;
     return privateKey
-      ? toChecksumAddress(`0x${privateToAddress(privateKey).toString("hex")}`)
-      : "";
+      ? {
+          address: toChecksumAddress(
+            `0x${privateToAddress(privateKey).toString("hex")}`
+          ),
+          publicKey: publicKey.toString("hex"),
+        }
+      : null;
   }
 
   static async signTx(node: BIP32Interface, rawTx: RawTx): Promise<SignedTx> {

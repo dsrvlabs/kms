@@ -57,7 +57,7 @@ async function run() {
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
-    account
+    account.address
   );
 }
 

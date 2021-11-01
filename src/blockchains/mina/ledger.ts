@@ -1,15 +1,18 @@
 import Transport from "@ledgerhq/hw-transport";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 const BN = require("bn.js");
 const { MinaLedgerJS, TxType, Networks } = require("mina-ledger-js");
 
 // LEDGER
 export class LEDGER {
-  static async getAccount(path: BIP44, transport: Transport): Promise<string> {
+  static async getAccount(path: BIP44, transport: Transport): Promise<Account> {
     const instance = new MinaLedgerJS(transport);
     const response = await instance.getAddress(path.account);
-    return response.publicKey;
+    return {
+      address: response.publicKey,
+      publicKey: response.publicKey,
+    };
   }
 
   static async signTx(
