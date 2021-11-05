@@ -41,7 +41,9 @@ export const CHAIN = {
   KUSAMA: 434,
   POLKADOT: 354,
   COSMOS: 118,
+  ETHEREUM: 60,
   CELO: 52752,
   TEZOS: 1729,
   PERSISTENCE: 750,
+  AGORIC: 564,
 } as const;

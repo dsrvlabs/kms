@@ -8,7 +8,6 @@ import { LEDGER as near } from "./blockchains/near/ledger";
 import { LEDGER as kusama } from "./blockchains/kusama/ledger";
 import { LEDGER as polkadot } from "./blockchains/polkadot/ledger";
 import { LEDGER as cosmos } from "./blockchains/cosmos/ledger/cosmos";
-import { LEDGER as celo } from "./blockchains/celo/ledger";
 import { LEDGER as tezos } from "./blockchains/tezos/ledger";
 
 export async function getAccountFromLedger(
@@ -36,6 +35,10 @@ export async function getAccountFromLedger(
         const account = await cosmos.getAccount(path, transport, "persistence");
         return account;
       }
+      case CHAIN.AGORIC: {
+        const account = await cosmos.getAccount(path, transport, "agoric");
+        return account;
+      }
       case CHAIN.TERRA: {
         const account = await terra.getAccount(path, transport);
         return account;
@@ -58,10 +61,6 @@ export async function getAccountFromLedger(
       }
       case CHAIN.POLKADOT: {
         const account = await polkadot.getAccount(path, transport);
-        return account;
-      }
-      case CHAIN.CELO: {
-        const account = await celo.getAccount(path, transport);
         return account;
       }
       case CHAIN.TEZOS: {
@@ -117,10 +116,6 @@ export async function signTxFromLedger(
       }
       case CHAIN.SOLANA: {
         const response = await solana.signTx(path, transport, rawTx);
-        return { ...response };
-      }
-      case CHAIN.CELO: {
-        const response = await celo.signTx(path, transport, rawTx);
         return { ...response };
       }
       // add blockchains....

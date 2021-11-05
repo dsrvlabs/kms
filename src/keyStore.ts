@@ -2,8 +2,8 @@ import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
-import { KEYSTORE as celo } from "./blockchains/celo/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
+import { KEYSTORE as eth } from "./blockchains/ethereum/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
 import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
 import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
@@ -31,16 +31,16 @@ export async function getAccountFromKeyStore(
         const account = mina.getAccount(child);
         return account;
       }
-      case CHAIN.CELO: {
-        const account = celo.getAccount(child);
-        return account;
-      }
       case CHAIN.COSMOS: {
         const account = cosmos.getAccount(child, "cosmos");
         return account;
       }
       case CHAIN.PERSISTENCE: {
         const account = cosmos.getAccount(child, "persistence");
+        return account;
+      }
+      case CHAIN.AGORIC: {
+        const account = cosmos.getAccount(child, "agoric");
         return account;
       }
       case CHAIN.TERRA: {
@@ -69,6 +69,11 @@ export async function getAccountFromKeyStore(
       }
       case CHAIN.TEZOS: {
         const account = tezos.getAccount(seed, path);
+        return account;
+      }
+      case CHAIN.ETHEREUM:
+      case CHAIN.CELO: {
+        const account = eth.getAccount(child);
         return account;
       }
       // add blockchains....
@@ -128,8 +133,9 @@ export async function signTxFromKeyStore(
         const response = await cosmos.signTx(child, "terra", rawTx);
         return { ...response };
       }
+      case CHAIN.ETHEREUM:
       case CHAIN.CELO: {
-        const response = await celo.signTx(child, rawTx);
+        const response = eth.signTx(child, rawTx);
         return { ...response };
       }
       // add blockchains....

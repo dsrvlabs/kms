@@ -1,13 +1,13 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
 import { enc, SHA256 } from "crypto-js";
+import { pubkeyToAddress } from "@cosmjs/amino";
 import {
-  Secp256k1Wallet,
-  AminoMsg,
-  StdFee,
-  pubkeyToAddress,
-  makeSignDoc as aMakeSignDoc,
-} from "@cosmjs/amino";
+  DirectSecp256k1Wallet,
+  makeSignDoc,
+  makeAuthInfoBytes,
+} from "@cosmjs/proto-signing";
+import { registry } from "./defaultRegistryTypes";
 import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
@@ -28,25 +28,43 @@ export class KEYSTORE {
     rawTx: RawTx
   ): Promise<SignedTx> {
     if (node.privateKey) {
-      const wallet = await Secp256k1Wallet.fromKey(
+      const wallet = await DirectSecp256k1Wallet.fromKey(
         new Uint8Array(node.privateKey),
         prefix
       );
-      const signDoc = aMakeSignDoc(
-        rawTx.msgs as AminoMsg[],
-        rawTx.fee as StdFee,
-        rawTx.chain_id,
-        rawTx.memo,
-        rawTx.account_number,
-        rawTx.sequence
-      );
+      const accounts = await wallet.getAccounts();
 
-      const account = KEYSTORE.getAccount(node, prefix);
-      const response = await wallet.signAmino(account.address, signDoc);
-      const signature = new Uint8Array(
-        Buffer.from(response.signature.signature, "base64")
+      const txBodyEncodeObject = {
+        typeUrl: "/cosmos.tx.v1beta1.TxBody",
+        value: {
+          messages: rawTx.msgs,
+          memo: rawTx.memo,
+        },
+      };
+      const txBodyBytes = registry.encode(txBodyEncodeObject);
+      const signDoc = makeSignDoc(
+        txBodyBytes,
+        makeAuthInfoBytes(
+          [
+            {
+              pubkey: {
+                typeUrl: "/cosmos.crypto.secp256k1.PubKey",
+                value: accounts[0].pubkey,
+              },
+              sequence: rawTx.sequence,
+            },
+          ],
+          rawTx.fee.amount,
+          rawTx.fee.gas
+        ),
+        rawTx.chain_id,
+        rawTx.accountNumber
       );
-      return { rawTx, signedTx: { signature } };
+      const { signature, signed } = await wallet.signDirect(
+        accounts[0].address,
+        signDoc
+      );
+      return { rawTx, signedTx: { signature, signed } };
     }
     return { rawTx };
   }

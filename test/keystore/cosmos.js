@@ -22,9 +22,9 @@ async function signTx(path, keyStore, password) {
         memo: "Delegated with Ledger from union.market",
         msgs: [
           {
-            type: "cosmos-sdk/MsgDelegate",
+            typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
             value: {
-              amount: { amount: "1000000", denom: "uatom" },
+              amount: [{ amount: "1000000", denom: "uatom" }],
               delegator_address:
                 "cosmos102hty0jv2s29lyc4u0tv97z9v298e24t3vwtpl",
               validator_address:
