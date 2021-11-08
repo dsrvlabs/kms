@@ -26,15 +26,15 @@ async function signTx(path, keyStore, password, to) {
   try {
     const mnemonic = await getMnemonic(password, keyStore);
     response = await signTxFromKeyStore(path, mnemonic, {
-      nonce: "0x00",
-      gasPrice: "0xffffffff",
-      gasLimit: "0xffffff",
+      nonce: "1",
+      gasPrice: "2",
+      gasLimit: "3",
       feeCurrency: "",
       gatewayFeeRecipient: "",
       gatewayFee: "",
       to,
-      value: "0x01",
-      chainId: 44787,
+      value: "12",
+      chainId: 4478711,
     });
     // eslint-disable-next-line no-console
     console.log("response - ", response);

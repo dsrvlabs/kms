@@ -43,13 +43,13 @@ async function run() {
   const keyStore = await createKeyStore(PASSWORD);
   const chains = [
     ["DSRV", CHAIN.DSRV],
-    ["CELO", CHAIN.CELO],
     ["ETHEREUM", CHAIN.ETHEREUM],
+    ["KLAYTN", CHAIN.KLAYTN],
+    ["CELO", CHAIN.CELO],
     ["COSMOS", CHAIN.COSMOS],
     ["TERRA", CHAIN.TERRA],
     ["PERSISTENCE", CHAIN.PERSISTENCE],
     ["AGORIC", CHAIN.AGORIC],
-    ["MINA", CHAIN.MINA],
     ["NEAR", CHAIN.NEAR],
     ["SOLANA", CHAIN.SOLANA],
     ["TEZOS", CHAIN.TEZOS],

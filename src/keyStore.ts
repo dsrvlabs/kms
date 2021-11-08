@@ -1,7 +1,6 @@
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
-import { KEYSTORE as mina } from "./blockchains/mina/keyStore";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
 import { KEYSTORE as eth } from "./blockchains/ethereum/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
@@ -27,10 +26,6 @@ export async function getAccountFromKeyStore(
         return account;
       }
       // blockchains
-      case CHAIN.MINA: {
-        const account = mina.getAccount(child);
-        return account;
-      }
       case CHAIN.COSMOS: {
         const account = cosmos.getAccount(child, "cosmos");
         return account;
@@ -72,6 +67,7 @@ export async function getAccountFromKeyStore(
         return account;
       }
       case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
       case CHAIN.CELO: {
         const account = eth.getAccount(child);
         return account;
@@ -109,10 +105,6 @@ export async function signTxFromKeyStore(
       }
       */
       // blockchains
-      case CHAIN.MINA: {
-        const response = mina.signTx(child, rawTx);
-        return { ...response };
-      }
       case CHAIN.NEAR: {
         const response = near.signTx(seed, path, rawTx);
         return { ...response };
@@ -134,6 +126,7 @@ export async function signTxFromKeyStore(
         return { ...response };
       }
       case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
       case CHAIN.CELO: {
         const response = eth.signTx(child, rawTx);
         return { ...response };

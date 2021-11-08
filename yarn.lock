@@ -409,13 +409,6 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@o1labs/client-sdk@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@o1labs/client-sdk/-/client-sdk-1.0.1.tgz#5b2824a52fd0e839873791e4a5949aa5197a2ed1"
-  integrity sha512-fHAmY31WIKuXIgMohyf5kJkjNGNqco965YwE2Td4k+IJRswO2ymaIK2Uo4CSp8UqivGzF02i7oJJhzyWWViN5Q==
-  dependencies:
-    "@types/node" "^13.7.0"
-
 "@onflow/ledger@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@onflow/ledger/-/ledger-0.1.0.tgz#a309ebedbe685ec9a1f3bda1f60b2ceb716f36d2"
@@ -1405,14 +1398,6 @@ buffer@6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.1.tgz#3cbea8c1463e5a0779e30b66d4c88c6ffa182ac2"
   integrity sha512-rVAXBwEcEoYtxnHSO5iWyhzV/O1WMtkUYWlfdLS7FjU4PnSJJHEfHXi/uHPI5EwltmOA794gN3bm3/pzuctWjQ==
-  dependencies:
-    base64-js "^1.3.1"
-    ieee754 "^1.2.1"
-
-buffer@6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
-  integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
   dependencies:
     base64-js "^1.3.1"
     ieee754 "^1.2.1"
@@ -2798,13 +2783,6 @@ mimic-response@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.1.0.tgz#d13763d35f613d09ec37ebb30bac0469c0ee8f43"
   integrity sha512-wXqjST+SLt7R009ySCglWBCFpjUygmCIfD790/kVbiGmUgfYGuB14PiTd5DwVxSV4NcYHjzMkoj5LjQZwTQLEA==
-
-mina-ledger-js@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/mina-ledger-js/-/mina-ledger-js-1.0.6.tgz#3f8a8ddc71762a7c3a8f464f1be6b5703ce452f6"
-  integrity sha512-HhjuYWSOs8EedaXFI0mLP1hJGaBk7vH6sW9cUSWomqkMItqIJgHo7G6b5bgSguPnoLm7lrXBSYqSJ3SylZdFng==
-  dependencies:
-    buffer "6.0.3"
 
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"

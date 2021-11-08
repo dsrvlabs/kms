@@ -33,7 +33,6 @@ export interface SignedMsg {
 
 export const CHAIN = {
   DSRV: 8080,
-  MINA: 12586,
   TERRA: 330,
   FLOW: 539,
   SOLANA: 501,
@@ -43,6 +42,7 @@ export const CHAIN = {
   COSMOS: 118,
   ETHEREUM: 60,
   CELO: 52752,
+  KLAYTN: 8217,
   TEZOS: 1729,
   PERSISTENCE: 750,
   AGORIC: 564,

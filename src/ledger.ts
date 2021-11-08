@@ -1,6 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
-import { LEDGER as mina } from "./blockchains/mina/ledger";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
 import { LEDGER as solana } from "./blockchains/solana/ledger";
@@ -23,10 +22,6 @@ export async function getAccountFromLedger(
       }
       */
       // blockchains
-      case CHAIN.MINA: {
-        const account = await mina.getAccount(path, transport);
-        return account;
-      }
       case CHAIN.COSMOS: {
         const account = await cosmos.getAccount(path, transport, "cosmos");
         return account;
@@ -94,10 +89,6 @@ export async function signTxFromLedger(
       }
       */
       // blockchains
-      case CHAIN.MINA: {
-        const response = await mina.signTx(path, transport, rawTx);
-        return { ...response };
-      }
       case CHAIN.COSMOS: {
         const response = await cosmos.signTx(path, transport, rawTx);
         return { ...response };
