@@ -1,6 +1,7 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
+import { JWTVerified } from "did-jwt";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
@@ -15,12 +16,7 @@ import {
 } from "./ledger";
 import { createWeb3 } from "./provider/web3";
 import { createExtension } from "./provider/extension";
-import { createDid as create, verifyDid as verify } from "./did";
-
-const did = {
-  create,
-  verify,
-};
+import { createDid, verifyDid } from "./did";
 
 export {
   createKeyStore,
@@ -34,7 +30,6 @@ export {
   getAlgo2HashKey,
   createWeb3,
   createExtension,
-  did,
 };
 
 interface KeyStore {
@@ -108,6 +103,23 @@ export class KMS {
       return response;
     }
     return { msg };
+  }
+
+  async DidDocCreate(path: BIP44): Promise<string> {
+    if (this.keyStore) {
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const doc = await createDid(path, mnemonic);
+      return doc;
+    }
+    return "";
+  }
+
+  static async DidDocVerify(
+    jwt: string,
+    audience: string
+  ): Promise<JWTVerified | null> {
+    const result = verifyDid(jwt, audience);
+    return result;
   }
 
   async close(): Promise<void> {

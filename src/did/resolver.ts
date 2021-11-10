@@ -39,6 +39,7 @@ export async function getDidDoc(did: string): Promise<DIDDocument> {
         id: `${did}#controller`,
         type: "Secp256k1VerificationKey2018",
         controller: did,
+        blockchainAccountId: did.replace("did:", "cosmos:"),
       },
     ],
   };

@@ -1,7 +1,9 @@
 import { ES256KSigner, createJWT, verifyJWT, JWTVerified } from "did-jwt";
 import { Resolver, DIDDocument } from "did-resolver";
-import { BIP32Interface } from "bip32";
+import { mnemonicToSeedSync } from "bip39";
+import { fromSeed } from "bip32";
 import { createDidDoc, getResolver } from "./resolver";
+import { BIP44 } from "../types";
 
 export async function verifyDid(
   jwt: string,
@@ -19,11 +21,20 @@ export async function verifyDid(
   }
 }
 
-export async function createDid(node: BIP32Interface): Promise<string> {
-  if (node.privateKey) {
-    const signer = ES256KSigner(node.privateKey.toString("hex"));
+export async function createDid(
+  path: BIP44,
+  mnemonic: string
+): Promise<string> {
+  const seed = mnemonicToSeedSync(mnemonic);
+  const node = fromSeed(seed);
+  const child = node.derivePath(
+    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+  );
+
+  if (child.privateKey) {
+    const signer = ES256KSigner(child.privateKey.toString("hex"));
     const didDocument: DIDDocument = createDidDoc(
-      Buffer.from(node.publicKey).toString("base64")
+      Buffer.from(child.publicKey).toString("base64")
     );
     const issuer = didDocument.id;
     const jwt = await createJWT(

@@ -27,7 +27,7 @@ function verifySignature(signature, message, account) {
     pubKey
   );
 
-  return result && account === address;
+  return result && account.address === address;
 }
 
 async function signMsg(path, keyStore, password, account) {
@@ -50,6 +50,17 @@ async function signMsg(path, keyStore, password, account) {
   }
 }
 
+async function did(path, keyStore, password, account) {
+  const kms = new KMS({
+    keyStore,
+    transport: null,
+  });
+  const jwt = await kms.DidDocCreate({ ...path, password });
+  console.log("did doc is ", jwt);
+  const verify = await KMS.DidDocVerify(jwt);
+  console.log("verify", verify);
+}
+
 async function run() {
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
@@ -59,6 +70,12 @@ async function run() {
     PASSWORD
   );
   await signMsg(
+    { type: TYPE, account: 0, index: INDEX },
+    keyStore,
+    PASSWORD,
+    account
+  );
+  await did(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
