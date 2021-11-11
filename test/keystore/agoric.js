@@ -6,7 +6,7 @@ const { createKeyStore, getAccount } = require("./_getAccount");
 
 const MNEMONIC = require("../mnemonic.json");
 
-const TYPE = CHAIN.PERSISTENCE;
+const TYPE = CHAIN.AGORIC;
 const INDEX = 0;
 
 async function signTx(
@@ -36,8 +36,8 @@ async function signTx(
         fee: {
           amount: [
             {
-              denom: "uxprt",
-              amount: "10000",
+              denom: "urun",
+              amount: "0",
             },
           ],
           gas: "180000", // 180k
@@ -49,7 +49,7 @@ async function signTx(
             value: {
               fromAddress: account,
               toAddress: account,
-              amount: [{ denom: "uxprt", amount: "10000" }],
+              amount: [{ denom: "ubld", amount: "10000" }],
             },
           },
         ],
@@ -66,7 +66,7 @@ async function signTx(
 }
 
 async function run() {
-  const rpcUrl = "https://rpc.core.persistence.one";
+  const rpcUrl = "https://devnet.rpc.agoric.net/";
 
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
@@ -100,9 +100,8 @@ async function run() {
   const txRawCall = signing.signedTx.txRaw;
   const txBytes = TxRaw.encode(txRawCall).finish();
   const testing = await client.broadcastTx(txBytes);
-   // eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console
   console.log(testing);
-
 }
 
 run();

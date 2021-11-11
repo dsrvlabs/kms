@@ -125,6 +125,10 @@ export async function signTxFromKeyStore(
         const response = await cosmos.signTx(child, "terra", rawTx);
         return { ...response };
       }
+      case CHAIN.AGORIC: {
+        const response = await cosmos.signTx(child, "agoric", rawTx);
+        return { ...response };
+      }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
