@@ -1,12 +1,14 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
 import { enc, SHA256 } from "crypto-js";
-import { pubkeyToAddress } from "@cosmjs/amino";
+import { pubkeyToAddress, encodeSecp256k1Pubkey } from "@cosmjs/amino";
 import {
   DirectSecp256k1Wallet,
   makeSignDoc,
   makeAuthInfoBytes,
+  encodePubkey,
 } from "@cosmjs/proto-signing";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { registry } from "./defaultRegistryTypes";
 import { Account, RawTx, SignedTx } from "../../types";
 
@@ -41,30 +43,40 @@ export class KEYSTORE {
           memo: rawTx.memo,
         },
       };
+
       const txBodyBytes = registry.encode(txBodyEncodeObject);
+      const pubkey = encodePubkey(encodeSecp256k1Pubkey(accounts[0].pubkey));
+
       const signDoc = makeSignDoc(
         txBodyBytes,
         makeAuthInfoBytes(
           [
             {
-              pubkey: {
-                typeUrl: "/cosmos.crypto.secp256k1.PubKey",
-                value: accounts[0].pubkey,
-              },
-              sequence: rawTx.sequence,
+              pubkey,
+              sequence: rawTx.signerData.sequence,
             },
           ],
           rawTx.fee.amount,
           rawTx.fee.gas
         ),
-        rawTx.chain_id,
-        rawTx.accountNumber
+        rawTx.signerData.chainId,
+        rawTx.signerData.accountNumber
       );
-      const { signature, signed } = await wallet.signDirect(
+
+      const { signature } = await wallet.signDirect(
         accounts[0].address,
         signDoc
       );
-      return { rawTx, signedTx: { signature, signed } };
+
+      const txRaw = TxRaw.fromPartial({
+        bodyBytes: signDoc.bodyBytes,
+        authInfoBytes: signDoc.authInfoBytes,
+        signatures: [
+          new Uint8Array(Buffer.from(signature.signature, "base64")),
+        ],
+      });
+
+      return { rawTx, signedTx: { txRaw } };
     }
     return { rawTx };
   }
