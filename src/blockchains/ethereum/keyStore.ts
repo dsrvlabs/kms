@@ -6,6 +6,7 @@ import {
   bnToHex,
   keccak256,
   ecsign,
+  BN,
 } from "ethereumjs-util";
 import { Account, RawTx, SignedTx } from "../../types";
 
@@ -19,12 +20,39 @@ export class KEYSTORE {
 
   private static legacySignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
     const tx = Transaction.fromTxData({
-      nonce: bnToHex(rawTx.nonce),
-      gasPrice: bnToHex(rawTx.gasPrice),
-      gasLimit: bnToHex(rawTx.gasLimit),
+      nonce: bnToHex(new BN(rawTx.nonce)),
+      gasPrice: bnToHex(new BN(rawTx.gasPrice)),
+      gasLimit: bnToHex(new BN(rawTx.gasLimit)),
       to: rawTx.to,
-      value: rawTx.value ? bnToHex(rawTx.value) : "0x",
-      data: rawTx.data ? bnToHex(rawTx.data) : "0x",
+      value: rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
+      data: rawTx.data || "0x",
+    });
+    const signedTx = tx.sign(privateKey);
+    const json = signedTx.toJSON();
+    return {
+      rawTx,
+      signedTx: {
+        json: { ...json, v: parseInt(json.v || "0x0", 16) },
+        signature: signedTx.serialize().toString("hex"),
+      },
+    };
+  }
+
+  private static eip1559SignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+    const tx = FeeMarketEIP1559Transaction.fromTxData({
+      nonce: bnToHex(new BN(rawTx.nonce)),
+      gasLimit: bnToHex(new BN(rawTx.gasLimit)),
+      to: rawTx.to,
+      value: bnToHex(new BN(rawTx.value)),
+      data: rawTx.data || "0x",
+      chainId: bnToHex(new BN(rawTx.chainId)),
+      accessList: rawTx.accessList ? rawTx.accessList : [],
+      maxPriorityFeePerGas: rawTx.maxPriorityFeePerGas
+        ? bnToHex(new BN(rawTx.maxPriorityFeePerGas))
+        : "0x",
+      maxFeePerGas: rawTx.maxFeePerGas
+        ? bnToHex(new BN(rawTx.maxFeePerGas))
+        : "0x",
     });
     const signedTx = tx.sign(privateKey);
     const json = signedTx.toJSON();
@@ -39,16 +67,18 @@ export class KEYSTORE {
 
   private static celoSignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
     const rlpEncode = rlp.encode([
-      bnToHex(rawTx.nonce),
-      bnToHex(rawTx.gasPrice),
-      bnToHex(rawTx.gasLimit),
-      rawTx.feeCurrency ? bnToHex(rawTx.feeCurrency) : "0x",
-      rawTx.gatewayFeeRecipient ? bnToHex(rawTx.gatewayFeeRecipient) : "0x",
-      rawTx.gatewayFee ? bnToHex(rawTx.gatewayFee) : "0x",
+      bnToHex(new BN(rawTx.nonce)),
+      bnToHex(new BN(rawTx.gasPrice)),
+      bnToHex(new BN(rawTx.gasLimit)),
+      rawTx.feeCurrency ? bnToHex(new BN(rawTx.feeCurrency)) : "0x",
+      rawTx.gatewayFeeRecipient
+        ? bnToHex(new BN(rawTx.gatewayFeeRecipient))
+        : "0x",
+      rawTx.gatewayFee ? bnToHex(new BN(rawTx.gatewayFee)) : "0x",
       rawTx.to,
-      rawTx.value ? bnToHex(rawTx.value) : "0x",
-      rawTx.data ? bnToHex(rawTx.data) : "0x",
-      bnToHex(rawTx.chainId),
+      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
+      rawTx.data || "0x",
+      bnToHex(new BN(rawTx.chainId)),
       "0x",
       "0x",
     ]);
@@ -84,32 +114,12 @@ export class KEYSTORE {
 
   static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
     if (node.privateKey) {
-      switch (rawTx.chainId) {
+      switch (parseInt(rawTx.chainId, 10)) {
         case 1: // main
         case 3: // ropsten
         case 4: // rinkeby
-        case 5: {
-          const tx = FeeMarketEIP1559Transaction.fromTxData({
-            nonce: rawTx.nonce,
-            gasLimit: rawTx.gasPrice,
-            to: rawTx.to,
-            value: rawTx.value,
-            data: rawTx.data,
-            chainId: rawTx.chainId,
-            accessList: rawTx.accessList,
-            maxPriorityFeePerGas: rawTx.maxPriorityFeePerGas,
-            maxFeePerGas: rawTx.maxFeePerGas,
-          });
-          const signedTx = tx.sign(node.privateKey);
-          const json = signedTx.toJSON();
-          return {
-            rawTx,
-            signedTx: {
-              json: { ...json, v: parseInt(json.v || "0x0", 16) },
-              signature: signedTx.serialize().toString("hex"),
-            },
-          };
-        }
+        case 5: // gorli
+          return KEYSTORE.eip1559SignTx(node.privateKey, rawTx);
         case 1001: // klaytn testnet
         case 8217: // klaytn mainnet
           return KEYSTORE.klaySignTx(node.privateKey, rawTx);
@@ -117,7 +127,12 @@ export class KEYSTORE {
         case 44787: // celo Alfajores
         case 62320: // celo Baklava
           return KEYSTORE.celoSignTx(node.privateKey, rawTx);
+        case 25: // Cronos Mainnet Beta
+        case 338: // Cronos Testnet
         case 9000: // evmos testnet
+        case 245022934: // Neon EVM MainNet
+        case 245022926: // Neon EVM DevNet
+        case 245022940: // Neon EVM TestNet
         case 1313161554: // aurora mainnet
         case 1313161555: // aurora testnet
         case 1313161556: // aurora betanet

@@ -50,7 +50,7 @@ async function signMsg(path, keyStore, password, account) {
   }
 }
 
-async function did(path, keyStore, password, account) {
+async function did(path, keyStore, password) {
   const kms = new KMS({
     keyStore,
     transport: null,
