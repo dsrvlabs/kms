@@ -1,69 +1,37 @@
-import { mnemonicToSeedSync } from "bip39";
-import { fromSeed } from "bip32";
-import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
-import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
-import { KEYSTORE as eth } from "./blockchains/ethereum/keyStore";
-import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
-import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
-import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
-import { KEYSTORE as near } from "./blockchains/near/keyStore";
-import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
-import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
+import { mnemonicToSeedSync } from 'bip39';
+import { fromSeed } from 'bip32';
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from './types';
+import { KEYSTORE as cosmos } from './blockchains/cosmos/keyStore';
+import { KEYSTORE as eth } from './blockchains/ethereum/keyStore';
 
 export async function getAccountFromKeyStore(
   path: BIP44,
-  mnemonic: string
+  mnemonic: string,
 ): Promise<Account | null> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
     switch (path.type) {
       case CHAIN.DSRV: {
-        const account = cosmos.getAccount(child, "dsrv");
+        const account = cosmos.getAccount(child, 'dsrv');
         return account;
       }
       // blockchains
       case CHAIN.COSMOS: {
-        const account = cosmos.getAccount(child, "cosmos");
+        const account = cosmos.getAccount(child, 'cosmos');
         return account;
       }
       case CHAIN.PERSISTENCE: {
-        const account = cosmos.getAccount(child, "persistence");
+        const account = cosmos.getAccount(child, 'persistence');
         return account;
       }
       case CHAIN.AGORIC: {
-        const account = cosmos.getAccount(child, "agoric");
+        const account = cosmos.getAccount(child, 'agoric');
         return account;
       }
       case CHAIN.TERRA: {
-        const account = cosmos.getAccount(child, "terra");
-        return account;
-      }
-      case CHAIN.SOLANA: {
-        const account = solana.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.POLKADOT: {
-        const account = polkadot.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.KUSAMA: {
-        const account = kusama.getAccount(child);
-        return account;
-      }
-      case CHAIN.NEAR: {
-        const account = near.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.FLOW: {
-        const account = flow.getAccount(child);
-        return account;
-      }
-      case CHAIN.TEZOS: {
-        const account = tezos.getAccount(seed, path);
+        const account = cosmos.getAccount(child, 'terra');
         return account;
       }
       case CHAIN.ETHEREUM:
@@ -88,14 +56,12 @@ export async function getAccountFromKeyStore(
 export async function signTxFromKeyStore(
   path: BIP44,
   mnemonic: string,
-  rawTx: RawTx
+  rawTx: RawTx,
 ): Promise<SignedTx> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
 
     switch (path.type) {
       /*
@@ -105,24 +71,16 @@ export async function signTxFromKeyStore(
       }
       */
       // blockchains
-      case CHAIN.NEAR: {
-        const response = near.signTx(seed, path, rawTx);
-        return { ...response };
-      }
-      case CHAIN.SOLANA: {
-        const response = solana.signTx(seed, path, rawTx);
-        return { ...response };
-      }
       case CHAIN.COSMOS: {
-        const response = await cosmos.signTx(child, "cosmos", rawTx);
+        const response = await cosmos.signTx(child, 'cosmos', rawTx);
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
-        const response = await cosmos.signTx(child, "persistence", rawTx);
+        const response = await cosmos.signTx(child, 'persistence', rawTx);
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await cosmos.signTx(child, "terra", rawTx);
+        const response = await cosmos.signTx(child, 'terra', rawTx);
         return { ...response };
       }
       case CHAIN.ETHEREUM:
@@ -148,18 +106,16 @@ export async function signTxFromKeyStore(
 export async function signMsgFromKeyStore(
   path: BIP44,
   mnemonic: string,
-  msg: string
+  msg: string,
 ): Promise<SignedMsg> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
 
     switch (path.type) {
       case CHAIN.DSRV: {
-        const response = await cosmos.signMessage(child, "dsrv", msg);
+        const response = await cosmos.signMessage(child, 'dsrv', msg);
         return { ...response };
       }
       // blockchains

@@ -1,22 +1,12 @@
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
-import Transport from "@ledgerhq/hw-transport";
-import { JWTVerified } from "did-jwt";
-import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
-import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
-import {
-  getAccountFromKeyStore,
-  signTxFromKeyStore,
-  signMsgFromKeyStore,
-} from "./keyStore";
-import {
-  getAccountFromLedger,
-  signTxFromLedger,
-  signMsgFromLedger,
-} from "./ledger";
-import { createWeb3 } from "./provider/web3";
-import { createExtension } from "./provider/extension";
-import { createDid, verifyDid } from "./did";
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import TransportWebBLE from '@ledgerhq/hw-transport-web-ble';
+import Transport from '@ledgerhq/hw-transport';
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from './types';
+import { createKeyStore, getMnemonic, getAlgo2HashKey } from './argon2';
+import { getAccountFromKeyStore, signTxFromKeyStore, signMsgFromKeyStore } from './keyStore';
+import { getAccountFromLedger, signTxFromLedger, signMsgFromLedger } from './ledger';
+import { createWeb3 } from './provider/web3';
+import { createExtension } from './provider/extension';
 
 export {
   createKeyStore,
@@ -53,11 +43,11 @@ export class KMS {
   constructor(ledger: Ledger) {
     this.keyStore = ledger.keyStore;
     this.transport = ledger.transport;
-    this.transport?.on("disconnect", () => {
+    this.transport?.on('disconnect', () => {
       if (ledger.onDisconnect) {
         ledger.onDisconnect();
       }
-      this.transport?.off("disconnect", () => {});
+      this.transport?.off('disconnect', () => {});
       this.close();
     });
   }
@@ -68,7 +58,7 @@ export class KMS {
 
   async getAccount(path: BIP44): Promise<Account | null> {
     if (this.keyStore) {
-      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const mnemonic = await getMnemonic(path.password || '', this.keyStore);
       const account = await getAccountFromKeyStore(path, mnemonic);
       return account;
     }
@@ -81,7 +71,7 @@ export class KMS {
 
   async signTx(path: BIP44, rawTx: RawTx): Promise<SignedTx> {
     if (this.keyStore) {
-      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const mnemonic = await getMnemonic(path.password || '', this.keyStore);
       const signedTx = await signTxFromKeyStore(path, mnemonic, rawTx);
       return signedTx;
     }
@@ -94,7 +84,7 @@ export class KMS {
 
   async signMsg(path: BIP44, msg: string): Promise<SignedMsg> {
     if (this.keyStore) {
-      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const mnemonic = await getMnemonic(path.password || '', this.keyStore);
       const response = await signMsgFromKeyStore(path, mnemonic, msg);
       return response;
     }
@@ -103,23 +93,6 @@ export class KMS {
       return response;
     }
     return { msg };
-  }
-
-  async DidDocCreate(path: BIP44): Promise<string> {
-    if (this.keyStore) {
-      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
-      const doc = await createDid(path, mnemonic);
-      return doc;
-    }
-    return "";
-  }
-
-  static async DidDocVerify(
-    jwt: string,
-    audience: string
-  ): Promise<JWTVerified | null> {
-    const result = verifyDid(jwt, audience);
-    return result;
   }
 
   async close(): Promise<void> {
@@ -142,15 +115,10 @@ export async function CreateKMS(keyStoreJson: KeyStore): Promise<KMS> {
   return new KMS(ledger);
 }
 
-export async function CreateLedger(
-  isUsb: boolean,
-  onDisconnect: () => void
-): Promise<KMS> {
+export async function CreateLedger(isUsb: boolean, onDisconnect: () => void): Promise<KMS> {
   const ledger: Ledger = {
     keyStore: null,
-    transport: isUsb
-      ? await TransportWebUSB.create()
-      : await TransportWebBLE.create(),
+    transport: isUsb ? await TransportWebUSB.create() : await TransportWebBLE.create(),
     onDisconnect,
   };
   return new KMS(ledger);

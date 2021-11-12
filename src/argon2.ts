@@ -1,16 +1,15 @@
-import { JWK, JWE, util } from "node-jose";
-import { encode, decode } from "bs58";
-import { randomBytes } from "crypto";
-// import { hash } from "argon2-browser";
-import { KeyStore } from "./types";
+import { JWK, JWE, util } from 'node-jose';
+import { encode, decode } from 'bs58';
+import { randomBytes } from 'crypto';
+import { KeyStore } from './types';
 
-const { hash } = require("argon2-browser");
+const { hash } = require('argon2-browser');
 
 const LENGTH = 32;
 
 export async function getAlgo2HashKey(
   password: string,
-  keyStore: KeyStore
+  keyStore: KeyStore,
 ): Promise<JWK.Key | null> {
   const buf = await hash({
     pass: password,
@@ -20,41 +19,35 @@ export async function getAlgo2HashKey(
     hashLen: LENGTH,
   });
   const key = await JWK.asKey({
-    kty: "oct",
+    kty: 'oct',
     k: util.base64url.encode(buf.hashHex),
   });
   return key;
 }
 
-export async function getMnemonic(
-  password: string,
-  keyStore: KeyStore
-): Promise<string> {
-  const key = await getAlgo2HashKey(password || "", keyStore);
+export async function getMnemonic(password: string, keyStore: KeyStore): Promise<string> {
+  const key = await getAlgo2HashKey(password || '', keyStore);
   if (key) {
-    const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
+    const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join('.'));
     return mnemonic.plaintext.toString();
   }
-  return "";
+  return '';
 }
 
 export async function createKeyStore(
   mnemonic: string[],
   password: string,
   time: number = 9,
-  mem: number = 262144
+  mem: number = 262144,
 ): Promise<KeyStore | null> {
   const encoder = new TextEncoder();
   const opt = { t: time, m: mem, s: encode(randomBytes(LENGTH)), j: [] };
   const key = await getAlgo2HashKey(password, opt);
   if (key) {
-    const jwe = await JWE.createEncrypt(
-      { format: "compact", contentAlg: "A256GCM" },
-      key
-    )
-      .update(encoder.encode(mnemonic.join(" ")))
+    const jwe = await JWE.createEncrypt({ format: 'compact', contentAlg: 'A256GCM' }, key)
+      .update(encoder.encode(mnemonic.join(' ')))
       .final();
-    return { ...opt, j: jwe.split(".") };
+    return { ...opt, j: jwe.split('.') };
   }
   return null;
 }
