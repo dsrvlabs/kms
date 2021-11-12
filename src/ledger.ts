@@ -23,7 +23,11 @@ export async function getAccountFromLedger(
       */
       // blockchains
       case CHAIN.COSMOS: {
-        const account = await cosmos.getAccount(path, transport, "cosmos");
+        const account = await cosmos.getAccount(
+          path,
+          transport,
+          path.prefix || "cosmos"
+        );
         return account;
       }
       case CHAIN.PERSISTENCE: {

@@ -27,7 +27,7 @@ export async function getAccountFromKeyStore(
       }
       // blockchains
       case CHAIN.COSMOS: {
-        const account = cosmos.getAccount(child, "cosmos");
+        const account = cosmos.getAccount(child, path.prefix || "cosmos");
         return account;
       }
       case CHAIN.PERSISTENCE: {
@@ -114,7 +114,11 @@ export async function signTxFromKeyStore(
         return { ...response };
       }
       case CHAIN.COSMOS: {
-        const response = await cosmos.signTx(child, "cosmos", rawTx);
+        const response = await cosmos.signTx(
+          child,
+          path.prefix || "cosmos",
+          rawTx
+        );
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {

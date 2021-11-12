@@ -3,6 +3,7 @@ export interface BIP44 {
   account: number;
   index: number;
   password?: string;
+  prefix?: string;
 }
 
 export interface KeyStore {
