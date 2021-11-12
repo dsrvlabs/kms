@@ -28,3 +28,4 @@ export declare class KMS {
 }
 export declare function CreateKMS(keyStoreJson: KeyStore): Promise<KMS>;
 export declare function CreateLedger(isUsb: boolean, onDisconnect: () => void): Promise<KMS>;
+export declare function CreateMnemonic(): string;

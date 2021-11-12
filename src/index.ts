@@ -7,6 +7,7 @@ import { getAccountFromKeyStore, signTxFromKeyStore, signMsgFromKeyStore } from 
 import { getAccountFromLedger, signTxFromLedger, signMsgFromLedger } from './ledger';
 import { createWeb3 } from './provider/web3';
 import { createExtension } from './provider/extension';
+import { generateMnemonic } from 'bip39';
 
 export {
   createKeyStore,
@@ -122,4 +123,8 @@ export async function CreateLedger(isUsb: boolean, onDisconnect: () => void): Pr
     onDisconnect,
   };
   return new KMS(ledger);
+}
+
+export function CreateMnemonic(): string {
+  return generateMnemonic(256);
 }
