@@ -17,12 +17,11 @@ const provider = new ethers.providers.JsonRpcProvider(
 );
 /*
 async function sendTx(signedTx) {
-  // console.log(ethers.utils.parseTransaction(`0x${signedTx.signature}`));
-  const recept = await provider.sendTransaction(`0x${signedTx.signature}`);
+  // console.log(ethers.utils.parseTransaction(signedTx.signature));
+  const recept = await provider.sendTransaction(signedTx.signature);
   console.log(recept);
 }
 */
-
 async function signTx(path, keyStore, password, address) {
   let response;
   try {
@@ -43,7 +42,6 @@ async function signTx(path, keyStore, password, address) {
     });
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    // eslint-disable-next-line no-console
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);

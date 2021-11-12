@@ -80,6 +80,7 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "@celo-tools/celo-ethers-wrapper": "^0.0.5",
     "@cosmjs/crypto": "^0.26.4",
     "@cosmjs/stargate": "^0.26.4",
     "@ledgerhq/hw-transport-node-hid": "^6.3.0",
