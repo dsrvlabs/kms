@@ -38,7 +38,7 @@ export async function createDid(
     );
     const issuer = didDocument.id;
     const jwt = await createJWT(
-      { ...didDocument },
+      { ...didDocument, aud: didDocument.id },
       { issuer, signer },
       { alg: "ES256K" }
     );

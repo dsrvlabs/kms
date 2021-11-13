@@ -1,5 +1,6 @@
 const secp256k1 = require("secp256k1");
 const sha = require("js-sha256");
+const didJWT = require("did-jwt");
 const { pubkeyToAddress } = require("@cosmjs/amino");
 const { KMS, CHAIN } = require("../../lib");
 
@@ -57,7 +58,8 @@ async function did(path, keyStore, password) {
   });
   const jwt = await kms.DidDocCreate({ ...path, password });
   console.log("did doc is ", jwt);
-  const verify = await KMS.DidDocVerify(jwt);
+  const decode = didJWT.decodeJWT(jwt);
+  const verify = await KMS.DidDocVerify(jwt, decode.payload.aud);
   console.log("verify", verify);
 }
 
