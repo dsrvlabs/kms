@@ -1,7 +1,6 @@
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from './types';
-import { KEYSTORE as cosmos } from './blockchains/cosmos/keyStore';
 import { KEYSTORE as eth } from './blockchains/ethereum/keyStore';
 
 export async function getAccountFromKeyStore(
@@ -13,27 +12,6 @@ export async function getAccountFromKeyStore(
     const node = fromSeed(seed);
     const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
     switch (path.type) {
-      case CHAIN.DSRV: {
-        const account = cosmos.getAccount(child, 'dsrv');
-        return account;
-      }
-      // blockchains
-      case CHAIN.COSMOS: {
-        const account = cosmos.getAccount(child, 'cosmos');
-        return account;
-      }
-      case CHAIN.PERSISTENCE: {
-        const account = cosmos.getAccount(child, 'persistence');
-        return account;
-      }
-      case CHAIN.AGORIC: {
-        const account = cosmos.getAccount(child, 'agoric');
-        return account;
-      }
-      case CHAIN.TERRA: {
-        const account = cosmos.getAccount(child, 'terra');
-        return account;
-      }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
@@ -64,25 +42,6 @@ export async function signTxFromKeyStore(
     const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
 
     switch (path.type) {
-      /*
-      case CHAIN.DSRV: {
-        const response = await cosmos.signTx(child, "dsrv", rawTx);
-        return { ...response };
-      }
-      */
-      // blockchains
-      case CHAIN.COSMOS: {
-        const response = await cosmos.signTx(child, 'cosmos', rawTx);
-        return { ...response };
-      }
-      case CHAIN.PERSISTENCE: {
-        const response = await cosmos.signTx(child, 'persistence', rawTx);
-        return { ...response };
-      }
-      case CHAIN.TERRA: {
-        const response = await cosmos.signTx(child, 'terra', rawTx);
-        return { ...response };
-      }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
@@ -111,19 +70,8 @@ export async function signMsgFromKeyStore(
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);
-    const child = node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
+    node.derivePath(`m/44'/${path.type}'/${path.account}'/0/${path.index}`);
 
-    switch (path.type) {
-      case CHAIN.DSRV: {
-        const response = await cosmos.signMessage(child, 'dsrv', msg);
-        return { ...response };
-      }
-      // blockchains
-      // add blockchains....
-      // blockchains
-      default:
-        break;
-    }
     return { msg };
   } catch (error) {
     // eslint-disable-next-line no-console

@@ -4,9 +4,7 @@ import Transport from '@ledgerhq/hw-transport';
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from './types';
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from './argon2';
 import { getAccountFromKeyStore, signTxFromKeyStore, signMsgFromKeyStore } from './keyStore';
-import { getAccountFromLedger, signTxFromLedger, signMsgFromLedger } from './ledger';
 import { createWeb3 } from './provider/web3';
-import { createExtension } from './provider/extension';
 import { generateMnemonic } from 'bip39';
 
 export {
@@ -20,7 +18,6 @@ export {
   SignedTx,
   getAlgo2HashKey,
   createWeb3,
-  createExtension,
 };
 
 interface KeyStore {
@@ -63,10 +60,6 @@ export class KMS {
       const account = await getAccountFromKeyStore(path, mnemonic);
       return account;
     }
-    if (this.transport) {
-      const account = await getAccountFromLedger(path, this.transport);
-      return account;
-    }
     return null;
   }
 
@@ -76,10 +69,6 @@ export class KMS {
       const signedTx = await signTxFromKeyStore(path, mnemonic, rawTx);
       return signedTx;
     }
-    if (this.transport) {
-      const response = await signTxFromLedger(path, this.transport, rawTx);
-      return response;
-    }
     return { rawTx };
   }
 
@@ -87,10 +76,6 @@ export class KMS {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || '', this.keyStore);
       const response = await signMsgFromKeyStore(path, mnemonic, msg);
-      return response;
-    }
-    if (this.transport) {
-      const response = await signMsgFromLedger(path, this.transport, msg);
       return response;
     }
     return { msg };

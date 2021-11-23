@@ -3,8 +3,7 @@ import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from './types';
 import { createKeyStore, getAlgo2HashKey } from './argon2';
 import { getAccountFromKeyStore, signTxFromKeyStore } from './keyStore';
 import { createWeb3 } from './provider/web3';
-import { createExtension } from './provider/extension';
-export { createKeyStore, getAccountFromKeyStore, signTxFromKeyStore, CHAIN, Account, BIP44, RawTx, SignedTx, getAlgo2HashKey, createWeb3, createExtension, };
+export { createKeyStore, getAccountFromKeyStore, signTxFromKeyStore, CHAIN, Account, BIP44, RawTx, SignedTx, getAlgo2HashKey, createWeb3, };
 interface KeyStore {
     t: number;
     m: number;
