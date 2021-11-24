@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "lib": ["dom", "es2015", "es2016"],
@@ -19,5 +18,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src", "types/"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
