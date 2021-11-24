@@ -46,16 +46,6 @@ module.exports = (webpackEnv) => {
         },
       ],
     },
-    plugins: [
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
-          },
-        ],
-      }),
-      new CleanWebpackPlugin(),
-      new NodePolyfillPlugin(),
-    ],
+    plugins: [new CleanWebpackPlugin(), new NodePolyfillPlugin()],
   };
 };
