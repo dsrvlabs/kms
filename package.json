@@ -12,7 +12,8 @@
     "build": "webpack",
     "prettier": "prettier --write --config ./.prettierrc \"**/*.{ts,tsx}\"",
     "lint": "eslint './src/**/*.{ts,tsx}'",
-    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'"
+    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
+    "test": "jest"
   },
   "repository": "https://github.com/dsrvlabs/kms.git",
   "keywords": [
@@ -45,11 +46,16 @@
     "node-jose": "^2.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-typescript": "^7.16.0",
     "@types/argon2-browser": "^1.18.1",
     "@types/bs58": "^4.0.1",
+    "@types/jest": "^27.0.3",
     "@types/node-jose": "^1.1.8",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
+    "babel-jest": "^27.3.1",
     "base64-loader": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.0.0",
@@ -59,6 +65,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^3.4.0",
+    "jest": "^27.3.1",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "prettier": "^2.3.2",
     "ts-loader": "^9.2.6",

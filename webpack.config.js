@@ -27,7 +27,6 @@ module.exports = (webpackEnv) => {
       ],
     },
     module: {
-      noParse: /\.wasm$/,
       rules: [
         {
           test: /\.(js|jsx|ts|tsx)$/,
