@@ -32,12 +32,8 @@ module.exports = (webpackEnv) => {
       rules: [
         {
           test: /\.(js|jsx|ts|tsx)$/,
-          loader: 'esbuild-loader',
+          use: ['ts-loader'],
           exclude: /node_modules/,
-          options: {
-            loader: 'tsx',
-            target: 'es2015',
-          },
         },
         {
           test: /\.wasm$/,
