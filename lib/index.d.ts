@@ -1,1 +1,3 @@
-export declare function CreateMnemonic(): string;
+import { createKeyStore } from './argon2';
+export declare function createMnemonic(): string;
+export { createKeyStore };
