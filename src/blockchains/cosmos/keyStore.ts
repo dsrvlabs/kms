@@ -9,7 +9,7 @@ import {
   encodePubkey,
 } from "@cosmjs/proto-signing";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { registry } from "./defaultRegistryTypes";
+import { registry } from "./utils/defaultRegistryTypes";
 import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {

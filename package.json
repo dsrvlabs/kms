@@ -39,7 +39,10 @@
   "license": "MIT",
   "dependencies": {
     "@cosmjs/amino": "^0.26.0",
+    "@cosmjs/encoding": "^0.26.5",
+    "@cosmjs/math": "^0.26.5",
     "@cosmjs/proto-signing": "^0.26.4",
+    "@cosmjs/utils": "^0.26.5",
     "@ethereumjs/tx": "^3.3.2",
     "@ledgerhq/errors": "^6.2.0",
     "@ledgerhq/hw-app-eth": "^6.14.0",
@@ -72,6 +75,7 @@
     "ethereumjs-util": "^7.0.10",
     "js-sha256": "^0.9.0",
     "ledger-cosmos-js": "^2.1.8",
+    "long": "^5.2.0",
     "near-api-js": "^0.41.0",
     "near-hd-key": "^1.2.1",
     "near-ledger-js": "^0.2.0",

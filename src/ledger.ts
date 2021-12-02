@@ -94,15 +94,20 @@ export async function signTxFromLedger(
       */
       // blockchains
       case CHAIN.COSMOS: {
-        const response = await cosmos.signTx(path, transport, rawTx);
+        const response = await cosmos.signTx(path, transport, rawTx, "cosmos");
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
-        const response = await cosmos.signTx(path, transport, rawTx);
+        const response = await cosmos.signTx(
+          path,
+          transport,
+          rawTx,
+          "persistence"
+        );
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await terra.signTx(path, transport, rawTx);
+        const response = await cosmos.signTx(path, transport, rawTx, "terra");
         return { ...response };
       }
       case CHAIN.NEAR: {
