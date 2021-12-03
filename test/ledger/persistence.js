@@ -72,19 +72,16 @@ async function run() {
   const rpcUrl = "https://rpc.core.persistence.one";
 
   const transport = await TransportNodeHid.create(1000);
-  console.log(11, transport);
 
   const account = await getAccount(transport, TYPE, INDEX);
-  console.log(22, account);
 
   const client = await StargateClient.connect(rpcUrl);
-  console.log(33, client);
 
   const sequence = await client.getSequence(account.address);
-  console.log(44, sequence);
 
-  // const balance = await client.getAllBalances(account.address);
-  // console.log(55, balance);
+  const balance = await client.getAllBalances(account.address);
+  // eslint-disable-next-line no-console
+  console.log(balance);
 
   const chainId = await client.getChainId();
   const signing = await signTx(
@@ -97,16 +94,12 @@ async function run() {
     chainId
   );
 
-  console.log(66, JSON.stringify(signing, null, 2));
-
   const txRawCall = signing.signedTx.txRaw;
-  console.log(txRawCall);
 
   const txBytes = TxRaw.encode(txRawCall).finish();
-  console.log(77, txBytes);
-  const testing = await client.broadcastTx(txBytes);
+  const broadCast = await client.broadcastTx(txBytes);
   // eslint-disable-next-line no-console
-  console.log(2222, testing);
+  console.log(broadCast);
   transport.close();
 }
 

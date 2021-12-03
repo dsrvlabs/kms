@@ -62,12 +62,9 @@ export class LEDGER {
     rawTx: RawTx,
     prefix: string
   ): Promise<SignedTx> {
-    console.log(0, "cosmos ledger siged tx");
     const instance = new CosmosApp(transport);
-    console.log(1, instance);
 
     const { publicKey } = await LEDGER.getAccount(path, transport, prefix);
-    console.log(2, publicKey);
 
     const pubKey = encodePubkey(
       encodeSecp256k1Pubkey(new Uint8Array(Buffer.from(publicKey, "base64")))
@@ -82,31 +79,25 @@ export class LEDGER {
       rawTx.sequence
     );
     const sorted: StdSignDoc = sortedObject(signDoc);
-    console.log(3, JSON.stringify(signDoc, null, 2));
 
     const response = await instance.sign(
       [44, path.type, path.account, 0, path.index],
       JSON.stringify(sorted)
     );
-    console.log(4, response);
 
     const aminoTypes = new AminoTypes({ prefix: rawTx.prefix });
-    console.log(5, aminoTypes);
 
     const signedTxBody = {
       messages: sorted.msgs.map((msg) => aminoTypes.fromAmino(msg)),
       memo: sorted.memo,
     };
-    console.log(6, signedTxBody);
 
     const signedTxBodyEncodeObject: TxBodyEncodeObject = {
       typeUrl: "/cosmos.tx.v1beta1.TxBody",
       value: signedTxBody,
     };
-    console.log(7, signedTxBodyEncodeObject);
 
     const txBodyBytes = registry.encode(signedTxBodyEncodeObject);
-    console.log(8, txBodyBytes);
 
     const signMode = SignMode.SIGN_MODE_LEGACY_AMINO_JSON;
 
@@ -118,13 +109,11 @@ export class LEDGER {
       rawTx.fee.gas,
       signMode
     );
-    console.log(9, signedAuthInfoBytes);
 
     // temp
     const newSig = Secp256k1Signature.fromDer(
       new Uint8Array(response.signature)
     );
-    console.log(10, typeof newSig);
 
     const mergedArray = new Uint8Array(newSig.r.length + newSig.s.length);
     mergedArray.set(newSig.r);
@@ -137,7 +126,6 @@ export class LEDGER {
       // signatures: [new Uint8Array(newSig.toFixedLength())],
       signatures: [new Uint8Array(mergedArray)],
     });
-    console.log(11, txRaw);
 
     return { rawTx, signedTx: { txRaw } };
   }
