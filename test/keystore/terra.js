@@ -14,6 +14,7 @@ async function signTx(
   keyStore,
   password,
   account,
+  recipment,
   accountNumber,
   sequence,
   chainId
@@ -48,7 +49,7 @@ async function signTx(
             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
             value: {
               fromAddress: account,
-              toAddress: account,
+              toAddress: recipment,
               amount: [{ denom: "uluna", amount: "10000" }],
             },
           },
@@ -86,6 +87,7 @@ async function run() {
   const balance = await client.getAllBalances(account.address);
   // eslint-disable-next-line no-console
   console.log(balance);
+  const recipment = "terra17t557q32excz3ukmn2f3kvvgt3nddlh5wrly7m";
 
   // signing and broadcast tx
   const signing = await signTx(
@@ -93,6 +95,7 @@ async function run() {
     keyStore,
     PASSWORD,
     account.address,
+    recipment, 
     sequence.accountNumber,
     sequence.sequence,
     chainId

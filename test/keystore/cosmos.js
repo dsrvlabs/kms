@@ -14,6 +14,7 @@ async function signTx(
   keyStore,
   password,
   account,
+  recipment,
   accountNumber,
   sequence,
   chainId
@@ -36,7 +37,7 @@ async function signTx(
         fee: {
           amount: [
             {
-              denom: "uatom",
+              denom: "uphoton",
               amount: "10000",
             },
           ],
@@ -48,8 +49,8 @@ async function signTx(
             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
             value: {
               fromAddress: account,
-              toAddress: account,
-              amount: [{ denom: "uatom", amount: "10000" }],
+              toAddress: recipment,
+              amount: [{ denom: "uphoton", amount: "100000000" }],
             },
           },
         ],
@@ -66,7 +67,8 @@ async function signTx(
 }
 
 async function run() {
-  const rpcUrl = "https://rpc.cosmos.network";
+  // const rpcUrl = "https://rpc.cosmos.network";
+  const rpcUrl = "https://rpc.testnet.cosmos.network";
 
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
@@ -87,12 +89,14 @@ async function run() {
   // eslint-disable-next-line no-console
   console.log(balance);
 
+  const recipment = "cosmos106zkqnqnmsj998mx3az5acgx28h78pqys54u0n";
   // signing and broadcast tx
   const signing = await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
     account.address,
+    recipment,
     sequence.accountNumber,
     sequence.sequence,
     chainId

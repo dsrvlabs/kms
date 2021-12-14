@@ -1,11 +1,22 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
+const { StargateClient } = require("@cosmjs/stargate");
+const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
+const { LCDClient } = require("@terra-money/terra.js");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.TERRA;
 const INDEX = 0;
 
-async function signTx(transport, type, index) {
+async function signTx(
+  transport,
+  type,
+  index,
+  account,
+  accountNumber,
+  sequence,
+  chainId
+) {
   const kms = new KMS({
     keyStore: null,
     transport,
@@ -18,25 +29,40 @@ async function signTx(transport, type, index) {
         index,
       },
       {
-        account_number: "0",
-        chain_id: "bombay-0008",
-        fee: { amount: [{ amount: "5000", denom: "uluna" }], gas: "200000" },
-        memo: "Delegated with Ledger from union.market",
+        account_number: `${accountNumber}`,
+        chain_id: chainId,
+        fee: {
+          amount: [
+            {
+              denom: "uluna",
+              amount: "1378",
+            },
+          ],
+          gas: "91808",
+        },
+        memo: "",
         msgs: [
           {
-            type: "tendermint/PubKeySecp256k1",
+            type: "bank/MsgSend", // Check
+
             value: {
-              amount: { amount: "100", denom: "uluna" },
-              delegator_address: "terra17x2zx34mnaknc6znk3t0j334z9v9anu82sz60g",
-              validator_address: "terra17lmam6zguazs5q5u6z5mmx76uj63gldnse2pdp",
+              amount: [
+                {
+                  denom: "uluna",
+                  amount: "10000",
+                },
+              ],
+              from_address: account.address,
+              to_address: account.address,
             },
           },
         ],
-        sequence: "0",
+        sequence: `${sequence}`,
       }
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
+    return response;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -44,9 +70,47 @@ async function signTx(transport, type, index) {
 }
 
 async function run() {
+  const rpcUrl = "https://terra-rpc.easy2stake.com";
+  // const rpcUrl = "https://rpc.cosmos.network";
+
   const transport = await TransportNodeHid.create(1000);
+
   const account = await getAccount(transport, TYPE, INDEX);
-  await signTx(transport, TYPE, INDEX, account);
+
+  const client = await StargateClient.connect(rpcUrl);
+
+  const sequence = await client.getSequence(account.address);
+
+  const balance = await client.getAllBalances(account.address);
+  // eslint-disable-next-line no-console
+  console.log(balance);
+
+  const chainId = await client.getChainId();
+
+  const terra = new LCDClient({
+    URL: "https://lcd.terra.dev/",
+    chainID: chainId,
+  });
+
+  console.log(111111, sequence.accountNumber);
+  console.log("sequence", sequence);
+  const signing = await signTx(
+    transport,
+    TYPE,
+    INDEX,
+    account,
+    sequence.accountNumber,
+    sequence.sequence,
+    chainId
+  );
+  console.log(11111, JSON.stringify(signing, null, 2));
+  // const txRawCall = signing.signedTx.txRaw;
+
+  // const txBytes = TxRaw.encode(txRawCall).finish();
+  // const broadCast = await client.broadcastTx(signing.signedTx.tx);
+  const broadCast = await terra.tx.broadcast(signing.signedTx.tx);
+  // eslint-disable-next-line no-console
+  console.log(11111, broadCast);
   transport.close();
 }
 

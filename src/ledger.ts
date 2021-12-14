@@ -107,7 +107,7 @@ export async function signTxFromLedger(
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await cosmos.signTx(path, transport, rawTx, "terra");
+        const response = await terra.signTx(path, transport, rawTx);
         return { ...response };
       }
       case CHAIN.NEAR: {

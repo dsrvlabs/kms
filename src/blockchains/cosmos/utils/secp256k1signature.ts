@@ -24,7 +24,6 @@ export class Secp256k1Signature {
     }
     // eslint-disable-next-line no-plusplus
     const bodyLength = data[pos++];
-
     if (data.length - pos !== bodyLength) {
       throw new Error("Data length mismatch detected");
     }
