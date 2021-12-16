@@ -1,11 +1,21 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
+const { StargateClient } = require("@cosmjs/stargate");
+const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.PERSISTENCE;
 const INDEX = 0;
 
-async function signTx(transport, type, index) {
+async function signTx(
+  transport,
+  type,
+  index,
+  account,
+  accountNumber,
+  sequence,
+  chainId
+) {
   const kms = new KMS({
     keyStore: null,
     transport,
@@ -18,27 +28,40 @@ async function signTx(transport, type, index) {
         index,
       },
       {
-        account_number: "6571",
-        chain_id: "cosmoshub-2",
-        fee: { amount: [{ amount: "5000", denom: "uatom" }], gas: "200000" },
-        memo: "Delegated with Ledger from union.market",
+        account_number: `${accountNumber}`,
+        chain_id: chainId,
+        fee: {
+          amount: [
+            {
+              denom: "uxprt",
+              amount: "10000",
+            },
+          ],
+          gas: "180000",
+        },
+        memo: "",
         msgs: [
           {
-            type: "cosmos-sdk/MsgDelegate",
+            type: "cosmos-sdk/MsgSend", // Check
+
             value: {
-              amount: { amount: "1000000", denom: "uatom" },
-              delegator_address:
-                "cosmos102hty0jv2s29lyc4u0tv97z9v298e24t3vwtpl",
-              validator_address:
-                "cosmosvaloper1grgelyng2v6v3t8z87wu3sxgt9m5s03xfytvz7",
+              amount: [
+                {
+                  denom: "uxprt",
+                  amount: "10000",
+                },
+              ],
+              from_address: account.address,
+              to_address: account.address,
             },
           },
         ],
-        sequence: "0",
+        sequence: `${sequence}`,
       }
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
+    return response;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -46,9 +69,37 @@ async function signTx(transport, type, index) {
 }
 
 async function run() {
+  const rpcUrl = "https://rpc.core.persistence.one";
+
   const transport = await TransportNodeHid.create(1000);
+
   const account = await getAccount(transport, TYPE, INDEX);
-  await signTx(transport, TYPE, INDEX, account);
+
+  const client = await StargateClient.connect(rpcUrl);
+
+  const sequence = await client.getSequence(account.address);
+
+  const balance = await client.getAllBalances(account.address);
+  // eslint-disable-next-line no-console
+  console.log(balance);
+
+  const chainId = await client.getChainId();
+  const signing = await signTx(
+    transport,
+    TYPE,
+    INDEX,
+    account,
+    sequence.accountNumber,
+    sequence.sequence,
+    chainId
+  );
+
+  const txRawCall = signing.signedTx.txRaw;
+
+  const txBytes = TxRaw.encode(txRawCall).finish();
+  const broadCast = await client.broadcastTx(txBytes);
+  // eslint-disable-next-line no-console
+  console.log(broadCast);
   transport.close();
 }
 
