@@ -65,12 +65,10 @@ export class LEDGER {
     const instance = new CosmosApp(transport);
 
     const { publicKey } = await LEDGER.getAccount(path, transport, prefix);
-    console.log(2, publicKey);
 
     const pubKey = encodePubkey(
       encodeSecp256k1Pubkey(new Uint8Array(Buffer.from(publicKey, "base64")))
     );
-    console.log(3, pubKey);
 
     const signDoc = makeSignDoc(
       rawTx.msgs as AminoMsg[],
@@ -86,7 +84,6 @@ export class LEDGER {
       [44, path.type, path.account, 0, path.index],
       JSON.stringify(sorted)
     );
-    console.log(5, response);
 
     const aminoTypes = new AminoTypes({ prefix: rawTx.prefix });
 
@@ -117,8 +114,6 @@ export class LEDGER {
     const newSig = Secp256k1Signature.fromDer(
       new Uint8Array(response.signature)
     );
-    console.log(1111111, newSig);
-    console.log(1111111, response.signature);
 
     const mergedArray = new Uint8Array(newSig.r.length + newSig.s.length);
     mergedArray.set(newSig.r);

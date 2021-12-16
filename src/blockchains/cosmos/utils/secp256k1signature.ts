@@ -5,7 +5,6 @@ function trimLeadingNullBytes(inData: Uint8Array): Uint8Array {
   for (const byte of convertInData) {
     if (byte === 0x00) {
       numberOfLeadingNullBytes += 1;
-      console.log(123123, byte);
     } else {
       break;
     }
@@ -15,7 +14,6 @@ function trimLeadingNullBytes(inData: Uint8Array): Uint8Array {
 
 export class Secp256k1Signature {
   public static fromDer(data: Uint8Array): { r: Uint8Array; s: Uint8Array } {
-    console.log(887, "Secp256k1Signature");
     let pos = 0;
     const derTagInteger = 0x02;
     // eslint-disable-next-line no-plusplus
@@ -57,7 +55,6 @@ export class Secp256k1Signature {
     const sData = data.slice(pos, pos + sLength);
     pos += sLength;
 
-    console.log(888, rData, sData);
 
     return {
       r: trimLeadingNullBytes(rData),

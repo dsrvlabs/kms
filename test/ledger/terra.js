@@ -92,8 +92,6 @@ async function run() {
     chainID: chainId,
   });
 
-  console.log(111111, sequence.accountNumber);
-  console.log("sequence", sequence);
   const signing = await signTx(
     transport,
     TYPE,
@@ -103,14 +101,10 @@ async function run() {
     sequence.sequence,
     chainId
   );
-  console.log(11111, JSON.stringify(signing, null, 2));
-  // const txRawCall = signing.signedTx.txRaw;
 
-  // const txBytes = TxRaw.encode(txRawCall).finish();
-  // const broadCast = await client.broadcastTx(signing.signedTx.tx);
   const broadCast = await terra.tx.broadcast(signing.signedTx.tx);
   // eslint-disable-next-line no-console
-  console.log(11111, broadCast);
+  console.log(broadCast);
   transport.close();
 }
 
