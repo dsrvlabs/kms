@@ -1,15 +1,36 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, BIP44, RawTx, SignedTx } from "./types";
+import { JWTVerified } from "did-jwt";
+import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
+  getAccountFromKeyStore,
+  signTxFromKeyStore,
+  signMsgFromKeyStore,
+} from "./keyStore";
+import {
+  getAccountFromLedger,
+  signTxFromLedger,
+  signMsgFromLedger,
+} from "./ledger";
+import { createWeb3 } from "./provider/web3";
+import { createExtension } from "./provider/extension";
+import { createDid, verifyDid } from "./did";
+
+export {
   createKeyStore,
   getAccountFromKeyStore,
   signTxFromKeyStore,
-} from "./keyStore";
-import { getAccountFromLedger, signTxFromLedger } from "./ledger";
-
-export { createKeyStore, CHAIN, BIP44, RawTx, SignedTx };
+  CHAIN,
+  Account,
+  BIP44,
+  RawTx,
+  SignedTx,
+  getAlgo2HashKey,
+  createWeb3,
+  createExtension,
+};
 
 interface KeyStore {
   t: number;
@@ -21,6 +42,7 @@ interface KeyStore {
 interface Ledger {
   keyStore: KeyStore | null;
   transport: Transport | null;
+  onDisconnect?: () => void;
 }
 
 export class KMS {
@@ -31,19 +53,23 @@ export class KMS {
   constructor(ledger: Ledger) {
     this.keyStore = ledger.keyStore;
     this.transport = ledger.transport;
+    this.transport?.on("disconnect", () => {
+      if (ledger.onDisconnect) {
+        ledger.onDisconnect();
+      }
+      this.transport?.off("disconnect", () => {});
+      this.close();
+    });
   }
 
   isLedger(): boolean {
     return !!this.transport;
   }
 
-  async getAccount(path: BIP44): Promise<string | null> {
+  async getAccount(path: BIP44): Promise<Account | null> {
     if (this.keyStore) {
-      const account = await getAccountFromKeyStore(
-        path,
-        this.keyStore,
-        path.password || ""
-      );
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const account = await getAccountFromKeyStore(path, mnemonic);
       return account;
     }
     if (this.transport) {
@@ -55,12 +81,8 @@ export class KMS {
 
   async signTx(path: BIP44, rawTx: RawTx): Promise<SignedTx> {
     if (this.keyStore) {
-      const signedTx = await signTxFromKeyStore(
-        path,
-        this.keyStore,
-        path.password || "",
-        rawTx
-      );
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const signedTx = await signTxFromKeyStore(path, mnemonic, rawTx);
       return signedTx;
     }
     if (this.transport) {
@@ -70,32 +92,66 @@ export class KMS {
     return { rawTx };
   }
 
-  close(): void {
-    this.transport?.close();
-    this.transport = null;
+  async signMsg(path: BIP44, msg: string): Promise<SignedMsg> {
+    if (this.keyStore) {
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const response = await signMsgFromKeyStore(path, mnemonic, msg);
+      return response;
+    }
+    if (this.transport) {
+      const response = await signMsgFromLedger(path, this.transport, msg);
+      return response;
+    }
+    return { msg };
+  }
+
+  async DidDocCreate(path: BIP44): Promise<string> {
+    if (this.keyStore) {
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const doc = await createDid(path, mnemonic);
+      return doc;
+    }
+    return "";
+  }
+
+  static async DidDocVerify(
+    jwt: string,
+    audience: string
+  ): Promise<JWTVerified | null> {
+    const result = verifyDid(jwt, audience);
+    return result;
+  }
+
+  async close(): Promise<void> {
+    if (this.transport) {
+      const { id } = this.transport as { [key: string]: any };
+      if (id) {
+        await TransportWebBLE.disconnect(id);
+      }
+      await this.transport?.close();
+      this.transport = null;
+    }
   }
 }
 
-export async function CreateKMS(
-  keyStoreJson: KeyStore | null = null
-): Promise<KMS> {
+export async function CreateKMS(keyStoreJson: KeyStore): Promise<KMS> {
   const ledger: Ledger = {
-    keyStore: null,
+    keyStore: keyStoreJson,
     transport: null,
   };
-  if (keyStoreJson) {
-    ledger.keyStore = keyStoreJson;
-  } else {
-    ledger.transport = await TransportWebUSB.create(1000);
-  }
   return new KMS(ledger);
 }
 
-export async function CreateKMSBLE(): Promise<KMS> {
+export async function CreateLedger(
+  isUsb: boolean,
+  onDisconnect: () => void
+): Promise<KMS> {
   const ledger: Ledger = {
     keyStore: null,
-    transport: null,
+    transport: isUsb
+      ? await TransportWebUSB.create()
+      : await TransportWebBLE.create(),
+    onDisconnect,
   };
-  ledger.transport = await TransportWebBLE.create(1000);
   return new KMS(ledger);
 }

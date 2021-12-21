@@ -2,9 +2,11 @@
 dsrv key management store
 
 ## Usage
-```html
-<script src="node_modules/argon2-browser/lib/argon2.js"></script>
+```javascript
+// [next.config.js](https://github.com/antelle/argon2-browser/issues/26)
+config.module.rules.push({ test: /\.wasm$/, loaders: ['base64-loader'], type: 'javascript/auto' });
 ```
+
 ```javascript
 import { KMS, CHAIN, createKeyStore } from "@dsrv/kms";
 

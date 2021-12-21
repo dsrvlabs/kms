@@ -3,7 +3,7 @@ import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
 import { transactions, utils } from "near-api-js";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 import { createTransaction } from "./createTransaction";
 
 export class KEYSTORE {
@@ -23,9 +23,12 @@ export class KEYSTORE {
     return keyPair;
   }
 
-  static getAccount(seed: Buffer, path: BIP44): string {
+  static getAccount(seed: Buffer, path: BIP44): Account {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    return `${keyPair.getPublicKey()}`;
+    return {
+      address: keyPair.getPublicKey().toString(),
+      publicKey: keyPair.getPublicKey().toString(),
+    };
   }
 
   static signTx(seed: Buffer, path: BIP44, rawTx: RawTx): SignedTx {

@@ -1,38 +1,24 @@
-const { hash } = require("argon2");
-const { JWK, JWE, util } = require("node-jose");
-const { encode, decode } = require("bs58");
+const { JWE } = require("node-jose");
+const { encode } = require("bs58");
 const { randomBytes } = require("crypto");
-const { mnemonicToSeedSync } = require("bip39");
-const { fromSeed } = require("bip32");
-const { CHAIN } = require("../../lib");
-const mina = require("../../lib/blockchains/mina/keyStore");
-const celo = require("../../lib/blockchains/celo/keyStore");
-const cosmos = require("../../lib/blockchains/cosmos/keyStore");
-const terra = require("../../lib/blockchains/terra/keyStore");
-const solana = require("../../lib/blockchains/solana/keyStore");
-const near = require("../../lib/blockchains/near/keyStore");
-// const flow = require("../../lib/blockchains/flow/keyStore");
-// const polkadot = require("../../lib/blockchains/polkadot/keyStore");
-// const kusama = require("../../lib/blockchains/kusama/keyStore");
+const {
+  CHAIN,
+  getAccountFromKeyStore,
+  signTxFromKeyStore,
+  getAlgo2HashKey,
+} = require("../../lib");
 
 const MNEMONIC = require("../mnemonic.json");
 
 const LENGTH = 32;
 
-async function getAlgo2HashKey(password, keyStore) {
-  const buf = await hash(password, {
-    timeCost: keyStore.t,
-    memoryCost: keyStore.m,
-    salt: decode(keyStore.s),
-    saltLength: LENGTH,
-    hashLength: LENGTH,
-    raw: true,
-  });
-  const key = await JWK.asKey({
-    kty: "oct",
-    k: util.base64url.encode(buf.toString("hex")),
-  });
-  return key;
+async function getMnemonic(password, keyStore) {
+  const key = await getAlgo2HashKey(password || "", keyStore);
+  if (key) {
+    const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
+    return mnemonic.plaintext.toString();
+  }
+  return "";
 }
 
 async function createKeyStore(password) {
@@ -49,74 +35,26 @@ async function createKeyStore(password) {
   return { ...opt, j: jwe.split(".") };
 }
 
-async function getAccountFromKeyStore(path, keyStore, password) {
+exports.getAccount = async function getAccount(path, keyStore, password) {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
-    const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-    const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+    const decryped = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
+    const account = await getAccountFromKeyStore(
+      path,
+      decryped.plaintext.toString()
     );
-    switch (path.type) {
-      // blockchains
-      case CHAIN.MINA: {
-        const account = mina.KEYSTORE.getAccount(child);
-        return account;
-      }
-      case CHAIN.CELO: {
-        const account = celo.KEYSTORE.getAccount(child);
-        return account;
-      }
-      case CHAIN.COSMOS: {
-        const account = cosmos.KEYSTORE.getAccount(child);
-        return account;
-      }
-      case CHAIN.TERRA: {
-        const account = terra.KEYSTORE.getAccount(child);
-        return account;
-      }
-      case CHAIN.SOLANA: {
-        const account = solana.KEYSTORE.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.NEAR: {
-        const account = near.KEYSTORE.getAccount(seed, path);
-        return account;
-      }
-      /*
-      case CHAIN.FLOW: {
-        const account = flow.KEYSTORE.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.POLKADOT: {
-        const account = polkadot.KEYSTORE.getAccount(seed, path);
-        return account;
-      }
-      case CHAIN.KUSAMA: {
-        const account = kusama.KEYSTORE.getAccount(child);
-        return account;
-      }
-      */
-      // add blockchains....
-      // blockchains
-      default:
-        break;
-    }
-    return "";
+    // eslint-disable-next-line no-console
+    console.log("account - ", account);
+    return account;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
-    return "";
+    return null;
   }
-}
-
-exports.getAccount = async function getAccount(path, keyStore, password) {
-  const account = await getAccountFromKeyStore(path, keyStore, password);
-  // eslint-disable-next-line no-console
-  console.log("account - ", account);
-  return account;
 };
 
-exports.getAlgo2HashKey = getAlgo2HashKey;
+exports.getMnemonic = getMnemonic;
 exports.createKeyStore = createKeyStore;
+exports.CHAIN = CHAIN;
+exports.signTxFromKeyStore = signTxFromKeyStore;
+exports.MNEMONIC = require("../mnemonic.json");

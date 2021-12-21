@@ -4,7 +4,7 @@ const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
-const TYPE = CHAIN.COSMOS;
+const TYPE = CHAIN.PERSISTENCE;
 const INDEX = 0;
 
 async function signTx(
@@ -33,7 +33,7 @@ async function signTx(
         fee: {
           amount: [
             {
-              denom: "uatom",
+              denom: "uxprt",
               amount: "10000",
             },
           ],
@@ -47,7 +47,7 @@ async function signTx(
             value: {
               amount: [
                 {
-                  denom: "uatom",
+                  denom: "uxprt",
                   amount: "10000",
                 },
               ],
@@ -69,7 +69,7 @@ async function signTx(
 }
 
 async function run() {
-  const rpcUrl = "https://rpc.cosmos.network";
+  const rpcUrl = "https://rpc.core.persistence.one";
 
   const transport = await TransportNodeHid.create(1000);
 

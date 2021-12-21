@@ -1,16 +1,13 @@
-const { JWE } = require("node-jose");
-const { mnemonicToSeedSync } = require("bip39");
 const { providers, utils } = require("near-api-js");
-const { CHAIN } = require("../../lib");
-const near = require("../../lib/blockchains/near/keyStore");
 
 const {
   createKeyStore,
   getAccount,
-  getAlgo2HashKey,
+  getMnemonic,
+  CHAIN,
+  signTxFromKeyStore,
+  MNEMONIC,
 } = require("./_getAccount");
-
-const MNEMONIC = require("../mnemonic.json");
 
 const TYPE = CHAIN.NEAR;
 const INDEX = 1;
@@ -19,14 +16,7 @@ const TRANSFER = 0;
 const DEPOSITANDSTAKE = 1;
 const UNSTAKE = 2;
 const UNSTAKEALL = 3;
-
-async function getSeed(keyStore, password) {
-  const key = await getAlgo2HashKey(password, keyStore);
-  const mnemonic = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-  const seed = mnemonicToSeedSync(mnemonic.plaintext.toString());
-  return seed;
-}
-
+/*
 async function sendTransaction(response) {
   const rpc = "https://rpc.testnet.near.org";
   const provider = new providers.JsonRpcProvider(rpc);
@@ -36,8 +26,8 @@ async function sendTransaction(response) {
   ]);
   return result;
 }
-
-async function signTx(seed, path, account) {
+*/
+async function signTx(path, mnemonic, account) {
   try {
     const encodedPubKey = account;
     const helperURL = `https://helper.testnet.near.org/publicKey/${account}/accounts`;
@@ -53,7 +43,7 @@ async function signTx(seed, path, account) {
     );
     const nonce = accessKey.nonce + 1;
     const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
-    const response = near.KEYSTORE.signTx(seed, path, {
+    const response = await signTxFromKeyStore(path, mnemonic, {
       provider,
       recentBlockHash,
       nonce,
@@ -85,9 +75,9 @@ async function signTx(seed, path, account) {
     console.log("Transation signed - ", response);
 
     // SEND TRANSACTION
-    const txResponse = await sendTransaction(response);
+    // const txResponse = await sendTransaction(response);
     // eslint-disable-next-line no-console
-    console.log("Transaction sent - ", txResponse.transaction);
+    // console.log("Transaction sent - ", txResponse.transaction);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -97,13 +87,17 @@ async function signTx(seed, path, account) {
 async function run() {
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
-  const SEED = await getSeed(keyStore, PASSWORD);
+  const mnemonic = await getMnemonic(PASSWORD, keyStore);
   const account = await getAccount(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD
   );
-  await signTx(SEED, { type: TYPE, account: 0, index: INDEX }, account);
+  await signTx(
+    { type: TYPE, account: 0, index: INDEX },
+    mnemonic,
+    account.address
+  );
 }
 
 run();

@@ -2,7 +2,7 @@ import { encode } from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair, Signer } from "@solana/web3.js";
 import { createTransaction } from "./createTransaction";
-import { BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getKeypair(seed: Buffer, path: BIP44): Keypair {
@@ -13,9 +13,12 @@ export class KEYSTORE {
     return Keypair.fromSeed(key);
   }
 
-  static getAccount(seed: Buffer, path: BIP44): string {
+  static getAccount(seed: Buffer, path: BIP44): Account {
     const keypair = KEYSTORE.getKeypair(seed, path);
-    return keypair.publicKey.toString();
+    return {
+      address: keypair.publicKey.toString(),
+      publicKey: keypair.publicKey.toString(),
+    };
   }
 
   static getPrivateKey(seed: Buffer, path: BIP44): string {

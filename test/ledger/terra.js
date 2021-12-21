@@ -1,10 +1,10 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 const { StargateClient } = require("@cosmjs/stargate");
-const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
+const { LCDClient } = require("@terra-money/terra.js");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
-const TYPE = CHAIN.COSMOS;
+const TYPE = CHAIN.TERRA;
 const INDEX = 0;
 
 async function signTx(
@@ -33,21 +33,21 @@ async function signTx(
         fee: {
           amount: [
             {
-              denom: "uatom",
-              amount: "10000",
+              denom: "uluna",
+              amount: "1378",
             },
           ],
-          gas: "180000",
+          gas: "91808",
         },
         memo: "",
         msgs: [
           {
-            type: "cosmos-sdk/MsgSend", // Check
+            type: "bank/MsgSend", // Check
 
             value: {
               amount: [
                 {
-                  denom: "uatom",
+                  denom: "uluna",
                   amount: "10000",
                 },
               ],
@@ -69,7 +69,8 @@ async function signTx(
 }
 
 async function run() {
-  const rpcUrl = "https://rpc.cosmos.network";
+  const rpcUrl = "https://terra-rpc.easy2stake.com";
+  // const rpcUrl = "https://rpc.cosmos.network";
 
   const transport = await TransportNodeHid.create(1000);
 
@@ -84,6 +85,12 @@ async function run() {
   console.log(balance);
 
   const chainId = await client.getChainId();
+
+  const terra = new LCDClient({
+    URL: "https://lcd.terra.dev/",
+    chainID: chainId,
+  });
+
   const signing = await signTx(
     transport,
     TYPE,
@@ -94,10 +101,7 @@ async function run() {
     chainId
   );
 
-  const txRawCall = signing.signedTx.txRaw;
-
-  const txBytes = TxRaw.encode(txRawCall).finish();
-  const broadCast = await client.broadcastTx(txBytes);
+  const broadCast = await terra.tx.broadcast(signing.signedTx.tx);
   // eslint-disable-next-line no-console
   console.log(broadCast);
   transport.close();

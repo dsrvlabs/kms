@@ -1,35 +1,38 @@
-const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
-const { StargateClient } = require("@cosmjs/stargate");
 const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
+const { StargateClient } = require("@cosmjs/stargate");
 const { KMS, CHAIN } = require("../../lib");
-const { getAccount } = require("./_getAccount");
+
+const { createKeyStore, getAccount } = require("./_getAccount");
+
+const MNEMONIC = require("../mnemonic.json");
 
 const TYPE = CHAIN.COSMOS;
 const INDEX = 0;
 
 async function signTx(
-  transport,
-  type,
-  index,
+  path,
+  keyStore,
+  password,
   account,
   accountNumber,
   sequence,
   chainId
 ) {
   const kms = new KMS({
-    keyStore: null,
-    transport,
+    keyStore,
+    transport: null,
   });
+
   try {
     const response = await kms.signTx(
+      { ...path, password },
       {
-        type,
-        account: 0,
-        index,
-      },
-      {
-        account_number: `${accountNumber}`,
-        chain_id: chainId,
+        signerData: {
+          accountNumber: `${accountNumber}`,
+          sequence,
+          chainId,
+        },
+        // { amount: [{ amount: "5000", denom: "uatom" }], gas: "200000" },
         fee: {
           amount: [
             {
@@ -37,22 +40,16 @@ async function signTx(
               amount: "10000",
             },
           ],
-          gas: "180000",
+          gas: "180000", // 180k
         },
         memo: "",
         msgs: [
           {
-            type: "cosmos-sdk/MsgSend", // Check
-
+            typeUrl: "/cosmos.bank.v1beta1.MsgSend",
             value: {
-              amount: [
-                {
-                  denom: "uatom",
-                  amount: "10000",
-                },
-              ],
-              from_address: account.address,
-              to_address: account.address,
+              fromAddress: account,
+              toAddress: account,
+              amount: [{ denom: "uatom", amount: "10000" }],
             },
           },
         ],
@@ -71,36 +68,40 @@ async function signTx(
 async function run() {
   const rpcUrl = "https://rpc.cosmos.network";
 
-  const transport = await TransportNodeHid.create(1000);
-
-  const account = await getAccount(transport, TYPE, INDEX);
+  const PASSWORD = MNEMONIC.password;
+  const keyStore = await createKeyStore(PASSWORD);
+  const account = await getAccount(
+    { type: TYPE, account: 0, index: INDEX },
+    keyStore,
+    PASSWORD
+  );
 
   const client = await StargateClient.connect(rpcUrl);
 
   const sequence = await client.getSequence(account.address);
 
+  const chainId = await client.getChainId();
+
+  // testing call balances for address
   const balance = await client.getAllBalances(account.address);
   // eslint-disable-next-line no-console
   console.log(balance);
 
-  const chainId = await client.getChainId();
+  // signing and broadcast tx
   const signing = await signTx(
-    transport,
-    TYPE,
-    INDEX,
-    account,
+    { type: TYPE, account: 0, index: INDEX },
+    keyStore,
+    PASSWORD,
+    account.address,
     sequence.accountNumber,
     sequence.sequence,
     chainId
   );
-
   const txRawCall = signing.signedTx.txRaw;
-
   const txBytes = TxRaw.encode(txRawCall).finish();
-  const broadCast = await client.broadcastTx(txBytes);
+  const testing = await client.broadcastTx(txBytes);
   // eslint-disable-next-line no-console
-  console.log(broadCast);
-  transport.close();
+  console.log(testing);
 }
 
 run();
