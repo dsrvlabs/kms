@@ -39,6 +39,7 @@
   "license": "MIT",
   "dependencies": {
     "@cosmjs/amino": "^0.26.0",
+    "@cosmjs/math": "^0.26.5",
     "@cosmjs/proto-signing": "^0.26.4",
     "@ethereumjs/tx": "^3.3.2",
     "@ledgerhq/errors": "^6.2.0",
@@ -52,6 +53,7 @@
     "@polkadot/util-crypto": "^6.10.1",
     "@solana/web3.js": "^1.20.0",
     "@terra-money/ledger-terra-js": "^1.1.0",
+    "@terra-money/terra.js": "^3.0.1",
     "@types/node-jose": "^1.1.7",
     "@zondax/ledger-polkadot": "^0.14.0",
     "argon2-browser": "^1.18.0",
