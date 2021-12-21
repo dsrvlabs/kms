@@ -55,7 +55,6 @@ export class Secp256k1Signature {
     const sData = data.slice(pos, pos + sLength);
     pos += sLength;
 
-
     return {
       r: trimLeadingNullBytes(rData),
       s: trimLeadingNullBytes(sData),

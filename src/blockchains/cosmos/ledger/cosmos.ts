@@ -19,6 +19,7 @@ import { registry } from "../utils/defaultRegistryTypes";
 import { Account, BIP44, RawTx, SignedTx } from "../../../types";
 import { Secp256k1Signature } from "../utils/secp256k1signature";
 import { AminoTypes } from "../utils/aminoTypes";
+
 const CosmosApp = require("ledger-cosmos-js").default;
 
 // LEDGER
