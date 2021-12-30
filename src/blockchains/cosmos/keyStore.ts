@@ -1,7 +1,7 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
 import { enc, SHA256 } from "crypto-js";
-import { pubkeyToAddress, encodeSecp256k1Pubkey } from "@cosmjs/amino";
+import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
 import {
   DirectSecp256k1Wallet,
   makeSignDoc,
@@ -13,25 +13,46 @@ import { registry } from "./utils/defaultRegistryTypes";
 import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface, prefix: string): Account {
-    const address = pubkeyToAddress(
-      {
-        type: "tendermint/PubKeySecp256k1",
-        value: node.publicKey.toString("base64"),
-      },
-      prefix
-    );
-    return { address, publicKey: node.publicKey.toString("base64") };
+  static async getAccount(
+    node: BIP32Interface | string,
+    prefix: string
+  ): Promise<Account> {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
+    if (privateKey) {
+      const wallet = await DirectSecp256k1Wallet.fromKey(
+        new Uint8Array(privateKey),
+        prefix
+      );
+
+      const account = await wallet.getAccounts();
+      return {
+        address: account[0].address,
+        publicKey: Buffer.from(account[0].pubkey).toString("base64"),
+      };
+    }
+    return {
+      address: "",
+      publicKey: "",
+    };
   }
 
   static async signTx(
-    node: BIP32Interface,
+    node: BIP32Interface | string,
     prefix: string,
     rawTx: RawTx
   ): Promise<SignedTx> {
-    if (node.privateKey) {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
+    if (privateKey) {
       const wallet = await DirectSecp256k1Wallet.fromKey(
-        new Uint8Array(node.privateKey),
+        new Uint8Array(privateKey),
         prefix
       );
       const accounts = await wallet.getAccounts();

@@ -22,24 +22,24 @@ export async function getAccountFromKeyStore(
     );
     switch (path.type) {
       case CHAIN.DSRV: {
-        const account = cosmos.getAccount(child, "dsrv");
+        const account = await cosmos.getAccount(child, "dsrv");
         return account;
       }
       // blockchains
       case CHAIN.COSMOS: {
-        const account = cosmos.getAccount(child, path.prefix || "cosmos");
+        const account = await cosmos.getAccount(child, path.prefix || "cosmos");
         return account;
       }
       case CHAIN.PERSISTENCE: {
-        const account = cosmos.getAccount(child, "persistence");
+        const account = await cosmos.getAccount(child, "persistence");
         return account;
       }
       case CHAIN.AGORIC: {
-        const account = cosmos.getAccount(child, "agoric");
+        const account = await cosmos.getAccount(child, "agoric");
         return account;
       }
       case CHAIN.TERRA: {
-        const account = cosmos.getAccount(child, "terra");
+        const account = await cosmos.getAccount(child, "terra");
         return account;
       }
       case CHAIN.SOLANA: {
@@ -155,11 +155,11 @@ export async function signTxFromKeyStore(
       */
       // blockchains
       case CHAIN.NEAR: {
-        const response = near.signTx(seed, path, rawTx);
+        const response = near.signTx(seed, rawTx, path);
         return { ...response };
       }
       case CHAIN.SOLANA: {
-        const response = solana.signTx(seed, path, rawTx);
+        const response = solana.signTx(seed, rawTx, path);
         return { ...response };
       }
       case CHAIN.COSMOS: {

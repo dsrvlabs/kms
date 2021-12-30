@@ -12,12 +12,15 @@ export class KEYSTORE {
     return `0x${Buffer.from(key).toString("hex")}`;
   }
 
-  private static getKeypair(seed: Buffer, path: BIP44): Keypair {
-    const key = KEYSTORE.getPrivateKey(seed, path).replace("0x", "");
+  private static getKeypair(seed: Buffer | string, path?: BIP44): Keypair {
+    const temp = typeof seed === "string" ? Buffer.from(seed) : seed;
+    const key = path
+      ? KEYSTORE.getPrivateKey(temp, path).replace("0x", "")
+      : temp.toString("hex");
     return Keypair.fromSeed(Buffer.from(key, "hex"));
   }
 
-  static getAccount(seed: Buffer, path: BIP44): Account {
+  static getAccount(seed: Buffer | string, path?: BIP44): Account {
     const keypair = KEYSTORE.getKeypair(seed, path);
     return {
       address: keypair.publicKey.toString(),
@@ -25,7 +28,7 @@ export class KEYSTORE {
     };
   }
 
-  static signTx(seed: Buffer, path: BIP44, rawTx: RawTx): SignedTx {
+  static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const payer = KEYSTORE.getKeypair(seed, path);
     const transaction = createTransaction(rawTx);
     if (transaction.instructions.length === 0) {
