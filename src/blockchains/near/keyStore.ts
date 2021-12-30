@@ -7,7 +7,7 @@ import { Account, BIP44, RawTx, SignedTx } from "../../types";
 import { createTransaction } from "./createTransaction";
 
 export class KEYSTORE {
-  private static getPrivateKey(seed: Buffer, path: BIP44): string {
+  static getPrivateKey(seed: Buffer, path: BIP44): string {
     const { key } = derivePath(
       `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
       seed.toString("hex")
@@ -18,8 +18,8 @@ export class KEYSTORE {
 
   // eslint-disable-next-line camelcase
   private static getKeyPair(seed: Buffer, path: BIP44): utils.key_pair.KeyPair {
-    const privateKey = KEYSTORE.getPrivateKey(seed, path);
-    const keyPair = utils.key_pair.KeyPairEd25519.fromString(privateKey);
+    const secretKey = KEYSTORE.getPrivateKey(seed, path);
+    const keyPair = utils.key_pair.KeyPairEd25519.fromString(secretKey);
     return keyPair;
   }
 

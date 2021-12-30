@@ -1,16 +1,20 @@
-import { encode } from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair, Signer } from "@solana/web3.js";
 import { createTransaction } from "./createTransaction";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static getKeypair(seed: Buffer, path: BIP44): Keypair {
+  static getPrivateKey(seed: Buffer, path: BIP44): string {
     const { key } = derivePath(
       `m/44'/${path.type}'/${path.account}'/${path.index}'`,
       seed.toString("hex")
     );
-    return Keypair.fromSeed(key);
+    return `0x${Buffer.from(key).toString("hex")}`;
+  }
+
+  private static getKeypair(seed: Buffer, path: BIP44): Keypair {
+    const key = KEYSTORE.getPrivateKey(seed, path).replace("0x", "");
+    return Keypair.fromSeed(Buffer.from(key, "hex"));
   }
 
   static getAccount(seed: Buffer, path: BIP44): Account {
@@ -19,11 +23,6 @@ export class KEYSTORE {
       address: keypair.publicKey.toString(),
       publicKey: keypair.publicKey.toString(),
     };
-  }
-
-  static getPrivateKey(seed: Buffer, path: BIP44): string {
-    const keypair = KEYSTORE.getKeypair(seed, path);
-    return encode(keypair.secretKey);
   }
 
   static signTx(seed: Buffer, path: BIP44, rawTx: RawTx): SignedTx {
