@@ -116,10 +116,10 @@ export class KMS {
     return { msg };
   }
 
-  async DidDocCreate(path: BIP44): Promise<string> {
+  async DidDocCreate(path: BIP44, name: string): Promise<string> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
-      const doc = await createDid(path, mnemonic);
+      const doc = await createDid(path, mnemonic, name);
       return doc;
     }
     return "";
