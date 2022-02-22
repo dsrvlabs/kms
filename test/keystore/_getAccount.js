@@ -5,6 +5,7 @@ const {
   CHAIN,
   getAccountFromKeyStore,
   signTxFromKeyStore,
+  signMsgFromKeyStore,
   getAlgo2HashKey,
 } = require("../../lib");
 
@@ -57,4 +58,5 @@ exports.getMnemonic = getMnemonic;
 exports.createKeyStore = createKeyStore;
 exports.CHAIN = CHAIN;
 exports.signTxFromKeyStore = signTxFromKeyStore;
+exports.signMsgFromKeyStore = signMsgFromKeyStore;
 exports.MNEMONIC = require("../mnemonic.json");

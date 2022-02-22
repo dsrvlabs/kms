@@ -6,6 +6,7 @@ const {
   getMnemonic,
   CHAIN,
   signTxFromKeyStore,
+  signMsgFromKeyStore,
   MNEMONIC,
 } = require("./_getAccount");
 
@@ -49,6 +50,20 @@ async function signTx(path, keyStore, password, address) {
   return response;
 }
 
+async function signMsg(path, keyStore, password, msg) {
+  let response;
+  try {
+    const mnemonic = await getMnemonic(password, keyStore);
+    response = await signMsgFromKeyStore(path, mnemonic, msg);
+    // eslint-disable-next-line no-console
+    console.log("response - ", response);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+  return response;
+}
+
 async function run() {
   const PASSWORD = MNEMONIC.password;
   const keyStore = await createKeyStore(PASSWORD);
@@ -57,14 +72,20 @@ async function run() {
     keyStore,
     PASSWORD
   );
-  const signedTx = await signTx(
+  await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
     account.address
   );
-  console.log(signedTx);
   // await sendTx(signedTx.signedTx);
+
+  await signMsg(
+    { type: TYPE, account: 0, index: INDEX },
+    keyStore,
+    PASSWORD,
+    "hello world"
+  );
 }
 
 run();
