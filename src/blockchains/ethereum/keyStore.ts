@@ -12,6 +12,10 @@ import {
   keccak256,
   ecsign,
   BN,
+  isHexString,
+  fromUtf8,
+  toBuffer,
+  intToHex,
 } from "ethereumjs-util";
 import { Account, RawTx, SignedTx } from "../../types";
 
@@ -190,5 +194,36 @@ export class KEYSTORE {
     return {
       rawTx,
     };
+  }
+
+  static async signMessage(node: BIP32Interface | string, msg: string) {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
+    const hexToBytes = (hex: string) => {
+      const bytes = [];
+      for (let i = 0; i < hex.length; i += 2)
+        bytes.push(parseInt(hex.substring(i, i + 2), 16));
+      return bytes;
+    };
+    if (privateKey) {
+      const msgHex = isHexString(msg) ? msg : fromUtf8(msg);
+      const messageBytes = hexToBytes(msgHex.replace("0x", ""));
+      const messageBuffer = toBuffer(msgHex);
+      const preamble = `\x19Ethereum Signed Message:\n${messageBytes.length}`;
+      const preambleBuffer = Buffer.from(preamble);
+      const ethMessage = Buffer.concat([preambleBuffer, messageBuffer]);
+      const sig = ecsign(keccak256(ethMessage), privateKey);
+      const signature = Buffer.concat([
+        sig.r,
+        sig.s,
+        toBuffer(intToHex(sig.v)),
+      ]).toString("hex");
+
+      return { msg, signedMsg: { signature: `0x${signature}` } };
+    }
+    return { msg };
   }
 }

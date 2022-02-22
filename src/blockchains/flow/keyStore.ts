@@ -3,8 +3,12 @@ import { ec as EC } from "elliptic";
 import { Account } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface): Account {
-    const { privateKey } = node;
+  static getAccount(node: BIP32Interface | string): Account {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
     const ec = new EC("secp256k1");
     const keyPair = ec.keyFromPrivate(privateKey as Buffer);
     return {

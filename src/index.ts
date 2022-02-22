@@ -15,8 +15,6 @@ import {
   signTxFromLedger,
   signMsgFromLedger,
 } from "./ledger";
-import { createWeb3 } from "./provider/web3";
-import { createExtension } from "./provider/extension";
 import { createDid, verifyDid } from "./did";
 
 export {
@@ -24,14 +22,13 @@ export {
   getAccountFromKeyStore,
   exportPrivateKey,
   signTxFromKeyStore,
+  signMsgFromKeyStore,
   CHAIN,
   Account,
   BIP44,
   RawTx,
   SignedTx,
   getAlgo2HashKey,
-  createWeb3,
-  createExtension,
 };
 
 interface KeyStore {

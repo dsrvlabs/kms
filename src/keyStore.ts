@@ -219,6 +219,12 @@ export async function signMsgFromKeyStore(
         const response = await cosmos.signMessage(child, "dsrv", msg);
         return { ...response };
       }
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO: {
+        const response = await eth.signMessage(child, msg);
+        return { ...response };
+      }
       // blockchains
       // add blockchains....
       // blockchains

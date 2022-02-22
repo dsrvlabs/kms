@@ -60,7 +60,7 @@ async function did(path, keyStore, password) {
   console.log("did doc is ", jwt);
   const decode = didJWT.decodeJWT(jwt);
   const verify = await KMS.DidDocVerify(jwt, decode.payload.aud);
-  console.log("verify", verify);
+  console.log("verify", JSON.stringify(verify, null, 2));
 }
 
 async function run() {
