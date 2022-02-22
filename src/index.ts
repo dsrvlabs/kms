@@ -12,6 +12,7 @@ import {
   getAccountFromPK,
   signTxFromPK,
   signMsgFromPK,
+  KeyStorePKOption,
 } from "./keyStore";
 import {
   getAccountFromLedger,
@@ -29,6 +30,7 @@ export {
   getAccountFromPK,
   signTxFromPK,
   signMsgFromPK,
+  KeyStorePKOption,
   CHAIN,
   Account,
   BIP44,

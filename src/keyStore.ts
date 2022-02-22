@@ -20,8 +20,8 @@ function getChild(path: BIP44, mnemonic: string) {
   return { seed, child };
 }
 
-interface Option {
-  type: number;
+export interface KeyStorePKOption {
+  coinType: number;
   prefix?: string;
 }
 
@@ -142,9 +142,9 @@ export async function getAccountFromKeyStore(
   }
 }
 
-export async function getAccountFromPK(pk: string, option: Option) {
+export async function getAccountFromPK(pk: string, option: KeyStorePKOption) {
   try {
-    switch (option.type) {
+    switch (option.coinType) {
       case CHAIN.DSRV: {
         const account = await cosmos.getAccount(pk, "dsrv");
         return account;
@@ -258,9 +258,13 @@ export async function signTxFromKeyStore(
   }
 }
 
-export async function signTxFromPK(pk: string, option: Option, rawTx: RawTx) {
+export async function signTxFromPK(
+  pk: string,
+  option: KeyStorePKOption,
+  rawTx: RawTx
+) {
   try {
-    switch (option.type) {
+    switch (option.coinType) {
       /*
       case CHAIN.DSRV: {
         const response = await cosmos.signTx(child, "dsrv", rawTx);
@@ -355,11 +359,11 @@ export async function signMsgFromKeyStore(
 
 export async function signMsgFromPK(
   pk: string,
-  option: Option,
+  option: KeyStorePKOption,
   msg: string
 ): Promise<SignedMsg> {
   try {
-    switch (option.type) {
+    switch (option.coinType) {
       case CHAIN.DSRV: {
         const response = await cosmos.signMessage(pk, "dsrv", msg);
         return { ...response };
