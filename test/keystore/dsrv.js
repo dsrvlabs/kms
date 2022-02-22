@@ -56,7 +56,7 @@ async function did(path, keyStore, password) {
     keyStore,
     transport: null,
   });
-  const jwt = await kms.DidDocCreate({ ...path, password });
+  const jwt = await kms.DidDocCreate({ ...path, password }, "dsrv did");
   console.log("did doc is ", jwt);
   const decode = didJWT.decodeJWT(jwt);
   const verify = await KMS.DidDocVerify(jwt, decode.payload.aud);

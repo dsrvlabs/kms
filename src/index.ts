@@ -6,6 +6,7 @@ import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
   getAccountFromKeyStore,
+  exportPrivateKey,
   signTxFromKeyStore,
   signMsgFromKeyStore,
 } from "./keyStore";
@@ -21,6 +22,7 @@ import { createDid, verifyDid } from "./did";
 export {
   createKeyStore,
   getAccountFromKeyStore,
+  exportPrivateKey,
   signTxFromKeyStore,
   CHAIN,
   Account,
@@ -79,6 +81,15 @@ export class KMS {
     return null;
   }
 
+  async exportPrivateKey(path: BIP44): Promise<string> {
+    if (this.keyStore) {
+      const mnemonic = await getMnemonic(path.password || "", this.keyStore);
+      const privatekey = await exportPrivateKey(path, mnemonic);
+      return privatekey;
+    }
+    return "";
+  }
+
   async signTx(path: BIP44, rawTx: RawTx): Promise<SignedTx> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
@@ -105,10 +116,10 @@ export class KMS {
     return { msg };
   }
 
-  async DidDocCreate(path: BIP44): Promise<string> {
+  async DidDocCreate(path: BIP44, name: string): Promise<string> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
-      const doc = await createDid(path, mnemonic);
+      const doc = await createDid(path, mnemonic, name);
       return doc;
     }
     return "";

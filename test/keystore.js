@@ -1,7 +1,12 @@
 const { JWE } = require("node-jose");
 const { encode } = require("bs58");
 const { randomBytes } = require("crypto");
-const { CHAIN, getAccountFromKeyStore, getAlgo2HashKey } = require("../lib");
+const {
+  CHAIN,
+  getAccountFromKeyStore,
+  exportPrivateKey,
+  getAlgo2HashKey,
+} = require("../lib");
 
 const MNEMONIC = require("./mnemonic.json");
 
@@ -21,15 +26,19 @@ async function createKeyStore(password) {
   return { ...opt, j: jwe.split(".") };
 }
 
-async function getAccount(path, keyStore, password) {
+async function getAccountAndPrivagteKey(path, keyStore, password) {
   try {
     const key = await getAlgo2HashKey(password, keyStore);
     const decryped = await JWE.createDecrypt(key).decrypt(keyStore.j.join("."));
-    const mnemonic = await getAccountFromKeyStore(
+    const account = await getAccountFromKeyStore(
       path,
       decryped.plaintext.toString()
     );
-    return mnemonic;
+    const privateKey = await exportPrivateKey(
+      path,
+      decryped.plaintext.toString()
+    );
+    return { account, privateKey };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -61,7 +70,7 @@ async function run() {
   ];
   for (let i = 0; i < chains.length; i += 1) {
     // eslint-disable-next-line no-await-in-loop
-    const temp = await getAccount(
+    const temp = await getAccountAndPrivagteKey(
       { type: chains[i][1], account: 0, index: 0 },
       keyStore,
       PASSWORD

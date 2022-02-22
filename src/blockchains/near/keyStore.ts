@@ -7,7 +7,7 @@ import { Account, BIP44, RawTx, SignedTx } from "../../types";
 import { createTransaction } from "./createTransaction";
 
 export class KEYSTORE {
-  private static getPrivateKey(seed: Buffer, path: BIP44): string {
+  static getPrivateKey(seed: Buffer, path: BIP44): string {
     const { key } = derivePath(
       `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
       seed.toString("hex")
@@ -16,14 +16,20 @@ export class KEYSTORE {
     return `${encode(Buffer.from(keyPair.secretKey))}`;
   }
 
-  // eslint-disable-next-line camelcase
-  private static getKeyPair(seed: Buffer, path: BIP44): utils.key_pair.KeyPair {
-    const privateKey = KEYSTORE.getPrivateKey(seed, path);
-    const keyPair = utils.key_pair.KeyPairEd25519.fromString(privateKey);
+  private static getKeyPair(
+    seed: Buffer | string,
+    path?: BIP44
+    // eslint-disable-next-line camelcase
+  ): utils.key_pair.KeyPair {
+    const temp = typeof seed === "string" ? Buffer.from(seed) : seed;
+    const secretKey = path
+      ? KEYSTORE.getPrivateKey(temp, path)
+      : temp.toString("hex");
+    const keyPair = utils.key_pair.KeyPairEd25519.fromString(secretKey);
     return keyPair;
   }
 
-  static getAccount(seed: Buffer, path: BIP44): Account {
+  static getAccount(seed: Buffer | string, path?: BIP44): Account {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
     return {
       address: keyPair.getPublicKey().toString(),
@@ -31,7 +37,7 @@ export class KEYSTORE {
     };
   }
 
-  static signTx(seed: Buffer, path: BIP44, rawTx: RawTx): SignedTx {
+  static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const transaction = createTransaction(rawTx);
     const serializedTx = utils.serialize.serialize(
       transactions.SCHEMA,

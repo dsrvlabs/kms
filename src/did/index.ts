@@ -23,7 +23,8 @@ export async function verifyDid(
 
 export async function createDid(
   path: BIP44,
-  mnemonic: string
+  mnemonic: string,
+  name: string
 ): Promise<string> {
   const seed = mnemonicToSeedSync(mnemonic);
   const node = fromSeed(seed);
@@ -38,7 +39,7 @@ export async function createDid(
     );
     const issuer = didDocument.id;
     const jwt = await createJWT(
-      { ...didDocument, aud: didDocument.id },
+      { ...didDocument, aud: didDocument.id, name },
       { issuer, signer },
       { alg: "ES256K" }
     );

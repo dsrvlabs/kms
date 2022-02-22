@@ -4,6 +4,8 @@ import {
   FeeMarketEIP1559Transaction,
 } from "@ethereumjs/tx";
 import {
+  privateToAddress,
+  privateToPublic,
   publicToAddress,
   rlp,
   bnToHex,
@@ -14,10 +16,20 @@ import {
 import { Account, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface): Account {
+  static getAccount(node: BIP32Interface | string): Account {
+    if (typeof node !== "string") {
+      return {
+        address: `0x${publicToAddress(node.publicKey, true).toString("hex")}`,
+        publicKey: `0x${node.publicKey.toString("hex")}`,
+      };
+    }
     return {
-      publicKey: `0x${node.publicKey.toString("hex")}`,
-      address: `0x${publicToAddress(node.publicKey, true).toString("hex")}`,
+      address: `0x${privateToAddress(
+        Buffer.from(node.replace("0x", ""), "hex")
+      ).toString("hex")}`,
+      publicKey: `0x${privateToPublic(
+        Buffer.from(node.replace("0x", ""), "hex")
+      ).toString("hex")}`,
     };
   }
 
@@ -142,21 +154,26 @@ export class KEYSTORE {
     return KEYSTORE.eip2930SignTx(privateKey, rawTx);
   }
 
-  static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
-    if (node.privateKey) {
+  static signTx(node: BIP32Interface | string, rawTx: RawTx): SignedTx {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
+    if (privateKey) {
       switch (parseInt(rawTx.chainId, 10)) {
         case 1: // main
         case 3: // ropsten
         case 4: // rinkeby
         case 5: // gorli
-          return KEYSTORE.eip1559SignTx(node.privateKey, rawTx);
+          return KEYSTORE.eip1559SignTx(privateKey, rawTx);
         case 1001: // klaytn testnet
         case 8217: // klaytn mainnet
-          return KEYSTORE.klaySignTx(node.privateKey, rawTx);
+          return KEYSTORE.klaySignTx(privateKey, rawTx);
         case 42220: // celo mainnet
         case 44787: // celo Alfajores
         case 62320: // celo Baklava
-          return KEYSTORE.celoSignTx(node.privateKey, rawTx);
+          return KEYSTORE.celoSignTx(privateKey, rawTx);
         case 25: // Cronos Mainnet Beta
         case 338: // Cronos Testnet
         case 9000: // evmos testnet
@@ -167,7 +184,7 @@ export class KEYSTORE {
         case 1313161555: // aurora testnet
         case 1313161556: // aurora betanet
         default:
-          return KEYSTORE.eip2930SignTx(node.privateKey, rawTx);
+          return KEYSTORE.eip2930SignTx(privateKey, rawTx);
       }
     }
     return {
