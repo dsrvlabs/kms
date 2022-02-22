@@ -10,16 +10,73 @@ import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 
+function getChild(path: BIP44, mnemonic: string) {
+  const seed = mnemonicToSeedSync(mnemonic);
+  const node = fromSeed(seed);
+  const child = node.derivePath(
+    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+  );
+
+  return { seed, child };
+}
+
+export interface KeyStorePKOption {
+  coinType: number;
+  prefix?: string;
+}
+
+export async function exportPrivateKey(
+  path: BIP44,
+  mnemonic: string
+): Promise<string> {
+  try {
+    const { seed, child } = getChild(path, mnemonic);
+    switch (path.type) {
+      case CHAIN.DSRV:
+      case CHAIN.COSMOS:
+      case CHAIN.PERSISTENCE:
+      case CHAIN.AGORIC:
+      case CHAIN.TERRA:
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO:
+      case CHAIN.FLOW:
+      case CHAIN.KUSAMA:
+      case CHAIN.POLKADOT: {
+        return child.privateKey ? `0x${child.privateKey.toString("hex")}` : "";
+      }
+      case CHAIN.SOLANA: {
+        const privateKey = solana.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      case CHAIN.NEAR: {
+        const privateKey = near.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      case CHAIN.TEZOS: {
+        const privateKey = tezos.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      // add blockchains....
+      // blockchains
+      default:
+        break;
+    }
+    return "";
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return "";
+  }
+}
+
 export async function getAccountFromKeyStore(
   path: BIP44,
   mnemonic: string
 ): Promise<Account | null> {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const { seed, child } = getChild(path, mnemonic);
+
     switch (path.type) {
       case CHAIN.DSRV: {
         const account = await cosmos.getAccount(child, "dsrv");
@@ -85,52 +142,55 @@ export async function getAccountFromKeyStore(
   }
 }
 
-export async function exportPrivateKey(
-  path: BIP44,
-  mnemonic: string
-): Promise<string> {
+export async function getAccountFromPK(pk: string, option: KeyStorePKOption) {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
-    switch (path.type) {
-      case CHAIN.DSRV:
-      case CHAIN.COSMOS:
-      case CHAIN.PERSISTENCE:
-      case CHAIN.AGORIC:
-      case CHAIN.TERRA:
-      case CHAIN.ETHEREUM:
-      case CHAIN.KLAYTN:
-      case CHAIN.CELO:
-      case CHAIN.FLOW:
-      case CHAIN.KUSAMA:
-      case CHAIN.POLKADOT: {
-        return child.privateKey ? `0x${child.privateKey.toString("hex")}` : "";
+    switch (option.coinType) {
+      case CHAIN.DSRV: {
+        const account = await cosmos.getAccount(pk, "dsrv");
+        return account;
+      }
+      // blockchains
+      case CHAIN.COSMOS: {
+        const account = await cosmos.getAccount(pk, option.prefix || "cosmos");
+        return account;
+      }
+      case CHAIN.PERSISTENCE: {
+        const account = await cosmos.getAccount(pk, "persistence");
+        return account;
+      }
+      case CHAIN.AGORIC: {
+        const account = await cosmos.getAccount(pk, "agoric");
+        return account;
+      }
+      case CHAIN.TERRA: {
+        const account = await cosmos.getAccount(pk, "terra");
+        return account;
       }
       case CHAIN.SOLANA: {
-        const privateKey = solana.getPrivateKey(seed, path);
-        return privateKey;
+        const account = solana.getAccount(pk);
+        return account;
       }
       case CHAIN.NEAR: {
-        const privateKey = near.getPrivateKey(seed, path);
-        return privateKey;
+        const account = near.getAccount(pk);
+        return account;
       }
-      case CHAIN.TEZOS: {
-        const privateKey = tezos.getPrivateKey(seed, path);
-        return privateKey;
+
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO: {
+        const account = eth.getAccount(pk);
+        return account;
       }
       // add blockchains....
       // blockchains
       default:
         break;
     }
-    return "";
+    return null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return "";
+    return null;
   }
 }
 
@@ -140,11 +200,7 @@ export async function signTxFromKeyStore(
   rawTx: RawTx
 ): Promise<SignedTx> {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const { seed, child } = getChild(path, mnemonic);
 
     switch (path.type) {
       /*
@@ -202,6 +258,68 @@ export async function signTxFromKeyStore(
   }
 }
 
+export async function signTxFromPK(
+  pk: string,
+  option: KeyStorePKOption,
+  rawTx: RawTx
+) {
+  try {
+    switch (option.coinType) {
+      /*
+      case CHAIN.DSRV: {
+        const response = await cosmos.signTx(child, "dsrv", rawTx);
+        return { ...response };
+      }
+      */
+      // blockchains
+      case CHAIN.NEAR: {
+        const response = near.signTx(pk, rawTx);
+        return { ...response };
+      }
+      case CHAIN.SOLANA: {
+        const response = solana.signTx(pk, rawTx);
+        return { ...response };
+      }
+      case CHAIN.COSMOS: {
+        const response = await cosmos.signTx(
+          pk,
+          option.prefix || "cosmos",
+          rawTx
+        );
+        return { ...response };
+      }
+      case CHAIN.PERSISTENCE: {
+        const response = await cosmos.signTx(pk, "persistence", rawTx);
+        return { ...response };
+      }
+      case CHAIN.TERRA: {
+        const response = await cosmos.signTx(pk, "terra", rawTx);
+        return { ...response };
+      }
+      case CHAIN.AGORIC: {
+        const response = await cosmos.signTx(pk, "agoric", rawTx);
+        return { ...response };
+      }
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO: {
+        const response = eth.signTx(pk, rawTx);
+        return { ...response };
+      }
+      // add blockchains....
+      // blockchains
+      default:
+        break;
+    }
+
+    return { rawTx };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return { rawTx };
+  }
+}
+
 export async function signMsgFromKeyStore(
   path: BIP44,
   mnemonic: string,
@@ -223,6 +341,37 @@ export async function signMsgFromKeyStore(
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
         const response = await eth.signMessage(child, msg);
+        return { ...response };
+      }
+      // blockchains
+      // add blockchains....
+      // blockchains
+      default:
+        break;
+    }
+    return { msg };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return { msg };
+  }
+}
+
+export async function signMsgFromPK(
+  pk: string,
+  option: KeyStorePKOption,
+  msg: string
+): Promise<SignedMsg> {
+  try {
+    switch (option.coinType) {
+      case CHAIN.DSRV: {
+        const response = await cosmos.signMessage(pk, "dsrv", msg);
+        return { ...response };
+      }
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO: {
+        const response = await eth.signMessage(pk, msg);
         return { ...response };
       }
       // blockchains

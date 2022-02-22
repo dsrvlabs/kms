@@ -5,10 +5,14 @@ import { JWTVerified } from "did-jwt";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
-  getAccountFromKeyStore,
   exportPrivateKey,
+  getAccountFromKeyStore,
   signTxFromKeyStore,
   signMsgFromKeyStore,
+  getAccountFromPK,
+  signTxFromPK,
+  signMsgFromPK,
+  KeyStorePKOption,
 } from "./keyStore";
 import {
   getAccountFromLedger,
@@ -19,10 +23,14 @@ import { createDid, verifyDid } from "./did";
 
 export {
   createKeyStore,
-  getAccountFromKeyStore,
   exportPrivateKey,
+  getAccountFromKeyStore,
   signTxFromKeyStore,
   signMsgFromKeyStore,
+  getAccountFromPK,
+  signTxFromPK,
+  signMsgFromPK,
+  KeyStorePKOption,
   CHAIN,
   Account,
   BIP44,
