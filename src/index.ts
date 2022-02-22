@@ -16,6 +16,17 @@ import {
   signMsgFromLedger,
 } from "./ledger";
 import { createDid, verifyDid } from "./did";
+import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
+import { KEYSTORE as ethereum } from "./blockchains/ethereum/keyStore";
+import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
+import { KEYSTORE as near } from "./blockchains/near/keyStore";
+
+const blockchains = {
+  cosmos,
+  ethereum,
+  solana,
+  near,
+};
 
 export {
   createKeyStore,
@@ -29,6 +40,7 @@ export {
   RawTx,
   SignedTx,
   getAlgo2HashKey,
+  blockchains,
 };
 
 interface KeyStore {

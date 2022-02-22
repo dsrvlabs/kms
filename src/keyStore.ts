@@ -10,16 +10,68 @@ import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 
+function getChild(path: BIP44, mnemonic: string) {
+  const seed = mnemonicToSeedSync(mnemonic);
+  const node = fromSeed(seed);
+  const child = node.derivePath(
+    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
+  );
+
+  return { seed, child };
+}
+
+export async function exportPrivateKey(
+  path: BIP44,
+  mnemonic: string
+): Promise<string> {
+  try {
+    const { seed, child } = getChild(path, mnemonic);
+    switch (path.type) {
+      case CHAIN.DSRV:
+      case CHAIN.COSMOS:
+      case CHAIN.PERSISTENCE:
+      case CHAIN.AGORIC:
+      case CHAIN.TERRA:
+      case CHAIN.ETHEREUM:
+      case CHAIN.KLAYTN:
+      case CHAIN.CELO:
+      case CHAIN.FLOW:
+      case CHAIN.KUSAMA:
+      case CHAIN.POLKADOT: {
+        return child.privateKey ? `0x${child.privateKey.toString("hex")}` : "";
+      }
+      case CHAIN.SOLANA: {
+        const privateKey = solana.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      case CHAIN.NEAR: {
+        const privateKey = near.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      case CHAIN.TEZOS: {
+        const privateKey = tezos.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      // add blockchains....
+      // blockchains
+      default:
+        break;
+    }
+    return "";
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return "";
+  }
+}
+
 export async function getAccountFromKeyStore(
   path: BIP44,
   mnemonic: string
 ): Promise<Account | null> {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const { seed, child } = getChild(path, mnemonic);
+
     switch (path.type) {
       case CHAIN.DSRV: {
         const account = await cosmos.getAccount(child, "dsrv");
@@ -85,66 +137,13 @@ export async function getAccountFromKeyStore(
   }
 }
 
-export async function exportPrivateKey(
-  path: BIP44,
-  mnemonic: string
-): Promise<string> {
-  try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
-    switch (path.type) {
-      case CHAIN.DSRV:
-      case CHAIN.COSMOS:
-      case CHAIN.PERSISTENCE:
-      case CHAIN.AGORIC:
-      case CHAIN.TERRA:
-      case CHAIN.ETHEREUM:
-      case CHAIN.KLAYTN:
-      case CHAIN.CELO:
-      case CHAIN.FLOW:
-      case CHAIN.KUSAMA:
-      case CHAIN.POLKADOT: {
-        return child.privateKey ? `0x${child.privateKey.toString("hex")}` : "";
-      }
-      case CHAIN.SOLANA: {
-        const privateKey = solana.getPrivateKey(seed, path);
-        return privateKey;
-      }
-      case CHAIN.NEAR: {
-        const privateKey = near.getPrivateKey(seed, path);
-        return privateKey;
-      }
-      case CHAIN.TEZOS: {
-        const privateKey = tezos.getPrivateKey(seed, path);
-        return privateKey;
-      }
-      // add blockchains....
-      // blockchains
-      default:
-        break;
-    }
-    return "";
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    return "";
-  }
-}
-
 export async function signTxFromKeyStore(
   path: BIP44,
   mnemonic: string,
   rawTx: RawTx
 ): Promise<SignedTx> {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const { seed, child } = getChild(path, mnemonic);
 
     switch (path.type) {
       /*
