@@ -5,10 +5,13 @@ import { JWTVerified } from "did-jwt";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
-  getAccountFromKeyStore,
   exportPrivateKey,
+  getAccountFromKeyStore,
   signTxFromKeyStore,
   signMsgFromKeyStore,
+  getAccountFromPK,
+  signTxFromPK,
+  signMsgFromPK,
 } from "./keyStore";
 import {
   getAccountFromLedger,
@@ -16,31 +19,22 @@ import {
   signMsgFromLedger,
 } from "./ledger";
 import { createDid, verifyDid } from "./did";
-import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
-import { KEYSTORE as ethereum } from "./blockchains/ethereum/keyStore";
-import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
-import { KEYSTORE as near } from "./blockchains/near/keyStore";
-
-const blockchains = {
-  cosmos,
-  ethereum,
-  solana,
-  near,
-};
 
 export {
   createKeyStore,
-  getAccountFromKeyStore,
   exportPrivateKey,
+  getAccountFromKeyStore,
   signTxFromKeyStore,
   signMsgFromKeyStore,
+  getAccountFromPK,
+  signTxFromPK,
+  signMsgFromPK,
   CHAIN,
   Account,
   BIP44,
   RawTx,
   SignedTx,
   getAlgo2HashKey,
-  blockchains,
 };
 
 interface KeyStore {

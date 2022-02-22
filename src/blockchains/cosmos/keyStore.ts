@@ -102,11 +102,20 @@ export class KEYSTORE {
     return { rawTx };
   }
 
-  static async signMessage(node: BIP32Interface, _prefix: string, msg: string) {
-    if (node.privateKey) {
+  static async signMessage(
+    node: BIP32Interface | string,
+    _prefix: string,
+    msg: string
+  ) {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+
+    if (privateKey) {
       const signature = secp256k1.ecdsaSign(
         Buffer.from(enc.Base64.stringify(SHA256(msg)), "base64"),
-        node.privateKey
+        privateKey
       );
       return { msg, signedMsg: { ...signature } };
     }
