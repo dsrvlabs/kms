@@ -1,15 +1,11 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
-const { providers, utils } = require("near-api-js");
+const BN = require("bn.js");
+const { providers, utils, transactions } = require("near-api-js");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
 const TYPE = CHAIN.NEAR;
 const INDEX = 1;
-
-const TRANSFER = 0;
-const DEPOSITANDSTAKE = 1;
-const UNSTAKE = 2;
-const UNSTAKEALL = 3;
 
 async function sendTransaction(response) {
   const rpc = "https://rpc.testnet.near.org";
@@ -48,31 +44,37 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        provider,
         recentBlockHash,
         nonce,
         signerId,
         receiverId,
         encodedPubKey,
-        ixs: [
-          {
-            amount: "10",
-            transactionType: TRANSFER,
-          },
-          {
-            amount: "10",
-            gas: "50000000000000",
-            transactionType: DEPOSITANDSTAKE,
-          },
-          {
-            amount: "9",
-            gas: "50000000000000",
-            transactionType: UNSTAKE,
-          },
-          {
-            gas: "50000000000000",
-            transactionType: UNSTAKEALL,
-          },
+        txs: [
+          JSON.stringify(transactions.transfer(new BN(10))),
+          JSON.stringify(
+            transactions.functionCall(
+              "deposit_and_stake",
+              new Uint8Array(),
+              new BN(10),
+              new BN(50000000000000)
+            )
+          ),
+          JSON.stringify(
+            transactions.functionCall(
+              "unstake",
+              Buffer.from(`{"amount": "${9}"}`),
+              new BN(50000000000000),
+              new BN(0)
+            )
+          ),
+          JSON.stringify(
+            transactions.functionCall(
+              "unstake_all",
+              new Uint8Array(),
+              new BN(50000000000000),
+              new BN(0)
+            )
+          ),
         ],
       }
     );
