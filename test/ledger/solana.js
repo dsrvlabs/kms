@@ -1,9 +1,13 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 
 const {
-  StakeProgram,
-  PublicKey,
+  // Authorized,
   Connection,
+  // StakeProgram,
+  SystemProgram,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  // Lockup,
   // sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
 
@@ -13,11 +17,7 @@ const { getAccount } = require("./_getAccount");
 const TYPE = CHAIN.SOLANA;
 const INDEX = 0;
 
-// const TRANSFER = 0;
-const CREATESTAKEACCONUT = 1;
-const DELEGATE = 2;
-// const UNDELEGATE = 3;
-
+/*
 async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   const stakePubkey = await PublicKey.createWithSeed(
     fromPublicKey,
@@ -28,6 +28,7 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
   console.log("stakePubkey - ", stakePubkey.toString());
   return stakePubkey;
 }
+*/
 /*
 async function sendTransation(connection, transaction) {
   try {
@@ -48,10 +49,10 @@ async function signTx(transport, type, index, account) {
   try {
     const RPC = "https://api.devnet.solana.com"; // DEV NET
     const CONNECTION = new Connection(RPC, "confirmed");
-    const timeStamp = new Date().getTime();
-    const STAKEACCOUNTSEED = timeStamp.toString();
+    // const timeStamp = new Date().getTime();
+    // const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
-    const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
+    // const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
     const response = await kms.signTx(
       {
@@ -63,41 +64,40 @@ async function signTx(transport, type, index, account) {
         connection: CONNECTION,
         recentBlockhash: RECENTBLOCKHASH.blockhash,
         feePayer: ACCOUNTPUBKEY,
-        ixs: [
-          // Create Stake Account
-          {
-            fromPubkey: ACCOUNTPUBKEY,
-            basePubkey: ACCOUNTPUBKEY,
-            stakerAuthorizePubkey: ACCOUNTPUBKEY,
-            withdrawerAuthorizePubkey: ACCOUNTPUBKEY,
-            stakePubkey: STAKEPUBKEY,
-            amountOfSOL: 0.1,
-            stakeAccountSeed: STAKEACCOUNTSEED,
-            transactionType: CREATESTAKEACCONUT,
-          },
-          // Delegate
-          {
-            authorizedPubkey: ACCOUNTPUBKEY,
-            votePubkey: "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG",
-            stakePubkey: STAKEPUBKEY,
-            transactionType: DELEGATE,
-          },
+        txs: [
           /*
-          // Undelegate
-          {
-            authorizedPubkey: ACCOUNTPUBKEY,
-            stakePubkey: "5vGVDMjFfcPs5F7km5BhM6c9E6H9kFR2z5VzsgRrsvpS",
-            transactionType: UNDELEGATE,
-          },
+        // Create Stake Account
+        StakeProgram.createAccountWithSeed({
+          fromPubkey: ACCOUNTPUBKEY,
+          stakePubkey: STAKEPUBKEY,
+          basePubkey: ACCOUNTPUBKEY,
+          seed: STAKEACCOUNTSEED,
+          authorized: new Authorized(ACCOUNTPUBKEY, ACCOUNTPUBKEY),
+          lockup: new Lockup(0, 0, new PublicKey(0)),
+          lamports: Number(0.1) * LAMPORTS_PER_SOL,
+        }),
+        // Delegate
+        StakeProgram.delegate({
+          stakePubkey: STAKEPUBKEY,
+          authorizedPubkey: ACCOUNTPUBKEY,
+          votePubkey: new PublicKey(
+            "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG"
+          ),
+        }),
+        */
           /*
+        // Undelegate
+        StakeProgram.deactivate({
+          authorizedPubkey: ACCOUNTPUBKEY,
+          stakePubkey: "DmS2tb8dvRYx8Utmw5CdUEpLzGPur3RtshjHRLUzjLWT",
+        }),
+        */
           // Transfer
-          {
+          SystemProgram.transfer({
             fromPubkey: ACCOUNTPUBKEY,
-            toPubkey: "4GnH1wZuKDAbWvdgVp6Dap7o2SUbjoFPLPkeNgBxqZRQ",
-            amountOfSOL: 0.1,
-            transactionType: TRANSFER,
-          },
-          */
+            lamports: Number(0.1) * LAMPORTS_PER_SOL,
+            toPubkey: ACCOUNTPUBKEY,
+          }),
         ],
       }
     );
