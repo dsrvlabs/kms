@@ -1,8 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
-import { transactions } from "near-api-js";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
-import { createTransaction } from "./createTransaction";
 
 const App = require("near-ledger-js");
 
@@ -26,19 +24,14 @@ export class LEDGER {
   ): Promise<SignedTx> {
     const client = await App.createClient(transport);
     const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
-    const transaction = createTransaction(rawTx);
-    const response = await client.sign(transaction.encode(), PATH);
-    const signature = new Uint8Array(response);
-    const signedTransaction = new transactions.SignedTransaction({
-      transaction,
-      signature: new transactions.Signature({
-        keyType: transaction.publicKey.keyType,
-        data: signature,
-      }),
-    });
+    const response = await client.sign(
+      Buffer.from(rawTx.serializedTx, "hex"),
+      PATH
+    );
+
     return {
       rawTx,
-      signedTx: signedTransaction,
+      signedTx: { signature: new Uint8Array(response) },
     };
   }
 

@@ -37,6 +37,40 @@ async function signTx(transport, type, index, account) {
     );
     const nonce = accessKey.nonce + 1;
     const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
+
+    const actions = [
+      transactions.transfer(new BN(10)),
+      transactions.functionCall(
+        "deposit_and_stake",
+        new Uint8Array(),
+        new BN(10),
+        new BN(50000000000000)
+      ),
+      transactions.functionCall(
+        "unstake",
+        Buffer.from(`{"amount": "${9}"}`),
+        new BN(50000000000000),
+        new BN(0)
+      ),
+      transactions.functionCall(
+        "unstake_all",
+        new Uint8Array(),
+        new BN(50000000000000),
+        new BN(0)
+      ),
+    ];
+
+    const transaction = transactions.createTransaction(
+      signerId,
+      utils.PublicKey.fromString(encodedPubKey),
+      receiverId,
+      nonce,
+      actions,
+      recentBlockHash
+    );
+
+    const serializedTx = transaction.encode();
+
     const response = await kms.signTx(
       {
         type,
@@ -49,37 +83,20 @@ async function signTx(transport, type, index, account) {
         signerId,
         receiverId,
         encodedPubKey,
-        txs: [
-          JSON.stringify(transactions.transfer(new BN(10))),
-          JSON.stringify(
-            transactions.functionCall(
-              "deposit_and_stake",
-              new Uint8Array(),
-              new BN(10),
-              new BN(50000000000000)
-            )
-          ),
-          JSON.stringify(
-            transactions.functionCall(
-              "unstake",
-              Buffer.from(`{"amount": "${9}"}`),
-              new BN(50000000000000),
-              new BN(0)
-            )
-          ),
-          JSON.stringify(
-            transactions.functionCall(
-              "unstake_all",
-              new Uint8Array(),
-              new BN(50000000000000),
-              new BN(0)
-            )
-          ),
-        ],
+        serializedTx,
       }
     );
+
+    const signedTransaction = new transactions.SignedTransaction({
+      transaction,
+      signature: new transactions.Signature({
+        keyType: transaction.publicKey.keyType,
+        data: response.signedTx.signature,
+      }),
+    });
+
     // eslint-disable-next-line no-console
-    console.log("Transation signed - ", response);
+    console.log("Transation signed - ", response, signedTransaction);
 
     // SEND TRANSACTION
     const txResponse = await sendTransaction(response);

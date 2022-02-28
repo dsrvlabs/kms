@@ -1,5 +1,5 @@
 import { derivePath } from "near-hd-key";
-import { Keypair, Signer } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import { createTransaction } from "./createTransaction";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
@@ -34,7 +34,7 @@ export class KEYSTORE {
     if (transaction.instructions.length === 0) {
       throw new Error("No instructions provided");
     }
-    transaction.sign(<Signer>payer);
+    transaction.sign(payer);
     return {
       rawTx,
       signedTx: transaction,
