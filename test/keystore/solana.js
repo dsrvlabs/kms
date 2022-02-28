@@ -55,7 +55,6 @@ async function signTx(path, mnemonic, account) {
     // const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
     const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
     const response = await signTxFromKeyStore(path, mnemonic, {
-      connection: CONNECTION,
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
       txs: [

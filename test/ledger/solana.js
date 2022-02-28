@@ -61,7 +61,6 @@ async function signTx(transport, type, index, account) {
         index,
       },
       {
-        connection: CONNECTION,
         recentBlockhash: RECENTBLOCKHASH.blockhash,
         feePayer: ACCOUNTPUBKEY,
         txs: [
