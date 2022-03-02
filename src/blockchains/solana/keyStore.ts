@@ -13,7 +13,10 @@ export class KEYSTORE {
   }
 
   private static getKeypair(seed: Buffer | string, path?: BIP44): Keypair {
-    const temp = typeof seed === "string" ? Buffer.from(seed) : seed;
+    const temp =
+      typeof seed === "string"
+        ? Buffer.from(seed.replace("0x", ""), "hex")
+        : seed;
     const key = path
       ? KEYSTORE.getPrivateKey(temp, path).replace("0x", "")
       : temp.toString("hex");
@@ -37,7 +40,7 @@ export class KEYSTORE {
     transaction.sign(payer);
     return {
       rawTx,
-      signedTx: transaction,
+      signedTx: transaction.serialize(),
     };
   }
 

@@ -41,8 +41,8 @@ export async function getMnemonic(
 export async function createKeyStore(
   mnemonic: string[],
   password: string,
-  time: number = 9,
-  mem: number = 262144
+  time: number = 100,
+  mem: number = 10
 ): Promise<KeyStore | null> {
   const encoder = new TextEncoder();
   const opt = { t: time, m: mem, s: encode(randomBytes(LENGTH)), j: [] };

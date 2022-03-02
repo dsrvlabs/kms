@@ -1,18 +1,39 @@
-import { Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { RawTx } from "../../types";
 
 export function createTransaction(rawTx: RawTx): Transaction {
   const transaction = new Transaction({
     recentBlockhash: rawTx.recentBlockhash,
-    feePayer: rawTx.feePayer,
+    feePayer:
+      typeof rawTx.feePayer === "string"
+        ? new PublicKey(rawTx.feePayer)
+        : rawTx.feePayer,
   });
   (rawTx.txs as any[]).forEach((tx: any) => {
     if (tx.instructions) {
       (tx.instructions as any[]).forEach((tx2) => {
-        transaction.add({ ...tx2, data: Buffer.from(tx2.data) });
+        const keys = (tx2.keys as any[]).map((key) => {
+          return {
+            ...key,
+            pubkey:
+              typeof key.pubkey === "string"
+                ? new PublicKey(key.pubkey)
+                : key.pubkey,
+          };
+        });
+        transaction.add({ ...tx2, keys, data: Buffer.from(tx2.data) });
       });
     } else {
-      transaction.add({ ...tx, data: Buffer.from(tx.data) });
+      const keys = (tx.keys as any[]).map((key) => {
+        return {
+          ...key,
+          pubkey:
+            typeof key.pubkey === "string"
+              ? new PublicKey(key.pubkey)
+              : key.pubkey,
+        };
+      });
+      transaction.add({ ...tx, keys, data: Buffer.from(tx.data) });
     }
   });
   return transaction;

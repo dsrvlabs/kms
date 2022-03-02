@@ -20,7 +20,10 @@ export class KEYSTORE {
     path?: BIP44
     // eslint-disable-next-line camelcase
   ): utils.key_pair.KeyPair {
-    const temp = typeof seed === "string" ? Buffer.from(seed) : seed;
+    const temp =
+      typeof seed === "string"
+        ? Buffer.from(seed.replace("0x", ""), "hex")
+        : seed;
     const secretKey = path
       ? KEYSTORE.getPrivateKey(temp, path)
       : temp.toString("hex");
