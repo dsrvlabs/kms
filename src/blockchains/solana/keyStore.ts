@@ -40,7 +40,7 @@ export class KEYSTORE {
     transaction.sign(payer);
     return {
       rawTx,
-      signedTx: transaction.serialize(),
+      signedTx: transaction.serialize().toString("hex"),
     };
   }
 

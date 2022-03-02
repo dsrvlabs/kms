@@ -33,7 +33,7 @@ export class LEDGER {
     transaction.addSignature(rawTx.feePayer, signature);
     return {
       rawTx,
-      signedTx: transaction,
+      signedTx: transaction.serialize().toString("hex"),
     };
   }
 
