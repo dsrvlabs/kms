@@ -36,7 +36,7 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
 /*
 async function sendTransation(connection, transaction) {
   try {
-    await sendAndConfirmRawTransaction(connection, Buffer.from(transaction, "hex"), {
+    await sendAndConfirmRawTransaction(connection, Buffer.from(transaction.replace("0x", ""), "hex"), {
       preflightCommitment: "confirmed",
     });
   } catch (error) {
