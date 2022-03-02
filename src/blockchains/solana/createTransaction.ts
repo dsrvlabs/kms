@@ -7,7 +7,13 @@ export function createTransaction(rawTx: RawTx): Transaction {
     feePayer: rawTx.feePayer,
   });
   (rawTx.txs as any[]).forEach((tx: any) => {
-    transaction.add({ ...tx, data: Buffer.from(tx.data) });
+    if (tx.instructions) {
+      (tx.instructions as any[]).forEach((tx2) => {
+        transaction.add({ ...tx2, data: Buffer.from(tx2.data) });
+      });
+    } else {
+      transaction.add({ ...tx, data: Buffer.from(tx.data) });
+    }
   });
   return transaction;
 }
