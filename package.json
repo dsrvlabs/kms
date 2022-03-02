@@ -1,6 +1,6 @@
 {
   "name": "@dsrv/kms",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "blockchain key managament system",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -53,7 +53,7 @@
     "@onflow/ledger": "^0.1.0",
     "@onflow/util-encode-key": "^0.0.2",
     "@polkadot/util-crypto": "^6.10.1",
-    "@solana/web3.js": "^1.20.0",
+    "@solana/web3.js": "^1.35.1",
     "@terra-money/ledger-terra-js": "^1.1.0",
     "@terra-money/terra.js": "^3.0.1",
     "@types/node-jose": "^1.1.7",

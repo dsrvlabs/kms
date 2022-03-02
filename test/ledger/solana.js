@@ -53,7 +53,7 @@ async function signTx(transport, type, index, account) {
     // const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
     // const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
-    const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
+    const RECENTBLOCKHASH = await CONNECTION.getLatestBlockhash();
     const response = await kms.signTx(
       {
         type,

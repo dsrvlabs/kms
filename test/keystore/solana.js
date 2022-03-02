@@ -53,7 +53,7 @@ async function signTx(path, mnemonic, account) {
     // const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
     // const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
-    const RECENTBLOCKHASH = await CONNECTION.getRecentBlockhash();
+    const RECENTBLOCKHASH = await CONNECTION.getLatestBlockhash();
     const response = await signTxFromKeyStore(path, mnemonic, {
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
