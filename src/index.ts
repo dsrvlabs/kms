@@ -5,6 +5,7 @@ import { JWTVerified } from "did-jwt";
 import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
+  getDerivePath,
   exportPrivateKey,
   getAccountFromKeyStore,
   signTxFromKeyStore,
@@ -23,6 +24,7 @@ import { createDid, verifyDid } from "./did";
 
 export {
   createKeyStore,
+  getDerivePath,
   exportPrivateKey,
   getAccountFromKeyStore,
   signTxFromKeyStore,

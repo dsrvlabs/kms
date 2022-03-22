@@ -10,12 +10,14 @@ import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 
+export function getDerivePath(path: BIP44): string {
+  return `m/44'/${path.type}'/${path.account}'/0/${path.index}`;
+}
+
 function getChild(path: BIP44, mnemonic: string) {
   const seed = mnemonicToSeedSync(mnemonic);
   const node = fromSeed(seed);
-  const child = node.derivePath(
-    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-  );
+  const child = node.derivePath(getDerivePath(path));
 
   return { seed, child };
 }
