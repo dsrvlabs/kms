@@ -72,13 +72,14 @@ async function run() {
     keyStore,
     PASSWORD
   );
+  // const { signedTx } =
   await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
     account.address
   );
-  // await sendTx(signedTx.signedTx);
+  // await sendTx(signedTx);
 
   await signMsg(
     { type: TYPE, account: 0, index: INDEX },

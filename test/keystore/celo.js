@@ -1,5 +1,5 @@
-// const { ethers } = require("ethers");
-const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
+const { ethers } = require("ethers");
+// const { CeloProvider } = require("@celo-tools/celo-ethers-wrapper");
 
 const {
   createKeyStore,
@@ -13,18 +13,16 @@ const {
 const TYPE = CHAIN.CELO;
 const INDEX = 0;
 
-/*
 const provider = new ethers.providers.JsonRpcProvider(
   "https://alfajores-forno.celo-testnet.org"
 );
-*/
-const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
-/*
+// const provider = new CeloProvider("https://alfajores-forno.celo-testnet.org");
+
 async function sendTx(signedTx) {
   const recept = await provider.sendTransaction(signedTx.signature);
   console.log(recept);
 }
-*/
+
 async function signTx(path, keyStore, password, address) {
   let response;
   try {
@@ -37,11 +35,13 @@ async function signTx(path, keyStore, password, address) {
     response = await signTxFromKeyStore(path, mnemonic, {
       nonce,
       gasLimit: gasLimit.toString(),
-      gasPrice: "2500000000",
+      maxFeePerGas: "2500000040",
+      maxPriorityFeePerGas: "2500000000",
       to: address,
       value: "1",
       chainId: 44787,
     });
+
     // eslint-disable-next-line no-console
     console.log("response - ", response);
     // test
@@ -67,7 +67,7 @@ async function run() {
     account.address
   );
   console.log(signedTx);
-  // await sendTx(signedTx.signedTx);
+  await sendTx(signedTx.signedTx);
 }
 
 run();

@@ -7,7 +7,6 @@ import {
   privateToAddress,
   privateToPublic,
   publicToAddress,
-  rlp,
   bnToHex,
   keccak256,
   ecsign,
@@ -85,75 +84,6 @@ export class KEYSTORE {
     };
   }
 
-  private static celoSignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
-    const rlpEncode = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.feeCurrency ? bnToHex(new BN(rawTx.feeCurrency)) : "0x",
-      rawTx.gatewayFeeRecipient
-        ? bnToHex(new BN(rawTx.gatewayFeeRecipient))
-        : "0x",
-      rawTx.gatewayFee ? bnToHex(new BN(rawTx.gatewayFee)) : "0x",
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
-      bnToHex(new BN(rawTx.chainId)),
-      "0x",
-      "0x",
-    ]);
-    const rlpDecode = rlp.decode(rlpEncode);
-    const sig = ecsign(keccak256(rlpEncode), privateKey);
-
-    const signature = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.feeCurrency ? bnToHex(new BN(rawTx.feeCurrency)) : "0x",
-      rawTx.gatewayFeeRecipient
-        ? bnToHex(new BN(rawTx.gatewayFeeRecipient))
-        : "0x",
-      rawTx.gatewayFee ? bnToHex(new BN(rawTx.gatewayFee)) : "0x",
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
-      bnToHex(
-        new BN(
-          27 +
-            (sig.v === 0 || sig.v === 1 ? sig.v : 1 - (sig.v % 2)) +
-            parseInt(rawTx.chainId, 10) * 2 +
-            8
-        )
-      ),
-      `0x${sig.r.toString("hex")}`,
-      `0x${sig.s.toString("hex")}`,
-    ]);
-
-    return {
-      rawTx,
-      signedTx: {
-        json: {
-          nonce: `0x${(rlpDecode[0] as any as Buffer).toString("hex")}`,
-          gasPrice: `0x${(rlpDecode[1] as any as Buffer).toString("hex")}`,
-          gasLimit: `0x${(rlpDecode[2] as any as Buffer).toString("hex")}`,
-          feeCurrency: `0x${(rlpDecode[3] as any as Buffer).toString("hex")}`,
-          gatewayFeeRecipient: `0x${(rlpDecode[4] as any as Buffer).toString(
-            "hex"
-          )}`,
-          gatewayFee: `0x${(rlpDecode[5] as any as Buffer).toString("hex")}`,
-          to: `0x${(rlpDecode[6] as any as Buffer).toString("hex")}`,
-          value: `0x${(rlpDecode[7] as any as Buffer).toString("hex")}`,
-          data: `0x${(rlpDecode[8] as any as Buffer).toString("hex")}`,
-          chainId: `0x${bnToHex(new BN(rawTx.chainId))}`,
-          v: sig.v,
-          r: `0x${sig.r.toString("hex")}`,
-          s: `0x${sig.s.toString("hex")}`,
-        },
-        signature: `0x${signature.toString("hex")}`,
-      },
-    };
-  }
-
   private static klaySignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
     return KEYSTORE.eip2930SignTx(privateKey, rawTx);
   }
@@ -170,14 +100,13 @@ export class KEYSTORE {
         case 3: // ropsten
         case 4: // rinkeby
         case 5: // gorli
+        case 42220: // celo mainnet
+        case 44787: // celo Alfajores
+        case 62320: // celo Baklava
           return KEYSTORE.eip1559SignTx(privateKey, rawTx);
         case 1001: // klaytn testnet
         case 8217: // klaytn mainnet
           return KEYSTORE.klaySignTx(privateKey, rawTx);
-        case 42220: // celo mainnet
-        case 44787: // celo Alfajores
-        case 62320: // celo Baklava
-          return KEYSTORE.celoSignTx(privateKey, rawTx);
         case 25: // Cronos Mainnet Beta
         case 338: // Cronos Testnet
         case 9000: // evmos testnet
