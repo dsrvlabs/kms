@@ -1,16 +1,10 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
 import { enc, SHA256 } from "crypto-js";
-import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
-import {
-  DirectSecp256k1Wallet,
-  makeSignDoc,
-  makeAuthInfoBytes,
-  encodePubkey,
-} from "@cosmjs/proto-signing";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { registry } from "./utils/defaultRegistryTypes";
+import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import { Account, RawTx, SignedTx } from "../../types";
+import { cosmosSignTx } from "./signTx/cosmos";
+import { terraSignTx } from "./signTx/terra";
 
 export class KEYSTORE {
   static async getAccount(
@@ -51,53 +45,10 @@ export class KEYSTORE {
         : Buffer.from(node.replace("0x", ""), "hex");
 
     if (privateKey) {
-      const wallet = await DirectSecp256k1Wallet.fromKey(
-        new Uint8Array(privateKey),
-        prefix
-      );
-      const accounts = await wallet.getAccounts();
-
-      const txBodyEncodeObject = {
-        typeUrl: "/cosmos.tx.v1beta1.TxBody",
-        value: {
-          messages: rawTx.msgs,
-          memo: rawTx.memo,
-        },
-      };
-
-      const txBodyBytes = registry.encode(txBodyEncodeObject);
-      const pubkey = encodePubkey(encodeSecp256k1Pubkey(accounts[0].pubkey));
-
-      const signDoc = makeSignDoc(
-        txBodyBytes,
-        makeAuthInfoBytes(
-          [
-            {
-              pubkey,
-              sequence: rawTx.signerData.sequence,
-            },
-          ],
-          rawTx.fee.amount,
-          rawTx.fee.gas
-        ),
-        rawTx.signerData.chainId,
-        rawTx.signerData.accountNumber
-      );
-
-      const { signature } = await wallet.signDirect(
-        accounts[0].address,
-        signDoc
-      );
-
-      const txRaw = TxRaw.fromPartial({
-        bodyBytes: signDoc.bodyBytes,
-        authInfoBytes: signDoc.authInfoBytes,
-        signatures: [
-          new Uint8Array(Buffer.from(signature.signature, "base64")),
-        ],
-      });
-
-      return { rawTx, signedTx: { txRaw } };
+      if (rawTx.signerData) {
+        return cosmosSignTx(privateKey, prefix, rawTx);
+      }
+      return terraSignTx(privateKey, prefix, rawTx);
     }
     return { rawTx };
   }
