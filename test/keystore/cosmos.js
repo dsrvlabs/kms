@@ -97,11 +97,13 @@ async function run() {
     sequence.sequence,
     chainId
   );
+  /*
   const testing = await client.broadcastTx(
     Uint8Array.from(Buffer.from(signing.signedTx.replace("0x", ""), "hex"))
   );
   // eslint-disable-next-line no-console
   console.log(testing);
+  */
 }
 
 run();

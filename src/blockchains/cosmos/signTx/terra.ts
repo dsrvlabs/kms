@@ -7,6 +7,7 @@ import {
   AuthInfo,
   RawKey,
   sha256,
+  Msg,
 } from "@terra-money/terra.js";
 import { RawTx, SignedTx } from "../../../types";
 
@@ -23,7 +24,8 @@ export async function terraSignTx(
 
   const fee = new Fee(Number.parseInt(rawTx.fee.gas, 10), coins);
   const timeoutHeight = 0;
-  const txBody = new TxBody(rawTx.msgs, rawTx.memo || "", timeoutHeight);
+  const aminoMsgs = rawTx.msgs.map((msg: any) => Msg.fromAmino(msg) || msg);
+  const txBody = new TxBody(aminoMsgs, rawTx.memo || "", timeoutHeight);
   const tx = new Tx(txBody, new AuthInfo([], fee), []);
   const txRaw = await rawKey.signTx(tx, {
     accountNumber: parseInt(rawTx.account_number, 10),
