@@ -24,6 +24,7 @@ export interface RawTx {
 
 export interface SignedTx {
   rawTx: RawTx;
+  hashTx?: string;
   signedTx?: any;
 }
 

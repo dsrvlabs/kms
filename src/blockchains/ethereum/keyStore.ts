@@ -50,6 +50,7 @@ export class KEYSTORE {
     const json = signedTx.toJSON();
     return {
       rawTx,
+      hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
       signedTx: {
         json: { ...json, v: parseInt(json.v || "0x0", 16) },
         signature: `0x${signedTx.serialize().toString("hex")}`,
@@ -77,6 +78,7 @@ export class KEYSTORE {
     const json = signedTx.toJSON();
     return {
       rawTx,
+      hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
       signedTx: {
         json: { ...json, v: parseInt(json.v || "0x0", 16) },
         signature: `0x${signedTx.serialize().toString("hex")}`,

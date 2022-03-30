@@ -1,4 +1,3 @@
-const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
 const { StargateClient } = require("@cosmjs/stargate");
 const { KMS, CHAIN } = require("../../lib");
 
@@ -9,6 +8,7 @@ const MNEMONIC = require("../mnemonic.json");
 const TYPE = CHAIN.COSMOS;
 const INDEX = 0;
 
+// eslint-disable-next-line consistent-return
 async function signTx(
   path,
   keyStore,
@@ -97,9 +97,9 @@ async function run() {
     sequence.sequence,
     chainId
   );
-  const txRawCall = signing.signedTx.txRaw;
-  const txBytes = TxRaw.encode(txRawCall).finish();
-  const testing = await client.broadcastTx(txBytes);
+  const testing = await client.broadcastTx(
+    Uint8Array.from(Buffer.from(signing.signedTx.replace("0x", ""), "hex"))
+  );
   // eslint-disable-next-line no-console
   console.log(testing);
 }

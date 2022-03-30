@@ -6,6 +6,7 @@ import {
 } from "@cosmjs/proto-signing";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
+import { sha256 } from "@terra-money/terra.js";
 import { RawTx, SignedTx } from "../../../types";
 import { registry } from "../utils/defaultRegistryTypes";
 
@@ -55,5 +56,11 @@ export async function cosmosSignTx(
     signatures: [new Uint8Array(Buffer.from(signature.signature, "base64"))],
   });
 
-  return { rawTx, signedTx: { txRaw } };
+  return {
+    rawTx,
+    hashTx: Buffer.from(sha256(TxRaw.encode(txRaw).finish()))
+      .toString("hex")
+      .toUpperCase(),
+    signedTx: `0x${Buffer.from(TxRaw.encode(txRaw).finish()).toString("hex")}`,
+  };
 }
