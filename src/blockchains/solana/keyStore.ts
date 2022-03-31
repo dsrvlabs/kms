@@ -1,3 +1,4 @@
+import base58 from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair } from "@solana/web3.js";
 import { createTransaction } from "./createTransaction";
@@ -40,6 +41,9 @@ export class KEYSTORE {
     transaction.sign(payer);
     return {
       rawTx,
+      hashTx: transaction.signature
+        ? base58.encode(Uint8Array.from(transaction.signature))
+        : "",
       signedTx: `0x${transaction.serialize().toString("hex")}`,
     };
   }
