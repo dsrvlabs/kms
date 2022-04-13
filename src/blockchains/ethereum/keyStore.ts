@@ -37,6 +37,49 @@ export class KEYSTORE {
     };
   }
 
+  private static legacySignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+    const rlpEncode = rlp.encode([
+      bnToHex(new BN(rawTx.nonce)),
+      bnToHex(new BN(rawTx.gasPrice)),
+      bnToHex(new BN(rawTx.gasLimit)),
+      rawTx.to,
+      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
+      rawTx.data || "0x",
+    ]);
+    const rlpDecode = rlp.decode(rlpEncode);
+    const sig = ecsign(keccak256(rlpEncode), privateKey);
+
+    const signature = rlp.encode([
+      bnToHex(new BN(rawTx.nonce)),
+      bnToHex(new BN(rawTx.gasPrice)),
+      bnToHex(new BN(rawTx.gasLimit)),
+      rawTx.to,
+      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
+      rawTx.data || "0x",
+      sig.v !== 27 ? "0x1c" : "0x1b",
+      `0x${sig.r.toString("hex")}`,
+      `0x${sig.s.toString("hex")}`,
+    ]);
+
+    return {
+      rawTx,
+      signedTx: {
+        json: {
+          nonce: `0x${(rlpDecode[0] as any as Buffer).toString("hex")}`,
+          gasPrice: `0x${(rlpDecode[1] as any as Buffer).toString("hex")}`,
+          gasLimit: `0x${(rlpDecode[2] as any as Buffer).toString("hex")}`,
+          to: `0x${(rlpDecode[3] as any as Buffer).toString("hex")}`,
+          value: `0x${(rlpDecode[4] as any as Buffer).toString("hex")}`,
+          data: `0x${(rlpDecode[5] as any as Buffer).toString("hex")}`,
+          v: sig.v,
+          r: `0x${sig.r.toString("hex")}`,
+          s: `0x${sig.s.toString("hex")}`,
+        },
+        signature: `0x${signature.toString("hex")}`,
+      },
+    };
+  }
+
   private static eip2930SignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
     const tx = AccessListEIP2930Transaction.fromTxData({
       nonce: bnToHex(new BN(rawTx.nonce)),
@@ -159,6 +202,10 @@ export class KEYSTORE {
         : Buffer.from(node.replace("0x", ""), "hex");
 
     if (privateKey) {
+      if (!rawTx.chainId) {
+        return KEYSTORE.legacySignTx(privateKey, rawTx);
+      }
+
       if (rawTx.feeCurrency) {
         return KEYSTORE.celoSignTx(privateKey, rawTx);
       }
