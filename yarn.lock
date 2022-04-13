@@ -1171,21 +1171,22 @@
     bech32 "^1.1.3"
     ripemd160 "^2.0.2"
 
-"@terra-money/terra.js@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@terra-money/terra.js/-/terra.js-3.0.1.tgz#5f1db735273717828232d9a6476637f44d428bf4"
-  integrity sha512-bzWHGc70mCw3P9phattEnP/+Dhtf+49iw2bBZdagwovoGS/nzFlY+ESwLu3vQglHM9CDPQYaWtn3giytaAileQ==
+"@terra-money/terra.js@^3.0.10":
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/@terra-money/terra.js/-/terra.js-3.0.10.tgz#cb9cd0f95abd958429a2a508af0d4fa1fd0dcf43"
+  integrity sha512-d4pa+GZjGeDaj1xy2KS0nw8nMTMqHHib9dVdIMyuyhjG+TezueY+04ROGzkmzpTFOrv5ruROF/0T+hzUTp5jPQ==
   dependencies:
     "@terra-money/terra.proto" "^0.1.7"
-    axios "^0.24.0"
+    axios "^0.26.1"
     bech32 "^2.0.0"
-    bip32 "^2.0.6"
+    bip32 "^3.0.1"
     bip39 "^3.0.3"
     bufferutil "^4.0.3"
     decimal.js "^10.2.1"
     jscrypto "^1.0.1"
     readable-stream "^3.6.0"
     secp256k1 "^4.0.2"
+    tiny-secp256k1 "^2.2.1"
     tmp "^0.2.1"
     utf-8-validate "^5.0.5"
     ws "^7.5.5"
@@ -1621,12 +1622,12 @@ axios@^0.23.0:
   dependencies:
     follow-redirects "^1.14.4"
 
-axios@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
-  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
+axios@^0.26.1:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
+  integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
   dependencies:
-    follow-redirects "^1.14.4"
+    follow-redirects "^1.14.8"
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -1702,6 +1703,18 @@ bip32@2.0.6, bip32@^2.0.6:
     create-hash "^1.2.0"
     create-hmac "^1.1.7"
     tiny-secp256k1 "^1.1.3"
+    typeforce "^1.11.5"
+    wif "^2.0.6"
+
+bip32@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/bip32/-/bip32-3.0.1.tgz#1d1121469cce6e910e0ec3a5a1990dd62687e2a3"
+  integrity sha512-Uhpp9aEx3iyiO7CpbNGFxv9WcMIVdGoHG04doQ5Ln0u60uwDah7jUSc3QMV/fSZGm/Oo01/OeAmYevXV+Gz5jQ==
+  dependencies:
+    "@types/node" "10.12.18"
+    bs58check "^2.1.1"
+    create-hash "^1.2.0"
+    create-hmac "^1.1.7"
     typeforce "^1.11.5"
     wif "^2.0.6"
 
@@ -1868,17 +1881,10 @@ buffer@~6.0.3:
     base64-js "^1.3.1"
     ieee754 "^1.2.1"
 
-bufferutil@^4.0.1:
+bufferutil@^4.0.1, bufferutil@^4.0.3:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/bufferutil/-/bufferutil-4.0.6.tgz#ebd6c67c7922a0e902f053e5d8be5ec850e48433"
   integrity sha512-jduaYOYtnio4aIAyc6UbvPCVcgq7nYpVnucyxr6eCYg/Woad9Hf/oxxBRDnGGjPfjUm6j5O/uBWhIu4iLebFaw==
-  dependencies:
-    node-gyp-build "^4.3.0"
-
-bufferutil@^4.0.3:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/bufferutil/-/bufferutil-4.0.5.tgz#da9ea8166911cc276bf677b8aed2d02d31f59028"
-  integrity sha512-HTm14iMQKK2FjFLRTM5lAVcyaUzOnqbPtesFIvREgXpJHdQm8bWS+GkQgIkfaBYRHuCnea7w8UVNfwiAQhlr9A==
   dependencies:
     node-gyp-build "^4.3.0"
 
@@ -2682,6 +2688,11 @@ follow-redirects@^1.14.0, follow-redirects@^1.14.4:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.5.tgz#f09a5848981d3c772b5392309778523f8d85c381"
   integrity sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==
 
+follow-redirects@^1.14.8:
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
+  integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
+
 form-data@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
@@ -2785,9 +2796,9 @@ globby@^11.0.3:
     slash "^3.0.0"
 
 google-protobuf@^3.17.3:
-  version "3.19.1"
-  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.19.1.tgz#5af5390e8206c446d8f49febaffd4b7f4ac28f41"
-  integrity sha512-Isv1RlNC+IzZzilcxnlVSf+JvuhxmY7DaxYCBy+zPS9XVuJRtlTTIXR9hnZ1YL1MMusJn/7eSy2swCzZIomQSg==
+  version "3.20.0"
+  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.20.0.tgz#8705ab5fb7e91e9578250a4a8ac533a3cc0bc0bb"
+  integrity sha512-hhXv5IKLDIkb0pEm53G053UZGhRAhw3wM5Jk7ly5sGIQRkO1s63FaDqM9QjlrPHygKEE2awUlLP9fFrG6M9vfQ==
 
 graceful-fs@^4.1.2:
   version "4.2.6"
@@ -3094,9 +3105,9 @@ js-yaml@^3.13.1:
     esprima "^4.0.0"
 
 jscrypto@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/jscrypto/-/jscrypto-1.0.2.tgz#2775430a39589693efb31d41421b103200c87dae"
-  integrity sha512-r+oNJLGTv1nkNMBBq3c70xYrFDgJOYVgs2OHijz5Ht+0KJ0yObD0oYxC9mN72KLzVfXw+osspg6t27IZvuTUxw==
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/jscrypto/-/jscrypto-1.0.3.tgz#598febca2a939d6f679c54f56e1fe364cef30cc9"
+  integrity sha512-lryZl0flhodv4SZHOqyb1bx5sKcJxj0VBo0Kzb4QMAg3L021IC9uGpl0RCZa+9KJwlRGSK2C80ITcwbe19OKLQ==
 
 json-parse-better-errors@^1.0.1:
   version "1.0.2"
@@ -4270,6 +4281,13 @@ tiny-secp256k1@^1.1.3:
     elliptic "^6.4.0"
     nan "^2.13.2"
 
+tiny-secp256k1@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/tiny-secp256k1/-/tiny-secp256k1-2.2.1.tgz#a61d4791b7031aa08a9453178a131349c3e10f9b"
+  integrity sha512-/U4xfVqnVxJXN4YVsru0E6t5wVncu2uunB8+RVR40fYUxkKYUPS10f+ePQZgFBoE/Jbf9H1NBveupF2VmB58Ng==
+  dependencies:
+    uint8array-tools "0.0.7"
+
 tmp@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.2.1.tgz#8457fc3037dcf4719c251367a1af6500ee1ccf14"
@@ -4360,6 +4378,11 @@ u3@^0.1.0:
   resolved "https://registry.yarnpkg.com/u3/-/u3-0.1.0.tgz#0060927663b68353c539cda99e9511d6687edd9d"
   integrity sha1-AGCSdmO2g1PFOc2pnpUR1mh+3Z0=
 
+uint8array-tools@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/uint8array-tools/-/uint8array-tools-0.0.7.tgz#a7a2bb5d8836eae2fade68c771454e6a438b390d"
+  integrity sha512-vrrNZJiusLWoFWBqz5Y5KMCgP9W9hnjZHzZiZRT8oNAkq3d5Z5Oe76jAvVVSRh4U8GGR90N2X1dWtrhvx6L8UQ==
+
 uint8arrays@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-3.0.0.tgz#260869efb8422418b6f04e3fac73a3908175c63b"
@@ -4401,9 +4424,9 @@ utf-8-validate@^5.0.2:
     node-gyp-build "^4.3.0"
 
 utf-8-validate@^5.0.5:
-  version "5.0.7"
-  resolved "https://registry.yarnpkg.com/utf-8-validate/-/utf-8-validate-5.0.7.tgz#c15a19a6af1f7ad9ec7ddc425747ca28c3644922"
-  integrity sha512-vLt1O5Pp+flcArHGIyKEQq883nBt8nN8tVBcoL0qUXj2XT1n7p70yGIq2VK98I5FdZ1YHc0wk/koOnHjnXWk1Q==
+  version "5.0.9"
+  resolved "https://registry.yarnpkg.com/utf-8-validate/-/utf-8-validate-5.0.9.tgz#ba16a822fbeedff1a58918f2a6a6b36387493ea3"
+  integrity sha512-Yek7dAy0v3Kl0orwMlvi7TPtiCNrdfHNd7Gcc/pLq4BLXqfAmd0J7OWMizUQnTTJsyjKn02mU7anqwfmUP4J8Q==
   dependencies:
     node-gyp-build "^4.3.0"
 
@@ -4505,15 +4528,10 @@ ws@^7:
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.5.tgz#8b4bc4af518cfabd0473ae4f99144287b33eb881"
   integrity sha512-BAkMFcAzl8as1G/hArkxOxq3G7pjUqQ3gzYbLL0/5zNkph70e+lCoxBGnm6AW1+/aiNeV4fnKqZ8m4GZewmH2w==
 
-ws@^7.4.5:
+ws@^7.4.5, ws@^7.5.5:
   version "7.5.7"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.7.tgz#9e0ac77ee50af70d58326ecff7e85eb3fa375e67"
   integrity sha512-KMvVuFzpKBuiIXW3E4u3mySRO2/mCHSyZDJQM5NQ9Q9KHWHWh0NHgfbRMLLrceUK5qAL4ytALJbpRMjixFZh8A==
-
-ws@^7.5.5:
-  version "7.5.6"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.6.tgz#e59fc509fb15ddfb65487ee9765c5a51dec5fe7b"
-  integrity sha512-6GLgCqo2cy2A2rjCNFlxQS6ZljG/coZfZXclldI8FB/1G3CCI36Zd8xy2HrFVACi8tfk5XrgLQEk+P0Tnz9UcA==
 
 xstream@^11.14.0:
   version "11.14.0"

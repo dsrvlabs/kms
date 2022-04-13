@@ -1,6 +1,6 @@
 {
   "name": "@dsrv/kms",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "blockchain key managament system",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -55,7 +55,7 @@
     "@polkadot/util-crypto": "^6.10.1",
     "@solana/web3.js": "^1.35.1",
     "@terra-money/ledger-terra-js": "^1.1.0",
-    "@terra-money/terra.js": "^3.0.1",
+    "@terra-money/terra.js": "^3.0.10",
     "@types/node-jose": "^1.1.7",
     "@zondax/ledger-polkadot": "^0.14.0",
     "argon2-browser": "^1.18.0",
