@@ -251,7 +251,7 @@ export class KEYSTORE {
       const messageBuffer = toBuffer(msgHex);
       let messageHash: Buffer = messageBuffer;
       if (
-        msg.type === "" ||
+        !msg.type ||
         msg.type === "eth_sign" ||
         msg.type === "personal_sign"
       ) {
