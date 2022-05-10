@@ -56,7 +56,7 @@ export class KEYSTORE {
   static async signMessage(
     node: BIP32Interface | string,
     _prefix: string,
-    msg: string
+    msg: { type: string; data: string }
   ) {
     const privateKey =
       typeof node !== "string"
@@ -65,7 +65,7 @@ export class KEYSTORE {
 
     if (privateKey) {
       const signature = secp256k1.ecdsaSign(
-        Buffer.from(enc.Base64.stringify(SHA256(msg)), "base64"),
+        Buffer.from(enc.Base64.stringify(SHA256(msg.data)), "base64"),
         privateKey
       );
       return { msg, signedMsg: { ...signature } };

@@ -29,7 +29,7 @@ export interface SignedTx {
 }
 
 export interface SignedMsg {
-  msg: string;
+  msg: { type: string; data: string };
   signedMsg?: any;
 }
 

@@ -134,7 +134,7 @@ export async function signTxFromLedger(
 export async function signMsgFromLedger(
   path: BIP44,
   _transport: Transport,
-  msg: string
+  msg: { type: string; data: string }
 ): Promise<SignedMsg> {
   try {
     switch (path.type) {

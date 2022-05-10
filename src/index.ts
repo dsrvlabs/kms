@@ -110,7 +110,10 @@ export class KMS {
     return { rawTx };
   }
 
-  async signMsg(path: BIP44, msg: string): Promise<SignedMsg> {
+  async signMsg(
+    path: BIP44,
+    msg: { type: string; data: string }
+  ): Promise<SignedMsg> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
       const response = await signMsgFromKeyStore(path, mnemonic, msg);

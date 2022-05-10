@@ -325,7 +325,7 @@ export async function signTxFromPK(
 export async function signMsgFromKeyStore(
   path: BIP44,
   mnemonic: string,
-  msg: string
+  msg: { type: string; data: string }
 ): Promise<SignedMsg> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
@@ -362,7 +362,7 @@ export async function signMsgFromKeyStore(
 export async function signMsgFromPK(
   pk: string,
   option: KeyStorePKOption,
-  msg: string
+  msg: { type: string; data: string }
 ): Promise<SignedMsg> {
   try {
     switch (option.coinType) {
