@@ -1,5 +1,13 @@
 import Transport from "@ledgerhq/hw-transport";
-import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import {
+  CHAIN,
+  Account,
+  BIP44,
+  RawTx,
+  SignedTx,
+  SignedMsg,
+  Message,
+} from "./types";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
 import { LEDGER as solana } from "./blockchains/solana/ledger";
@@ -134,7 +142,7 @@ export async function signTxFromLedger(
 export async function signMsgFromLedger(
   path: BIP44,
   _transport: Transport,
-  msg: { type: string; data: string }
+  msg: Message
 ): Promise<SignedMsg> {
   try {
     switch (path.type) {

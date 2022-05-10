@@ -1,6 +1,14 @@
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import {
+  CHAIN,
+  Account,
+  BIP44,
+  RawTx,
+  SignedTx,
+  SignedMsg,
+  Message,
+} from "./types";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
 import { KEYSTORE as eth } from "./blockchains/ethereum/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
@@ -325,7 +333,7 @@ export async function signTxFromPK(
 export async function signMsgFromKeyStore(
   path: BIP44,
   mnemonic: string,
-  msg: { type: string; data: string }
+  msg: Message
 ): Promise<SignedMsg> {
   try {
     const seed = mnemonicToSeedSync(mnemonic);
@@ -362,7 +370,7 @@ export async function signMsgFromKeyStore(
 export async function signMsgFromPK(
   pk: string,
   option: KeyStorePKOption,
-  msg: { type: string; data: string }
+  msg: Message
 ): Promise<SignedMsg> {
   try {
     switch (option.coinType) {

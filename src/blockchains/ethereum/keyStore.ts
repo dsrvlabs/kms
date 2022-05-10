@@ -17,7 +17,7 @@ import {
   toBuffer,
   intToHex,
 } from "ethereumjs-util";
-import { Account, RawTx, SignedTx } from "../../types";
+import { Account, Message, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getAccount(node: BIP32Interface | string): Account {
@@ -233,10 +233,7 @@ export class KEYSTORE {
     };
   }
 
-  static async signMessage(
-    node: BIP32Interface | string,
-    msg: { type: string; data: string }
-  ) {
+  static async signMessage(node: BIP32Interface | string, msg: Message) {
     const privateKey =
       typeof node !== "string"
         ? node.privateKey

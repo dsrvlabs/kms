@@ -28,8 +28,13 @@ export interface SignedTx {
   signedTx?: any;
 }
 
+export interface Message {
+  type: string;
+  data: string;
+}
+
 export interface SignedMsg {
-  msg: { type: string; data: string };
+  msg: Message;
   signedMsg?: any;
 }
 

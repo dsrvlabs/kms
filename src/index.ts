@@ -2,7 +2,15 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
 import { JWTVerified } from "did-jwt";
-import { CHAIN, Account, BIP44, RawTx, SignedTx, SignedMsg } from "./types";
+import {
+  CHAIN,
+  Account,
+  BIP44,
+  RawTx,
+  SignedTx,
+  SignedMsg,
+  Message,
+} from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
   getDerivePath,
@@ -39,6 +47,7 @@ export {
   RawTx,
   SignedTx,
   getAlgo2HashKey,
+  Message,
 };
 
 interface KeyStore {
@@ -110,10 +119,7 @@ export class KMS {
     return { rawTx };
   }
 
-  async signMsg(
-    path: BIP44,
-    msg: { type: string; data: string }
-  ): Promise<SignedMsg> {
+  async signMsg(path: BIP44, msg: Message): Promise<SignedMsg> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
       const response = await signMsgFromKeyStore(path, mnemonic, msg);
