@@ -1,4 +1,4 @@
-import { encode } from "bs58";
+import { encode, decode } from "bs58";
 import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
@@ -20,13 +20,8 @@ export class KEYSTORE {
     path?: BIP44
     // eslint-disable-next-line camelcase
   ): utils.key_pair.KeyPair {
-    const temp =
-      typeof seed === "string"
-        ? Buffer.from(seed.replace("0x", ""), "hex")
-        : seed;
-    const secretKey = path
-      ? KEYSTORE.getPrivateKey(temp, path)
-      : temp.toString("hex");
+    const temp = typeof seed === "string" ? decode(seed) : seed;
+    const secretKey = path ? KEYSTORE.getPrivateKey(temp, path) : encode(temp);
     const keyPair = utils.key_pair.KeyPairEd25519.fromString(secretKey);
     return keyPair;
   }
