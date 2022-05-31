@@ -5,8 +5,9 @@ const {
   SystemProgram,
   PublicKey,
   LAMPORTS_PER_SOL,
+  Transaction,
   // Lockup,
-  // sendAndConfirmRawTransaction,
+  sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
 
 const {
@@ -36,9 +37,14 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
 /*
 async function sendTransation(connection, transaction) {
   try {
-    await sendAndConfirmRawTransaction(connection, Buffer.from(transaction.replace("0x", ""), "hex"), {
-      preflightCommitment: "confirmed",
-    });
+    const hash = await sendAndConfirmRawTransaction(
+      connection,
+      Buffer.from(transaction.replace("0x", ""), "hex"),
+      {
+        preflightCommitment: "confirmed",
+      }
+    );
+    console.log(hash);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
@@ -53,50 +59,28 @@ async function signTx(path, mnemonic, account) {
     // const STAKEACCOUNTSEED = timeStamp.toString();
     const ACCOUNTPUBKEY = new PublicKey(account);
     // const STAKEPUBKEY = await getStakeAccount(STAKEACCOUNTSEED, ACCOUNTPUBKEY);
+
     const RECENTBLOCKHASH = await CONNECTION.getLatestBlockhash();
-    const response = await signTxFromKeyStore(path, mnemonic, {
+
+    const transaction = new Transaction({
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
-      txs: [
-        /*
-        // Create Stake Account
-        StakeProgram.createAccountWithSeed({
-          fromPubkey: ACCOUNTPUBKEY,
-          stakePubkey: STAKEPUBKEY,
-          basePubkey: ACCOUNTPUBKEY,
-          seed: STAKEACCOUNTSEED,
-          authorized: new Authorized(ACCOUNTPUBKEY, ACCOUNTPUBKEY),
-          lockup: new Lockup(0, 0, new PublicKey(0)),
-          lamports: Number(0.1) * LAMPORTS_PER_SOL,
-        }),
-        // Delegate
-        StakeProgram.delegate({
-          stakePubkey: STAKEPUBKEY,
-          authorizedPubkey: ACCOUNTPUBKEY,
-          votePubkey: new PublicKey(
-            "3NZ1Wa2spvK6dpbVBhgTh2qfjzNA6wxEAdXMsJJQCDQG"
-          ),
-        }),
-        */
-        /*
-        // Undelegate
-        StakeProgram.deactivate({
-          authorizedPubkey: ACCOUNTPUBKEY,
-          stakePubkey: "DmS2tb8dvRYx8Utmw5CdUEpLzGPur3RtshjHRLUzjLWT",
-        }),
-        */
-        // Transfer
-        SystemProgram.transfer({
-          fromPubkey: ACCOUNTPUBKEY,
-          lamports: Number(0.1) * LAMPORTS_PER_SOL,
-          toPubkey: ACCOUNTPUBKEY,
-        }),
-      ],
+    });
+
+    transaction.add(
+      SystemProgram.transfer({
+        fromPubkey: ACCOUNTPUBKEY,
+        lamports: Number(0.1) * LAMPORTS_PER_SOL,
+        toPubkey: ACCOUNTPUBKEY,
+      })
+    );
+    const response = await signTxFromKeyStore(path, mnemonic, {
+      serializedTx: transaction
+        .serialize({ verifySignatures: false })
+        .toString("hex"),
     });
     // eslint-disable-next-line no-console
     console.log("response - ", response);
-    // eslint-disable-next-line no-console
-    console.log("verifySignature - ", response.signedTx.verifySignatures());
     // Send Transaction
     // sendTransation(CONNECTION, response.signedTx);
   } catch (error) {
