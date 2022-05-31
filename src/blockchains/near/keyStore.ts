@@ -36,7 +36,7 @@ export class KEYSTORE {
 
   static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const hashTx = sha256.sha256.array(Buffer.from(rawTx.serializedTx, "hex"));
+    const hashTx = sha256.sha256.array(Buffer.from(rawTx.encodedTx, "base64"));
     const { signature } = keyPair.sign(new Uint8Array(hashTx));
     return {
       rawTx,

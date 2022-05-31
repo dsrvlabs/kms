@@ -74,10 +74,10 @@ async function signTx(path, mnemonic, account) {
       recentBlockHash
     );
 
-    const serializedTx = transaction.encode();
+    const bytes = transaction.encode();
 
     const response = await signTxFromKeyStore(path, mnemonic, {
-      serializedTx,
+      encodedTx: Buffer.from(bytes).toString("base64"),
     });
 
     // eslint-disable-next-line no-console
