@@ -1,5 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import { createTransaction } from "./createTransaction";
+import { Transaction } from "@solana/web3.js";
 import { getPublicKey, getSolanaDerivationPath, signTransaction } from "./hw";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
@@ -21,10 +21,9 @@ export class LEDGER {
     transport: Transport,
     rawTx: RawTx
   ): Promise<SignedTx> {
-    const transaction = createTransaction(rawTx);
-    if (transaction.instructions.length === 0) {
-      throw new Error("No instructions provided");
-    }
+    const transaction = Transaction.from(
+      Buffer.from(rawTx.serializedTx.replace("0x", ""), "hex")
+    );
     const signature = await signTransaction(
       transport,
       transaction,

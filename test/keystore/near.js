@@ -79,7 +79,7 @@ async function signTx(path, mnemonic, account) {
     console.log("decode - ", transactions.Transaction.decode(bytes));
 
     const response = await signTxFromKeyStore(path, mnemonic, {
-      encodedTx: Buffer.from(bytes).toString("base64"),
+      serializedTx: Buffer.from(bytes).toString("base64"),
     });
 
     // eslint-disable-next-line no-console

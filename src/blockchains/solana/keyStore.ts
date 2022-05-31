@@ -1,7 +1,6 @@
 import base58 from "bs58";
 import { derivePath } from "near-hd-key";
-import { Keypair } from "@solana/web3.js";
-import { createTransaction } from "./createTransaction";
+import { Keypair, Transaction } from "@solana/web3.js";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
@@ -34,10 +33,9 @@ export class KEYSTORE {
 
   static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const payer = KEYSTORE.getKeypair(seed, path);
-    const transaction = createTransaction(rawTx);
-    if (transaction.instructions.length === 0) {
-      throw new Error("No instructions provided");
-    }
+    const transaction = Transaction.from(
+      Buffer.from(rawTx.serializedTx.replace("0x", ""), "hex")
+    );
     transaction.sign(payer);
     return {
       rawTx,
