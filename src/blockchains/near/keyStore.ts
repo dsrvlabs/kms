@@ -42,7 +42,7 @@ export class KEYSTORE {
       rawTx,
       signedTx: {
         hashTx: encode(new Uint8Array(hashTx)),
-        signature,
+        signature: `0x${Buffer.from(signature).toString("hex")}`,
       },
     };
   }

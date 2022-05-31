@@ -76,6 +76,8 @@ async function signTx(path, mnemonic, account) {
 
     const bytes = transaction.encode();
 
+    console.log("decode - ", transactions.Transaction.decode(bytes));
+
     const response = await signTxFromKeyStore(path, mnemonic, {
       encodedTx: Buffer.from(bytes).toString("base64"),
     });
@@ -87,7 +89,9 @@ async function signTx(path, mnemonic, account) {
       transaction,
       signature: new transactions.Signature({
         keyType: transaction.publicKey.keyType,
-        data: response.signedTx.signature,
+        data: new Uint8Array(
+          Buffer.from(response.signedTx.signature.replace("0x", ""), "hex")
+        ),
       }),
     });
     // SEND TRANSACTION
