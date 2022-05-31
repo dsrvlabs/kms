@@ -14,10 +14,10 @@ const TYPE = CHAIN.NEAR;
 const INDEX = 1;
 
 /*
-async function sendTransaction(response) {
+async function sendTransaction(signedTransaction) {
   const rpc = "https://rpc.testnet.near.org";
   const provider = new providers.JsonRpcProvider(rpc);
-  const signedSerializedTx = response.signedTx.encode();
+  const signedSerializedTx = signedTransaction.encode();
   const result = await provider.sendJsonRpc("broadcast_tx_commit", [
     Buffer.from(signedSerializedTx).toString("base64"),
   ]);
@@ -31,7 +31,6 @@ async function signTx(path, mnemonic, account) {
     // eslint-disable-next-line no-undef
     const accountIds = await fetch(helperURL).then((res) => res.json());
     const signerId = accountIds[Object.keys(accountIds).length - 1];
-    const receiverId = "masternode24.pool.f863973.m0";
     const rpc = "https://rpc.testnet.near.org";
     const provider = new providers.JsonRpcProvider(rpc);
     const accessKey = await provider.query(
@@ -41,6 +40,7 @@ async function signTx(path, mnemonic, account) {
     const nonce = accessKey.nonce + 1;
     const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
 
+    /*
     const actions = [
       transactions.transfer(new BN(10)),
       transactions.functionCall(
@@ -62,11 +62,13 @@ async function signTx(path, mnemonic, account) {
         new BN(0)
       ),
     ];
+    */
+    const actions = [transactions.transfer(new BN(10))];
 
     const transaction = transactions.createTransaction(
       signerId,
       utils.PublicKey.fromString(encodedPubKey),
-      receiverId,
+      signerId,
       nonce,
       actions,
       recentBlockHash
@@ -75,14 +77,12 @@ async function signTx(path, mnemonic, account) {
     const serializedTx = transaction.encode();
 
     const response = await signTxFromKeyStore(path, mnemonic, {
-      recentBlockHash,
-      nonce,
-      signerId,
-      receiverId,
-      encodedPubKey,
       serializedTx,
     });
 
+    // eslint-disable-next-line no-console
+    console.log("Transation signed - ", response);
+    /*
     const signedTransaction = new transactions.SignedTransaction({
       transaction,
       signature: new transactions.Signature({
@@ -90,14 +90,11 @@ async function signTx(path, mnemonic, account) {
         data: response.signedTx.signature,
       }),
     });
-
-    // eslint-disable-next-line no-console
-    console.log("Transation signed - ", response, signedTransaction);
-
     // SEND TRANSACTION
-    // const txResponse = await sendTransaction(response);
+    const txResponse = await sendTransaction(signedTransaction);
     // eslint-disable-next-line no-console
-    // console.log("Transaction sent - ", txResponse.transaction);
+    console.log("Transaction sent - ", txResponse.transaction);
+    */
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);

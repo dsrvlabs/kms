@@ -36,15 +36,14 @@ export class KEYSTORE {
 
   static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const { signature } = keyPair.sign(
-      new Uint8Array(
-        sha256.sha256.array(Buffer.from(rawTx.serializedTx, "hex"))
-      )
-    );
-
+    const hashTx = sha256.sha256.array(Buffer.from(rawTx.serializedTx, "hex"));
+    const { signature } = keyPair.sign(new Uint8Array(hashTx));
     return {
       rawTx,
-      signedTx: { signature },
+      signedTx: {
+        hashTx: encode(new Uint8Array(hashTx)),
+        signature,
+      },
     };
   }
 
