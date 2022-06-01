@@ -1,4 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
+import { transactions } from "near-api-js";
 import { encode } from "bs58";
 import sha256 from "js-sha256";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
@@ -28,6 +29,15 @@ export class LEDGER {
     const serializedTx = Buffer.from(rawTx.serializedTx, "base64");
     const response = await client.sign(serializedTx, PATH);
 
+    const transaction = transactions.Transaction.decode(serializedTx);
+    const signedTransaction = new transactions.SignedTransaction({
+      transaction,
+      signature: new transactions.Signature({
+        keyType: transaction.publicKey.keyType,
+        data: response,
+      }),
+    });
+
     return {
       rawTx,
       hashTx: encode(
@@ -35,7 +45,7 @@ export class LEDGER {
           sha256.sha256.array(Buffer.from(rawTx.serializedTx, "base64"))
         )
       ),
-      signedTx: `0x${Buffer.from(response).toString("hex")}`,
+      signedTx: `0x${Buffer.from(signedTransaction.encode()).toString("hex")}`,
     };
   }
 
