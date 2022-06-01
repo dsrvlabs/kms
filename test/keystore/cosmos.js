@@ -88,7 +88,7 @@ async function run() {
   console.log(balance);
 
   // signing and broadcast tx
-  const signing = await signTx(
+  const { signedTx } = await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
@@ -99,7 +99,7 @@ async function run() {
   );
   /*
   const testing = await client.broadcastTx(
-    Uint8Array.from(Buffer.from(signing.signedTx.replace("0x", ""), "hex"))
+    Uint8Array.from(Buffer.from(signedTx.serializedTx.replace("0x", ""), "hex"))
   );
   // eslint-disable-next-line no-console
   console.log(testing);

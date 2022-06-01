@@ -88,7 +88,7 @@ async function run() {
   console.log(balance);
 
   // signing and broadcast tx
-  const signing = await signTx(
+  const { signedTx } = await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,
@@ -97,8 +97,7 @@ async function run() {
     sequence.sequence,
     chainId
   );
-  const txRawCall = signing.signedTx.txRaw;
-  const txBytes = TxRaw.encode(txRawCall).finish();
+  const txBytes = TxRaw.encode(signedTx.serializedTx).finish();
   const testing = await client.broadcastTx(txBytes);
   // eslint-disable-next-line no-console
   console.log(testing);

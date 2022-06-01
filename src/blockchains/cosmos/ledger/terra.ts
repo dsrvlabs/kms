@@ -14,6 +14,7 @@ import {
   Msg,
   SignerInfo,
   ModeInfo,
+  sha256,
 } from "@terra-money/terra.js";
 import { Account, BIP44, RawTx, SignedTx } from "../../../types";
 import { Secp256k1Signature } from "../utils/secp256k1signature";
@@ -57,13 +58,13 @@ export class LEDGER {
       []
     );
 
-    const copyTx = new Tx(tx.body, new AuthInfo([], tx.auth_info.fee), []);
+    const txRaw = new Tx(tx.body, new AuthInfo([], tx.auth_info.fee), []);
     const sign_doc = new SignDoc(
       rawTx.chain_id,
       parseInt(rawTx.account_number, 10),
       parseInt(rawTx.sequence, 10),
-      copyTx.auth_info,
-      copyTx.body
+      txRaw.auth_info,
+      txRaw.body
     );
     const response = await instance.sign(
       [44, path.type, path.account, 0, path.index],
@@ -91,8 +92,8 @@ export class LEDGER {
     );
 
     const sigData = signature.data.single as SignatureV2.Descriptor.Single;
-    copyTx.signatures.push(...tx.signatures, sigData.signature);
-    copyTx.auth_info.signer_infos.push(
+    txRaw.signatures.push(...tx.signatures, sigData.signature);
+    txRaw.auth_info.signer_infos.push(
       ...tx.auth_info.signer_infos,
       new SignerInfo(
         signature.public_key,
@@ -101,7 +102,15 @@ export class LEDGER {
       )
     );
 
-    return { rawTx, signedTx: { tx: copyTx } };
+    const txByte = txRaw.toBytes();
+
+    return {
+      rawTx,
+      signedTx: {
+        hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+        serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
+      },
+    };
   }
 
   /*

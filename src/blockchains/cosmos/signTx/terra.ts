@@ -34,9 +34,13 @@ export async function terraSignTx(
     chainID: rawTx.chain_id,
   });
 
+  const txByte = txRaw.toBytes();
+
   return {
     rawTx,
-    hashTx: Buffer.from(sha256(txRaw.toBytes())).toString("hex").toUpperCase(),
-    signedTx: `0x${Buffer.from(txRaw.toBytes()).toString("hex")}`,
+    signedTx: {
+      hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+      serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
+    },
   };
 }

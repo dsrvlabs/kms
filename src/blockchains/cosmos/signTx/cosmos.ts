@@ -56,11 +56,13 @@ export async function cosmosSignTx(
     signatures: [new Uint8Array(Buffer.from(signature.signature, "base64"))],
   });
 
+  const txByte = TxRaw.encode(txRaw).finish();
+
   return {
     rawTx,
-    hashTx: Buffer.from(sha256(TxRaw.encode(txRaw).finish()))
-      .toString("hex")
-      .toUpperCase(),
-    signedTx: `0x${Buffer.from(TxRaw.encode(txRaw).finish()).toString("hex")}`,
+    signedTx: {
+      hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+      serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
+    },
   };
 }

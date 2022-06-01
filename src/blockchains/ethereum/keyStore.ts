@@ -86,6 +86,7 @@ export class KEYSTORE {
           r: `0x${sig.r.toString("hex")}`,
           s: `0x${sig.s.toString("hex")}`,
         },
+        hashTx: `0x${keccak256(signature).toString("hex")}`,
         signature: `0x${signature.toString("hex")}`,
       },
     };
@@ -105,9 +106,9 @@ export class KEYSTORE {
     const json = signedTx.toJSON();
     return {
       rawTx,
-      hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
       signedTx: {
         json: { ...json, v: parseInt(json.v || "0x0", 16) },
+        hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
         signature: `0x${signedTx.serialize().toString("hex")}`,
       },
     };
@@ -133,9 +134,9 @@ export class KEYSTORE {
     const json = signedTx.toJSON();
     return {
       rawTx,
-      hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
       signedTx: {
         json: { ...json, v: parseInt(json.v || "0x0", 16) },
+        hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
         signature: `0x${signedTx.serialize().toString("hex")}`,
       },
     };
@@ -201,6 +202,7 @@ export class KEYSTORE {
           r: `0x${sig.r.toString("hex")}`,
           s: `0x${sig.s.toString("hex")}`,
         },
+        hashTx: `0x${keccak256(signature).toString("hex")}`,
         signature: `0x${signature.toString("hex")}`,
       },
     };

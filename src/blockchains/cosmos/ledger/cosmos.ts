@@ -14,6 +14,7 @@ import {
   TxBodyEncodeObject,
   encodePubkey,
 } from "@cosmjs/proto-signing";
+import { sha256 } from "@terra-money/terra.js";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { registry } from "../utils/defaultRegistryTypes";
 import { Account, BIP44, RawTx, SignedTx } from "../../../types";
@@ -128,7 +129,15 @@ export class LEDGER {
       signatures: [new Uint8Array(mergedArray)],
     });
 
-    return { rawTx, signedTx: { txRaw } };
+    const txByte = TxRaw.encode(txRaw).finish();
+
+    return {
+      rawTx,
+      signedTx: {
+        hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+        serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
+      },
+    };
   }
 
   /*

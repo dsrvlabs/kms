@@ -91,7 +91,7 @@ async function run() {
     chainID: chainId,
   });
 
-  const signing = await signTx(
+  const { signedTx } = await signTx(
     transport,
     TYPE,
     INDEX,
@@ -101,7 +101,7 @@ async function run() {
     chainId
   );
 
-  const broadCast = await terra.tx.broadcast(signing.signedTx.tx);
+  const broadCast = await terra.tx.broadcast(signedTx.serializedTx);
   // eslint-disable-next-line no-console
   console.log(broadCast);
   transport.close();

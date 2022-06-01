@@ -1,6 +1,5 @@
 const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
 const { StargateClient } = require("@cosmjs/stargate");
-const { TxRaw } = require("cosmjs-types/cosmos/tx/v1beta1/tx");
 const { KMS, CHAIN } = require("../../lib");
 const { getAccount } = require("./_getAccount");
 
@@ -84,7 +83,7 @@ async function run() {
   console.log(balance);
 
   const chainId = await client.getChainId();
-  const signing = await signTx(
+  const { signedTx } = await signTx(
     transport,
     TYPE,
     INDEX,
@@ -94,12 +93,12 @@ async function run() {
     chainId
   );
 
-  const txRawCall = signing.signedTx.txRaw;
-
-  const txBytes = TxRaw.encode(txRawCall).finish();
-  const broadCast = await client.broadcastTx(txBytes);
+  const testing = await client.broadcastTx(
+    Uint8Array.from(Buffer.from(signedTx.serializedTx.replace("0x", ""), "hex"))
+  );
   // eslint-disable-next-line no-console
-  console.log(broadCast);
+  console.log(testing);
+
   transport.close();
 }
 
