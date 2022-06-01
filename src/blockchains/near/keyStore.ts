@@ -36,7 +36,9 @@ export class KEYSTORE {
 
   static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const hashTx = sha256.sha256.array(Buffer.from(rawTx.encodedTx, "base64"));
+    const hashTx = sha256.sha256.array(
+      Buffer.from(rawTx.serializedTx, "base64")
+    );
     const { signature } = keyPair.sign(new Uint8Array(hashTx));
     return {
       rawTx,
@@ -47,9 +49,13 @@ export class KEYSTORE {
     };
   }
 
-  /*
-  export signMessage(node: BIP32Interface, msg: string) {
-    // ...
+  static signMessage(seed: Buffer | string, msg: string, path?: BIP44) {
+    const keyPair = KEYSTORE.getKeyPair(seed, path);
+    const hash = sha256.sha256.array(new Uint8Array(Buffer.from(msg)));
+    const { signature } = keyPair.sign(new Uint8Array(hash));
+    return {
+      signature,
+      publicKey: keyPair.getPublicKey().toString(),
+    };
   }
-  */
 }

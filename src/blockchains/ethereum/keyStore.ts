@@ -267,7 +267,13 @@ export class KEYSTORE {
         toBuffer(intToHex(sig.v)),
       ]).toString("hex");
 
-      return { msg, signedMsg: { signature: `0x${signature}` } };
+      return {
+        msg,
+        signedMsg: {
+          signature: `0x${signature}`,
+          publicKey: `0x${privateToPublic(privateKey).toString("hex")}`,
+        },
+      };
     }
     return { msg };
   }
