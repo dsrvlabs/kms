@@ -66,9 +66,11 @@ async function signTx(path, mnemonic, account) {
 
     // console.log("decode - ", transactions.Transaction.decode(bytes));
 
-    const response = await signTxFromKeyStore(path, mnemonic, {
-      serializedTx: Buffer.from(bytes).toString("base64"),
-    });
+    const response = await signTxFromKeyStore(
+      path,
+      mnemonic,
+      Buffer.from(bytes).toString("base64")
+    );
 
     // eslint-disable-next-line no-console
     console.log("Transation signed - ", response);
@@ -83,7 +85,7 @@ async function signTx(path, mnemonic, account) {
     */
 
     // SEND TRANSACTION
-    // const txResponse = await sendTransaction(response.signedTx);
+    // const txResponse = await sendTransaction(response);
     // eslint-disable-next-line no-console
     // console.log("Transaction sent - ", txResponse.transaction);
   } catch (error) {

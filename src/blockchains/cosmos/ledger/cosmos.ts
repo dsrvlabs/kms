@@ -17,7 +17,7 @@ import {
 import { sha256 } from "@terra-money/terra.js";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { registry } from "../utils/defaultRegistryTypes";
-import { Account, BIP44, RawTx, SignedTx } from "../../../types";
+import { Account, BIP44, SignedTx } from "../../../types";
 import { Secp256k1Signature } from "../utils/secp256k1signature";
 import { AminoTypes } from "../utils/aminoTypes";
 
@@ -61,7 +61,7 @@ export class LEDGER {
   static async signTx(
     path: BIP44,
     transport: Transport,
-    rawTx: RawTx,
+    parsedTx: any,
     prefix: string
   ): Promise<SignedTx> {
     const instance = new CosmosApp(transport);
@@ -73,12 +73,12 @@ export class LEDGER {
     );
 
     const signDoc = makeSignDoc(
-      rawTx.msgs as AminoMsg[],
-      rawTx.fee as StdFee,
-      rawTx.chain_id,
-      rawTx.memo,
-      rawTx.account_number,
-      rawTx.sequence
+      parsedTx.msgs as AminoMsg[],
+      parsedTx.fee as StdFee,
+      parsedTx.chain_id,
+      parsedTx.memo,
+      parsedTx.account_number,
+      parsedTx.sequence
     );
     const sorted: StdSignDoc = sortedObject(signDoc);
 
@@ -87,7 +87,7 @@ export class LEDGER {
       JSON.stringify(sorted)
     );
 
-    const aminoTypes = new AminoTypes({ prefix: rawTx.prefix });
+    const aminoTypes = new AminoTypes({ prefix });
 
     const signedTxBody = {
       messages: sorted.msgs.map((msg) => aminoTypes.fromAmino(msg)),
@@ -103,12 +103,12 @@ export class LEDGER {
 
     const signMode = SignMode.SIGN_MODE_LEGACY_AMINO_JSON;
 
-    const signedSequence = Int53.fromString(rawTx.sequence).toNumber(); // CHECK
+    const signedSequence = Int53.fromString(parsedTx.sequence).toNumber(); // CHECK
 
     const signedAuthInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey as any, sequence: signedSequence }],
-      rawTx.fee.amount,
-      rawTx.fee.gas,
+      parsedTx.fee.amount,
+      parsedTx.fee.gas,
       signMode
     );
 
@@ -132,11 +132,8 @@ export class LEDGER {
     const txByte = TxRaw.encode(txRaw).finish();
 
     return {
-      rawTx,
-      signedTx: {
-        hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
-        serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
-      },
+      hash: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+      serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
     };
   }
 

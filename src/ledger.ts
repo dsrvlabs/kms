@@ -1,13 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
-import {
-  CHAIN,
-  Account,
-  BIP44,
-  RawTx,
-  SignedTx,
-  SignedMsg,
-  Message,
-} from "./types";
+import { CHAIN, Account, BIP44, SignedTx, SignedMsg, Message } from "./types";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
 import { LEDGER as solana } from "./blockchains/solana/ledger";
@@ -90,7 +82,7 @@ export async function getAccountFromLedger(
 export async function signTxFromLedger(
   path: BIP44,
   transport: Transport,
-  rawTx: RawTx
+  unsignedTx: string
 ): Promise<SignedTx> {
   try {
     switch (path.type) {
@@ -102,28 +94,33 @@ export async function signTxFromLedger(
       */
       // blockchains
       case CHAIN.COSMOS: {
-        const response = await cosmos.signTx(path, transport, rawTx, "cosmos");
+        const response = await cosmos.signTx(
+          path,
+          transport,
+          unsignedTx,
+          "cosmos"
+        );
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
         const response = await cosmos.signTx(
           path,
           transport,
-          rawTx,
+          unsignedTx,
           "persistence"
         );
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await terra.signTx(path, transport, rawTx);
+        const response = await terra.signTx(path, transport, unsignedTx);
         return { ...response };
       }
       case CHAIN.NEAR: {
-        const response = await near.signTx(path, transport, rawTx);
+        const response = await near.signTx(path, transport, unsignedTx);
         return { ...response };
       }
       case CHAIN.SOLANA: {
-        const response = await solana.signTx(path, transport, rawTx);
+        const response = await solana.signTx(path, transport, unsignedTx);
         return { ...response };
       }
       // add blockchains....
@@ -131,11 +128,11 @@ export async function signTxFromLedger(
       default:
         break;
     }
-    return { rawTx };
+    return {};
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return { rawTx };
+    return {};
   }
 }
 

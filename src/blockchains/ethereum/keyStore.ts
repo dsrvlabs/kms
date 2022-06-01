@@ -17,7 +17,7 @@ import {
   toBuffer,
   intToHex,
 } from "ethereumjs-util";
-import { Account, Message, RawTx, SignedTx } from "../../types";
+import { Account, Message, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getAccount(node: BIP32Interface | string): Account {
@@ -37,33 +37,32 @@ export class KEYSTORE {
     };
   }
 
-  private static eip155ignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+  private static eip155ignTx(privateKey: Buffer, parsedTx: any): SignedTx {
     const rlpEncode = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
-      bnToHex(new BN(rawTx.chainId)),
+      bnToHex(new BN(parsedTx.nonce)),
+      bnToHex(new BN(parsedTx.gasPrice)),
+      bnToHex(new BN(parsedTx.gasLimit)),
+      parsedTx.to,
+      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      parsedTx.data || "0x",
+      bnToHex(new BN(parsedTx.chainId)),
       "0x",
       "0x",
     ]);
-    const rlpDecode = rlp.decode(rlpEncode);
     const sig = ecsign(keccak256(rlpEncode), privateKey);
 
     const signature = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
+      bnToHex(new BN(parsedTx.nonce)),
+      bnToHex(new BN(parsedTx.gasPrice)),
+      bnToHex(new BN(parsedTx.gasLimit)),
+      parsedTx.to,
+      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      parsedTx.data || "0x",
       bnToHex(
         new BN(
           27 +
             (sig.v === 0 || sig.v === 1 ? sig.v : 1 - (sig.v % 2)) +
-            parseInt(rawTx.chainId, 10) * 2 +
+            parseInt(parsedTx.chainId, 10) * 2 +
             8
         )
       ),
@@ -72,109 +71,83 @@ export class KEYSTORE {
     ]);
 
     return {
-      rawTx,
-      signedTx: {
-        json: {
-          nonce: `0x${(rlpDecode[0] as any as Buffer).toString("hex")}`,
-          gasPrice: `0x${(rlpDecode[1] as any as Buffer).toString("hex")}`,
-          gasLimit: `0x${(rlpDecode[2] as any as Buffer).toString("hex")}`,
-          to: `0x${(rlpDecode[3] as any as Buffer).toString("hex")}`,
-          value: `0x${(rlpDecode[4] as any as Buffer).toString("hex")}`,
-          data: `0x${(rlpDecode[5] as any as Buffer).toString("hex")}`,
-          chainId: `0x${bnToHex(new BN(rawTx.chainId))}`,
-          v: sig.v,
-          r: `0x${sig.r.toString("hex")}`,
-          s: `0x${sig.s.toString("hex")}`,
-        },
-        hashTx: `0x${keccak256(signature).toString("hex")}`,
-        serializedTx: `0x${signature.toString("hex")}`,
-      },
+      hash: `0x${keccak256(signature).toString("hex")}`,
+      serializedTx: `0x${signature.toString("hex")}`,
     };
   }
 
-  private static eip2930SignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+  private static eip2930SignTx(privateKey: Buffer, parsedTx: any): SignedTx {
     const tx = AccessListEIP2930Transaction.fromTxData({
-      nonce: bnToHex(new BN(rawTx.nonce)),
-      gasPrice: bnToHex(new BN(rawTx.gasPrice)),
-      gasLimit: bnToHex(new BN(rawTx.gasLimit)),
-      to: rawTx.to,
-      value: rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      data: rawTx.data || "0x",
-      chainId: bnToHex(new BN(rawTx.chainId)),
+      nonce: bnToHex(new BN(parsedTx.nonce)),
+      gasPrice: bnToHex(new BN(parsedTx.gasPrice)),
+      gasLimit: bnToHex(new BN(parsedTx.gasLimit)),
+      to: parsedTx.to,
+      value: parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      data: parsedTx.data || "0x",
+      chainId: bnToHex(new BN(parsedTx.chainId)),
     });
     const signedTx = tx.sign(privateKey);
-    const json = signedTx.toJSON();
     return {
-      rawTx,
-      signedTx: {
-        json: { ...json, v: parseInt(json.v || "0x0", 16) },
-        hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
-        serializedTx: `0x${signedTx.serialize().toString("hex")}`,
-      },
+      hash: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
+      serializedTx: `0x${signedTx.serialize().toString("hex")}`,
     };
   }
 
-  private static eip1559SignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+  private static eip1559SignTx(privateKey: Buffer, parsedTx: any): SignedTx {
     const tx = FeeMarketEIP1559Transaction.fromTxData({
-      nonce: bnToHex(new BN(rawTx.nonce)),
-      gasLimit: bnToHex(new BN(rawTx.gasLimit)),
-      to: rawTx.to,
-      value: bnToHex(new BN(rawTx.value)),
-      data: rawTx.data || "0x",
-      chainId: bnToHex(new BN(rawTx.chainId)),
-      accessList: rawTx.accessList ? rawTx.accessList : [],
-      maxPriorityFeePerGas: rawTx.maxPriorityFeePerGas
-        ? bnToHex(new BN(rawTx.maxPriorityFeePerGas))
+      nonce: bnToHex(new BN(parsedTx.nonce)),
+      gasLimit: bnToHex(new BN(parsedTx.gasLimit)),
+      to: parsedTx.to,
+      value: bnToHex(new BN(parsedTx.value)),
+      data: parsedTx.data || "0x",
+      chainId: bnToHex(new BN(parsedTx.chainId)),
+      accessList: parsedTx.accessList ? parsedTx.accessList : [],
+      maxPriorityFeePerGas: parsedTx.maxPriorityFeePerGas
+        ? bnToHex(new BN(parsedTx.maxPriorityFeePerGas))
         : "0x",
-      maxFeePerGas: rawTx.maxFeePerGas
-        ? bnToHex(new BN(rawTx.maxFeePerGas))
+      maxFeePerGas: parsedTx.maxFeePerGas
+        ? bnToHex(new BN(parsedTx.maxFeePerGas))
         : "0x",
     });
     const signedTx = tx.sign(privateKey);
-    const json = signedTx.toJSON();
     return {
-      rawTx,
-      signedTx: {
-        json: { ...json, v: parseInt(json.v || "0x0", 16) },
-        hashTx: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
-        serializedTx: `0x${signedTx.serialize().toString("hex")}`,
-      },
+      hash: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
+      serializedTx: `0x${signedTx.serialize().toString("hex")}`,
     };
   }
 
-  private static celoSignTx(privateKey: Buffer, rawTx: RawTx): SignedTx {
+  private static celoSignTx(privateKey: Buffer, parsedTx: any): SignedTx {
     const rlpEncode = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.feeCurrency || "0x",
-      rawTx.gatewayFeeRecipient || "0x",
-      rawTx.gatewayFee ? bnToHex(new BN(rawTx.gatewayFee)) : "0x",
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
-      bnToHex(new BN(rawTx.chainId)),
+      bnToHex(new BN(parsedTx.nonce)),
+      bnToHex(new BN(parsedTx.gasPrice)),
+      bnToHex(new BN(parsedTx.gasLimit)),
+      parsedTx.feeCurrency || "0x",
+      parsedTx.gatewayFeeRecipient || "0x",
+      parsedTx.gatewayFee ? bnToHex(new BN(parsedTx.gatewayFee)) : "0x",
+      parsedTx.to,
+      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      parsedTx.data || "0x",
+      bnToHex(new BN(parsedTx.chainId)),
       "0x",
       "0x",
     ]);
-    const rlpDecode = rlp.decode(rlpEncode);
     const sig = ecsign(keccak256(rlpEncode), privateKey);
 
     const signature = rlp.encode([
-      bnToHex(new BN(rawTx.nonce)),
-      bnToHex(new BN(rawTx.gasPrice)),
-      bnToHex(new BN(rawTx.gasLimit)),
-      rawTx.feeCurrency || "0x",
-      rawTx.gatewayFeeRecipient || "0x",
-      rawTx.gatewayFee ? bnToHex(new BN(rawTx.gatewayFee)) : "0x",
-      rawTx.to,
-      rawTx.value ? bnToHex(new BN(rawTx.value)) : "0x",
-      rawTx.data || "0x",
+      bnToHex(new BN(parsedTx.nonce)),
+      bnToHex(new BN(parsedTx.gasPrice)),
+      bnToHex(new BN(parsedTx.gasLimit)),
+      parsedTx.feeCurrency || "0x",
+      parsedTx.gatewayFeeRecipient || "0x",
+      parsedTx.gatewayFee ? bnToHex(new BN(parsedTx.gatewayFee)) : "0x",
+      parsedTx.to,
+      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      parsedTx.data || "0x",
       bnToHex(
         new BN(
           27 +
             (sig.v === 0 || sig.v === 1 ? sig.v : 1 - (sig.v % 2)) +
-            parseInt(rawTx.chainId, 10) * 2 +
+            parseInt(parsedTx.chainId, 10) * 2 +
             8
         )
       ),
@@ -183,56 +156,34 @@ export class KEYSTORE {
     ]);
 
     return {
-      rawTx,
-      signedTx: {
-        json: {
-          nonce: `0x${(rlpDecode[0] as any as Buffer).toString("hex")}`,
-          gasPrice: `0x${(rlpDecode[1] as any as Buffer).toString("hex")}`,
-          gasLimit: `0x${(rlpDecode[2] as any as Buffer).toString("hex")}`,
-          feeCurrency: `0x${(rlpDecode[3] as any as Buffer).toString("hex")}`,
-          gatewayFeeRecipient: `0x${(rlpDecode[4] as any as Buffer).toString(
-            "hex"
-          )}`,
-          gatewayFee: `0x${(rlpDecode[5] as any as Buffer).toString("hex")}`,
-          to: `0x${(rlpDecode[6] as any as Buffer).toString("hex")}`,
-          value: `0x${(rlpDecode[7] as any as Buffer).toString("hex")}`,
-          data: `0x${(rlpDecode[8] as any as Buffer).toString("hex")}`,
-          chainId: `0x${bnToHex(new BN(rawTx.chainId))}`,
-          v: sig.v,
-          r: `0x${sig.r.toString("hex")}`,
-          s: `0x${sig.s.toString("hex")}`,
-        },
-        hashTx: `0x${keccak256(signature).toString("hex")}`,
-        serializedTx: `0x${signature.toString("hex")}`,
-      },
+      hash: `0x${keccak256(signature).toString("hex")}`,
+      serializedTx: `0x${signature.toString("hex")}`,
     };
   }
 
-  static signTx(node: BIP32Interface | string, rawTx: RawTx): SignedTx {
+  static signTx(node: BIP32Interface | string, unsignedTx: string): SignedTx {
     const privateKey =
       typeof node !== "string"
         ? node.privateKey
         : Buffer.from(node.replace("0x", ""), "hex");
-
+    const parsedTx = JSON.parse(unsignedTx);
     if (privateKey) {
-      if (rawTx.feeCurrency) {
-        return KEYSTORE.celoSignTx(privateKey, rawTx);
+      if (parsedTx.feeCurrency) {
+        return KEYSTORE.celoSignTx(privateKey, parsedTx);
       }
 
-      if (rawTx.maxFeePerGas) {
-        return KEYSTORE.eip1559SignTx(privateKey, rawTx);
+      if (parsedTx.maxFeePerGas) {
+        return KEYSTORE.eip1559SignTx(privateKey, parsedTx);
       }
 
-      if (rawTx.accessList) {
-        return KEYSTORE.eip2930SignTx(privateKey, rawTx);
+      if (parsedTx.accessList) {
+        return KEYSTORE.eip2930SignTx(privateKey, parsedTx);
       }
 
-      return KEYSTORE.eip155ignTx(privateKey, rawTx);
+      return KEYSTORE.eip155ignTx(privateKey, parsedTx);
     }
 
-    return {
-      rawTx,
-    };
+    return {};
   }
 
   static async signMessage(node: BIP32Interface | string, msg: Message) {

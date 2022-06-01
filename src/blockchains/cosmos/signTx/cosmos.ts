@@ -7,13 +7,13 @@ import {
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
 import { sha256 } from "@terra-money/terra.js";
-import { RawTx, SignedTx } from "../../../types";
+import { SignedTx } from "../../../types";
 import { registry } from "../utils/defaultRegistryTypes";
 
 export async function cosmosSignTx(
   privateKey: Buffer,
   prefix: string,
-  rawTx: RawTx
+  parsedTx: any
 ): Promise<SignedTx> {
   const wallet = await DirectSecp256k1Wallet.fromKey(
     new Uint8Array(privateKey),
@@ -24,8 +24,8 @@ export async function cosmosSignTx(
   const txBodyEncodeObject = {
     typeUrl: "/cosmos.tx.v1beta1.TxBody",
     value: {
-      messages: rawTx.msgs,
-      memo: rawTx.memo,
+      messages: parsedTx.msgs,
+      memo: parsedTx.memo,
     },
   };
 
@@ -38,14 +38,14 @@ export async function cosmosSignTx(
       [
         {
           pubkey,
-          sequence: rawTx.signerData.sequence,
+          sequence: parsedTx.signerData.sequence,
         },
       ],
-      rawTx.fee.amount,
-      rawTx.fee.gas
+      parsedTx.fee.amount,
+      parsedTx.fee.gas
     ),
-    rawTx.signerData.chainId,
-    rawTx.signerData.accountNumber
+    parsedTx.signerData.chainId,
+    parsedTx.signerData.accountNumber
   );
 
   const { signature } = await wallet.signDirect(accounts[0].address, signDoc);
@@ -59,10 +59,7 @@ export async function cosmosSignTx(
   const txByte = TxRaw.encode(txRaw).finish();
 
   return {
-    rawTx,
-    signedTx: {
-      hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
-      serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
-    },
+    hash: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+    serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
   };
 }

@@ -2,7 +2,7 @@ import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
 import { enc, SHA256 } from "crypto-js";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
-import { Account, Message, RawTx, SignedTx } from "../../types";
+import { Account, Message, SignedTx } from "../../types";
 import { cosmosSignTx } from "./signTx/cosmos";
 import { terraSignTx } from "./signTx/terra";
 
@@ -37,20 +37,20 @@ export class KEYSTORE {
   static async signTx(
     node: BIP32Interface | string,
     prefix: string,
-    rawTx: RawTx
+    unsignedTx: string
   ): Promise<SignedTx> {
     const privateKey =
       typeof node !== "string"
         ? node.privateKey
         : Buffer.from(node.replace("0x", ""), "hex");
-
+    const parsedTx = JSON.parse(unsignedTx);
     if (privateKey) {
-      if (rawTx.signerData) {
-        return cosmosSignTx(privateKey, prefix, rawTx);
+      if (parsedTx.signerData) {
+        return cosmosSignTx(privateKey, prefix, parsedTx);
       }
-      return terraSignTx(privateKey, prefix, rawTx);
+      return terraSignTx(privateKey, prefix, parsedTx);
     }
-    return { rawTx };
+    return {};
   }
 
   static async signMessage(

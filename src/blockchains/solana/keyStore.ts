@@ -1,7 +1,7 @@
 import base58 from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair, Transaction } from "@solana/web3.js";
-import { Account, BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getPrivateKey(seed: Buffer, path: BIP44): string {
@@ -31,21 +31,22 @@ export class KEYSTORE {
     };
   }
 
-  static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
+  static signTx(
+    seed: Buffer | string,
+    serializedTx: string,
+    path?: BIP44
+  ): SignedTx {
     const payer = KEYSTORE.getKeypair(seed, path);
     const transaction = Transaction.from(
-      Buffer.from(rawTx.serializedTx.replace("0x", ""), "hex")
+      Buffer.from(serializedTx.replace("0x", ""), "hex")
     );
     transaction.sign(payer);
     return {
-      rawTx,
-      signedTx: {
-        hashTx: transaction.signature
-          ? base58.encode(Uint8Array.from(transaction.signature))
-          : "",
-        serializedTx: rawTx.serializedTx,
-        signature: `0x${transaction.signature?.toString("hex")}`,
-      },
+      hash: transaction.signature
+        ? base58.encode(Uint8Array.from(transaction.signature))
+        : "",
+      serializedTx,
+      signature: `0x${transaction.signature?.toString("hex")}`,
     };
   }
 

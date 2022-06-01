@@ -79,15 +79,15 @@ async function signTx(path, mnemonic, account) {
       })
     );
 
-    const response = await signTxFromKeyStore(path, mnemonic, {
-      serializedTx: transaction
-        .serialize({ verifySignatures: false })
-        .toString("hex"),
-    });
+    const response = await signTxFromKeyStore(
+      path,
+      mnemonic,
+      transaction.serialize({ verifySignatures: false }).toString("hex")
+    );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
     // Send Transaction
-    // sendTransation(CONNECTION, ACCOUNTPUBKEY, response.signedTx);
+    // sendTransation(CONNECTION, ACCOUNTPUBKEY, response);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);

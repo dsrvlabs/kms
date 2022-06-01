@@ -16,7 +16,7 @@ import {
   ModeInfo,
   sha256,
 } from "@terra-money/terra.js";
-import { Account, BIP44, RawTx, SignedTx } from "../../../types";
+import { Account, BIP44, SignedTx } from "../../../types";
 import { Secp256k1Signature } from "../utils/secp256k1signature";
 
 export class LEDGER {
@@ -36,7 +36,7 @@ export class LEDGER {
   static async signTx(
     path: BIP44,
     transport: Transport,
-    rawTx: RawTx
+    parsedTx: any
   ): Promise<SignedTx> {
     const instance = new TerraApp(transport);
 
@@ -44,25 +44,25 @@ export class LEDGER {
 
     const pubKey = new SimplePublicKey(publicKey);
 
-    const coins: Coin[] = rawTx.fee.amount.map((fee: any): any => {
+    const coins: Coin[] = parsedTx.fee.amount.map((fee: any): any => {
       return new Coin(fee.denom, fee.amount);
     });
 
-    const aminoMsgs = rawTx.msgs.map((msg: any) => Msg.fromAmino(msg));
+    const aminoMsgs = parsedTx.msgs.map((msg: any) => Msg.fromAmino(msg));
 
-    const fee = new Fee(Number.parseInt(rawTx.fee.gas, 10), coins, "", "");
+    const fee = new Fee(Number.parseInt(parsedTx.fee.gas, 10), coins, "", "");
     const timeoutHeight = 0;
     const tx = new Tx(
-      new TxBody(aminoMsgs, rawTx.memo || "", timeoutHeight),
+      new TxBody(aminoMsgs, parsedTx.memo || "", timeoutHeight),
       new AuthInfo([], fee),
       []
     );
 
     const txRaw = new Tx(tx.body, new AuthInfo([], tx.auth_info.fee), []);
     const sign_doc = new SignDoc(
-      rawTx.chain_id,
-      parseInt(rawTx.account_number, 10),
-      parseInt(rawTx.sequence, 10),
+      parsedTx.chain_id,
+      parseInt(parsedTx.account_number, 10),
+      parseInt(parsedTx.sequence, 10),
       txRaw.auth_info,
       txRaw.body
     );
@@ -88,7 +88,7 @@ export class LEDGER {
           Buffer.from(mergedArray).toString("base64")
         )
       ),
-      rawTx.sequence
+      parsedTx.sequence
     );
 
     const sigData = signature.data.single as SignatureV2.Descriptor.Single;
@@ -105,11 +105,8 @@ export class LEDGER {
     const txByte = txRaw.toBytes();
 
     return {
-      rawTx,
-      signedTx: {
-        hashTx: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
-        serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
-      },
+      hash: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+      serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
     };
   }
 

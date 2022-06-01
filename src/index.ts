@@ -2,15 +2,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble";
 import Transport from "@ledgerhq/hw-transport";
 import { JWTVerified } from "did-jwt";
-import {
-  CHAIN,
-  Account,
-  BIP44,
-  RawTx,
-  SignedTx,
-  SignedMsg,
-  Message,
-} from "./types";
+import { CHAIN, Account, BIP44, SignedTx, SignedMsg, Message } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
 import {
   getDerivePath,
@@ -44,7 +36,6 @@ export {
   CHAIN,
   Account,
   BIP44,
-  RawTx,
   SignedTx,
   getAlgo2HashKey,
   Message,
@@ -106,17 +97,17 @@ export class KMS {
     return "";
   }
 
-  async signTx(path: BIP44, rawTx: RawTx): Promise<SignedTx> {
+  async signTx(path: BIP44, unsignedTx: string): Promise<SignedTx> {
     if (this.keyStore) {
       const mnemonic = await getMnemonic(path.password || "", this.keyStore);
-      const signedTx = await signTxFromKeyStore(path, mnemonic, rawTx);
+      const signedTx = await signTxFromKeyStore(path, mnemonic, unsignedTx);
       return signedTx;
     }
     if (this.transport) {
-      const response = await signTxFromLedger(path, this.transport, rawTx);
+      const response = await signTxFromLedger(path, this.transport, unsignedTx);
       return response;
     }
-    return { rawTx };
+    return {};
   }
 
   async signMsg(path: BIP44, msg: Message): Promise<SignedMsg> {

@@ -1,14 +1,6 @@
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
-import {
-  CHAIN,
-  Account,
-  BIP44,
-  RawTx,
-  SignedTx,
-  SignedMsg,
-  Message,
-} from "./types";
+import { CHAIN, Account, BIP44, SignedTx, SignedMsg, Message } from "./types";
 import { KEYSTORE as cosmos } from "./blockchains/cosmos/keyStore";
 import { KEYSTORE as eth } from "./blockchains/ethereum/keyStore";
 import { KEYSTORE as solana } from "./blockchains/solana/keyStore";
@@ -207,7 +199,7 @@ export async function getAccountFromPK(pk: string, option: KeyStorePKOption) {
 export async function signTxFromKeyStore(
   path: BIP44,
   mnemonic: string,
-  rawTx: RawTx
+  unsignedTx: string
 ): Promise<SignedTx> {
   try {
     const { seed, child } = getChild(path, mnemonic);
@@ -221,37 +213,37 @@ export async function signTxFromKeyStore(
       */
       // blockchains
       case CHAIN.NEAR: {
-        const response = near.signTx(seed, rawTx, path);
+        const response = near.signTx(seed, unsignedTx, path);
         return { ...response };
       }
       case CHAIN.SOLANA: {
-        const response = solana.signTx(seed, rawTx, path);
+        const response = solana.signTx(seed, unsignedTx, path);
         return { ...response };
       }
       case CHAIN.COSMOS: {
         const response = await cosmos.signTx(
           child,
           path.prefix || "cosmos",
-          rawTx
+          unsignedTx
         );
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
-        const response = await cosmos.signTx(child, "persistence", rawTx);
+        const response = await cosmos.signTx(child, "persistence", unsignedTx);
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await cosmos.signTx(child, "terra", rawTx);
+        const response = await cosmos.signTx(child, "terra", unsignedTx);
         return { ...response };
       }
       case CHAIN.AGORIC: {
-        const response = await cosmos.signTx(child, "agoric", rawTx);
+        const response = await cosmos.signTx(child, "agoric", unsignedTx);
         return { ...response };
       }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = eth.signTx(child, rawTx);
+        const response = eth.signTx(child, unsignedTx);
         return { ...response };
       }
       // add blockchains....
@@ -259,19 +251,18 @@ export async function signTxFromKeyStore(
       default:
         break;
     }
-
-    return { rawTx };
+    return {};
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return { rawTx };
+    return {};
   }
 }
 
 export async function signTxFromPK(
   pk: string,
   option: KeyStorePKOption,
-  rawTx: RawTx
+  unsignedTx: string
 ) {
   try {
     switch (option.coinType) {
@@ -283,37 +274,37 @@ export async function signTxFromPK(
       */
       // blockchains
       case CHAIN.NEAR: {
-        const response = near.signTx(pk, rawTx);
+        const response = near.signTx(pk, unsignedTx);
         return { ...response };
       }
       case CHAIN.SOLANA: {
-        const response = solana.signTx(pk, rawTx);
+        const response = solana.signTx(pk, unsignedTx);
         return { ...response };
       }
       case CHAIN.COSMOS: {
         const response = await cosmos.signTx(
           pk,
           option.prefix || "cosmos",
-          rawTx
+          unsignedTx
         );
         return { ...response };
       }
       case CHAIN.PERSISTENCE: {
-        const response = await cosmos.signTx(pk, "persistence", rawTx);
+        const response = await cosmos.signTx(pk, "persistence", unsignedTx);
         return { ...response };
       }
       case CHAIN.TERRA: {
-        const response = await cosmos.signTx(pk, "terra", rawTx);
+        const response = await cosmos.signTx(pk, "terra", unsignedTx);
         return { ...response };
       }
       case CHAIN.AGORIC: {
-        const response = await cosmos.signTx(pk, "agoric", rawTx);
+        const response = await cosmos.signTx(pk, "agoric", unsignedTx);
         return { ...response };
       }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = eth.signTx(pk, rawTx);
+        const response = eth.signTx(pk, unsignedTx);
         return { ...response };
       }
       // add blockchains....
@@ -322,11 +313,11 @@ export async function signTxFromPK(
         break;
     }
 
-    return { rawTx };
+    return { unsignedTx };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return { rawTx };
+    return { unsignedTx };
   }
 }
 

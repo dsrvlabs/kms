@@ -18,14 +18,10 @@ export interface Account {
   publicKey: string;
 }
 
-export interface RawTx {
-  [key: string]: any;
-}
-
 export interface SignedTx {
-  rawTx: RawTx;
-  hashTx?: string;
-  signedTx?: any;
+  hash?: string;
+  signature?: string;
+  serializedTx?: string;
 }
 
 export interface Message {

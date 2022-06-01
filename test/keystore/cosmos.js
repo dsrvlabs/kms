@@ -26,7 +26,7 @@ async function signTx(
   try {
     const response = await kms.signTx(
       { ...path, password },
-      {
+      JSON.stringify({
         signerData: {
           accountNumber: `${accountNumber}`,
           sequence,
@@ -54,7 +54,7 @@ async function signTx(
           },
         ],
         sequence: `${sequence}`,
-      }
+      })
     );
     // eslint-disable-next-line no-console
     console.log("response - ", response);
@@ -88,7 +88,7 @@ async function run() {
   console.log(balance);
 
   // signing and broadcast tx
-  const { signedTx } = await signTx(
+  const { serializedTx } = await signTx(
     { type: TYPE, account: 0, index: INDEX },
     keyStore,
     PASSWORD,

@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import { encode } from "bs58";
 import sha256 from "js-sha256";
-import { Account, BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, SignedTx } from "../../types";
 
 const App = require("near-ledger-js");
 
@@ -21,19 +21,16 @@ export class LEDGER {
   static async signTx(
     path: BIP44,
     transport: Transport,
-    rawTx: RawTx
+    serializedTx: string
   ): Promise<SignedTx> {
     const client = await App.createClient(transport);
     const PATH = `44'/${path.type}'/${path.account}'/0'/${path.index}'`;
-    const serializedTx = Buffer.from(rawTx.serializedTx, "base64");
-    const response = await client.sign(serializedTx, PATH);
+    const temp = Buffer.from(serializedTx, "base64");
+    const response = await client.sign(temp, PATH);
     return {
-      rawTx,
-      signedTx: {
-        hashTx: encode(new Uint8Array(sha256.sha256.array(serializedTx))),
-        serializedTx: rawTx.serializedTx,
-        signature: `0x${Buffer.from(response).toString("hex")}`,
-      },
+      hash: encode(new Uint8Array(sha256.sha256.array(temp))),
+      serializedTx,
+      signature: `0x${Buffer.from(response).toString("hex")}`,
     };
   }
 

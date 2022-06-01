@@ -3,7 +3,7 @@ import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
 import { utils } from "near-api-js";
-import { Account, BIP44, RawTx, SignedTx } from "../../types";
+import { Account, BIP44, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getPrivateKey(seed: Buffer, path: BIP44): string {
@@ -34,18 +34,19 @@ export class KEYSTORE {
     };
   }
 
-  static signTx(seed: Buffer | string, rawTx: RawTx, path?: BIP44): SignedTx {
+  static signTx(
+    seed: Buffer | string,
+    serializedTx: string,
+    path?: BIP44
+  ): SignedTx {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const byte = Buffer.from(rawTx.serializedTx, "base64");
+    const byte = Buffer.from(serializedTx, "base64");
     const hashTx = sha256.sha256.array(byte);
     const { signature } = keyPair.sign(new Uint8Array(hashTx));
     return {
-      rawTx,
-      signedTx: {
-        serializedTx: rawTx.serializedTx,
-        hashTx: encode(new Uint8Array(hashTx)),
-        signature: `0x${Buffer.from(signature).toString("hex")}`,
-      },
+      serializedTx,
+      hash: encode(new Uint8Array(hashTx)),
+      signature: `0x${Buffer.from(signature).toString("hex")}`,
     };
   }
 
