@@ -1,4 +1,5 @@
 import Transport from "@ledgerhq/hw-transport";
+import base58 from "bs58";
 import { Transaction } from "@solana/web3.js";
 import { getPublicKey, getSolanaDerivationPath, signTransaction } from "./hw";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
@@ -32,6 +33,9 @@ export class LEDGER {
     transaction.addSignature(rawTx.feePayer, signature);
     return {
       rawTx,
+      hashTx: transaction.signature
+        ? base58.encode(Uint8Array.from(transaction.signature))
+        : "",
       signedTx: `0x${transaction.serialize().toString("hex")}`,
     };
   }

@@ -42,10 +42,8 @@ export class KEYSTORE {
     const { signature } = keyPair.sign(new Uint8Array(hashTx));
     return {
       rawTx,
-      signedTx: {
-        hashTx: encode(new Uint8Array(hashTx)),
-        signature: `0x${Buffer.from(signature).toString("hex")}`,
-      },
+      hashTx: encode(new Uint8Array(hashTx)),
+      signedTx: `0x${Buffer.from(signature).toString("hex")}`,
     };
   }
 

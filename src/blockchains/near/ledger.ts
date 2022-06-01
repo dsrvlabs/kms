@@ -30,14 +30,12 @@ export class LEDGER {
 
     return {
       rawTx,
-      signedTx: {
-        hashTx: encode(
-          new Uint8Array(
-            sha256.sha256.array(Buffer.from(rawTx.serializedTx, "base64"))
-          )
-        ),
-        signature: `0x${Buffer.from(response).toString("hex")}`,
-      },
+      hashTx: encode(
+        new Uint8Array(
+          sha256.sha256.array(Buffer.from(rawTx.serializedTx, "base64"))
+        )
+      ),
+      signedTx: `0x${Buffer.from(response).toString("hex")}`,
     };
   }
 
