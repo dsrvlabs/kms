@@ -30,13 +30,13 @@ export class LEDGER {
       transaction,
       getSolanaDerivationPath(path.account, path.index)
     );
-    transaction.addSignature(rawTx.feePayer, signature);
     return {
       rawTx,
-      hashTx: transaction.signature
-        ? base58.encode(Uint8Array.from(transaction.signature))
-        : "",
-      signedTx: `0x${transaction.serialize().toString("hex")}`,
+      signedTx: {
+        hashTx: base58.encode(Uint8Array.from(signature)),
+        serializedTx: rawTx.serializedTx,
+        signature: `0x${Buffer.from(signature).toString("hex")}`,
+      },
     };
   }
 

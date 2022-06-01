@@ -2,7 +2,7 @@ import { encode, decode } from "bs58";
 import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
-import { utils, transactions } from "near-api-js";
+import { utils } from "near-api-js";
 import { Account, BIP44, RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
@@ -39,20 +39,13 @@ export class KEYSTORE {
     const byte = Buffer.from(rawTx.serializedTx, "base64");
     const hashTx = sha256.sha256.array(byte);
     const { signature } = keyPair.sign(new Uint8Array(hashTx));
-
-    const transaction = transactions.Transaction.decode(byte);
-    const signedTransaction = new transactions.SignedTransaction({
-      transaction,
-      signature: new transactions.Signature({
-        keyType: transaction.publicKey.keyType,
-        data: signature,
-      }),
-    });
-
     return {
       rawTx,
-      hashTx: encode(new Uint8Array(hashTx)),
-      signedTx: `0x${Buffer.from(signedTransaction.encode()).toString("hex")}`,
+      signedTx: {
+        serializedTx: rawTx.serializedTx,
+        hashTx: encode(new Uint8Array(hashTx)),
+        signature: `0x${Buffer.from(signature).toString("hex")}`,
+      },
     };
   }
 

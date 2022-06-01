@@ -39,10 +39,13 @@ export class KEYSTORE {
     transaction.sign(payer);
     return {
       rawTx,
-      hashTx: transaction.signature
-        ? base58.encode(Uint8Array.from(transaction.signature))
-        : "",
-      signedTx: `0x${transaction.serialize().toString("hex")}`,
+      signedTx: {
+        hashTx: transaction.signature
+          ? base58.encode(Uint8Array.from(transaction.signature))
+          : "",
+        serializedTx: rawTx.serializedTx,
+        signature: `0x${transaction.signature?.toString("hex")}`,
+      },
     };
   }
 

@@ -17,8 +17,19 @@ const INDEX = 1;
 async function sendTransaction(signedTransaction) {
   const rpc = "https://rpc.testnet.near.org";
   const provider = new providers.JsonRpcProvider(rpc);
+  const transaction = transactions.Transaction.decode(
+    Buffer.from(signedTransaction.serializedTx, "base64")
+  );
+  const signedTx = new transactions.SignedTransaction({
+    transaction,
+    signature: new transactions.Signature({
+      keyType: transaction.publicKey.keyType,
+      data: Buffer.from(signedTransaction.signature.replace("0x", ""), "hex"),
+    }),
+  });
+
   const result = await provider.sendJsonRpc("broadcast_tx_commit", [
-    Buffer.from(signedTransaction.replace("0x", ""), "hex").toString("base64"),
+    Buffer.from(signedTx.encode()).toString("base64"),
   ]);
   return result;
 }
@@ -40,29 +51,6 @@ async function signTx(path, mnemonic, account) {
     const nonce = accessKey.nonce + 1;
     const recentBlockHash = utils.serialize.base_decode(accessKey.block_hash);
 
-    /*
-    const actions = [
-      transactions.transfer(new BN(10)),
-      transactions.functionCall(
-        "deposit_and_stake",
-        new Uint8Array(),
-        new BN(10),
-        new BN(50000000000000)
-      ),
-      transactions.functionCall(
-        "unstake",
-        Buffer.from(`{"amount": "${9}"}`),
-        new BN(50000000000000),
-        new BN(0)
-      ),
-      transactions.functionCall(
-        "unstake_all",
-        new Uint8Array(),
-        new BN(50000000000000),
-        new BN(0)
-      ),
-    ];
-    */
     const actions = [transactions.transfer(new BN(10))];
 
     const transaction = transactions.createTransaction(

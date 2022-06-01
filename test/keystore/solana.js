@@ -1,13 +1,10 @@
 const {
-  // Authorized,
   Connection,
-  // StakeProgram,
   SystemProgram,
   PublicKey,
   LAMPORTS_PER_SOL,
   Transaction,
-  // Lockup,
-  sendAndConfirmRawTransaction,
+  // sendAndConfirmRawTransaction,
 } = require("@solana/web3.js");
 
 const {
@@ -35,11 +32,19 @@ async function getStakeAccount(stakeAccountSeed, fromPublicKey) {
 }
 */
 /*
-async function sendTransation(connection, transaction) {
+async function sendTransation(connection, pubKey, signedTransaction) {
   try {
+    const transaction = Transaction.from(
+      Buffer.from(signedTransaction.serializedTx.replace("0x", ""), "hex")
+    );
+    transaction.addSignature(
+      pubKey,
+      Buffer.from(signedTransaction.signature.replace("0x", ""), "hex")
+    );
+
     const hash = await sendAndConfirmRawTransaction(
       connection,
-      Buffer.from(transaction.replace("0x", ""), "hex"),
+      transaction.serialize(),
       {
         preflightCommitment: "confirmed",
       }
@@ -66,7 +71,6 @@ async function signTx(path, mnemonic, account) {
       recentBlockhash: RECENTBLOCKHASH.blockhash,
       feePayer: ACCOUNTPUBKEY,
     });
-
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: ACCOUNTPUBKEY,
@@ -74,6 +78,7 @@ async function signTx(path, mnemonic, account) {
         toPubkey: ACCOUNTPUBKEY,
       })
     );
+
     const response = await signTxFromKeyStore(path, mnemonic, {
       serializedTx: transaction
         .serialize({ verifySignatures: false })
@@ -82,7 +87,7 @@ async function signTx(path, mnemonic, account) {
     // eslint-disable-next-line no-console
     console.log("response - ", response);
     // Send Transaction
-    // sendTransation(CONNECTION, response.signedTx);
+    // sendTransation(CONNECTION, ACCOUNTPUBKEY, response.signedTx);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
