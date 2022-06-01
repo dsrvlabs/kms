@@ -17,13 +17,13 @@ const INDEX = 1;
 async function sendTransaction(signedTransaction) {
   const rpc = "https://rpc.testnet.near.org";
   const provider = new providers.JsonRpcProvider(rpc);
-  const signedSerializedTx = signedTransaction.encode();
   const result = await provider.sendJsonRpc("broadcast_tx_commit", [
-    Buffer.from(signedSerializedTx).toString("base64"),
+    Buffer.from(signedTransaction.replace("0x", ""), "hex").toString("base64"),
   ]);
   return result;
 }
 */
+
 async function signTx(path, mnemonic, account) {
   try {
     const encodedPubKey = account;
@@ -76,7 +76,7 @@ async function signTx(path, mnemonic, account) {
 
     const bytes = transaction.encode();
 
-    console.log("decode - ", transactions.Transaction.decode(bytes));
+    // console.log("decode - ", transactions.Transaction.decode(bytes));
 
     const response = await signTxFromKeyStore(path, mnemonic, {
       serializedTx: Buffer.from(bytes).toString("base64"),
@@ -84,21 +84,20 @@ async function signTx(path, mnemonic, account) {
 
     // eslint-disable-next-line no-console
     console.log("Transation signed - ", response);
+
     /*
-    const signedTransaction = new transactions.SignedTransaction({
-      transaction,
-      signature: new transactions.Signature({
-        keyType: transaction.publicKey.keyType,
-        data: new Uint8Array(
-          Buffer.from(response.signedTx.signature.replace("0x", ""), "hex")
-        ),
-      }),
-    });
-    // SEND TRANSACTION
-    const txResponse = await sendTransaction(signedTransaction);
-    // eslint-disable-next-line no-console
-    console.log("Transaction sent - ", txResponse.transaction);
+    console.log(
+      "decode - ",
+      transactions.SignedTransaction.decode(
+        Buffer.from(response.signedTx.replace("0x", ""), "hex")
+      )
+    );
     */
+
+    // SEND TRANSACTION
+    // const txResponse = await sendTransaction(response.signedTx);
+    // eslint-disable-next-line no-console
+    // console.log("Transaction sent - ", txResponse.transaction);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
