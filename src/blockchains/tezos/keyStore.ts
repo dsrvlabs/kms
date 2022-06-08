@@ -2,15 +2,13 @@ import nacl from "tweetnacl";
 import { derivePath } from "near-hd-key";
 import { Account, BIP44 } from "../../types";
 import { encodeAddress } from "./hw";
+import { getDerivePath } from "../getDerivePath";
 
 // import { RawTx, SignedTx } from "../../types";
 
 export class KEYSTORE {
   static getPrivateKey(seed: Buffer, path: BIP44): string {
-    const { key } = derivePath(
-      `m/44'/${path.type}'/${path.account}'/${path.index}'`,
-      seed.toString("hex")
-    );
+    const { key } = derivePath(getDerivePath(path)[0], seed.toString("hex"));
     return `0x${Buffer.from(key).toString("hex")}`;
   }
 

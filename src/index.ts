@@ -4,8 +4,8 @@ import Transport from "@ledgerhq/hw-transport";
 import { JWTVerified } from "did-jwt";
 import { CHAIN, Account, BIP44, SignedTx, SignedMsg, Message } from "./types";
 import { createKeyStore, getMnemonic, getAlgo2HashKey } from "./argon2";
+import { getDerivePath } from "./blockchains/getDerivePath";
 import {
-  getDerivePath,
   exportPrivateKey,
   getAccountFromKeyStore,
   signTxFromKeyStore,

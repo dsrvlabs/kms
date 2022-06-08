@@ -2,13 +2,11 @@ import base58 from "bs58";
 import { derivePath } from "near-hd-key";
 import { Keypair, Transaction } from "@solana/web3.js";
 import { Account, BIP44, SignedTx } from "../../types";
+import { getDerivePath } from "../getDerivePath";
 
 export class KEYSTORE {
   static getPrivateKey(seed: Buffer, path: BIP44): string {
-    const { key } = derivePath(
-      `m/44'/${path.type}'/${path.account}'/${path.index}'`,
-      seed.toString("hex")
-    );
+    const { key } = derivePath(getDerivePath(path)[0], seed.toString("hex"));
     return `0x${Buffer.from(key).toString("hex")}`;
   }
 

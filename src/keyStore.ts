@@ -9,15 +9,12 @@ import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
 import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
-
-export function getDerivePath(path: BIP44): string {
-  return `m/44'/${path.type}'/${path.account}'/0/${path.index}`;
-}
+import { getDerivePath } from "./blockchains/getDerivePath";
 
 function getChild(path: BIP44, mnemonic: string) {
   const seed = mnemonicToSeedSync(mnemonic);
   const node = fromSeed(seed);
-  const child = node.derivePath(getDerivePath(path));
+  const child = node.derivePath(getDerivePath(path)[0]);
 
   return { seed, child };
 }
@@ -329,9 +326,7 @@ export async function signMsgFromKeyStore(
   try {
     const seed = mnemonicToSeedSync(mnemonic);
     const node = fromSeed(seed);
-    const child = node.derivePath(
-      `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-    );
+    const child = node.derivePath(getDerivePath(path)[0]);
 
     switch (path.type) {
       case CHAIN.DSRV: {

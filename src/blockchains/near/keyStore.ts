@@ -4,13 +4,11 @@ import { derivePath } from "near-hd-key";
 import sha256 from "js-sha256";
 import { utils } from "near-api-js";
 import { Account, BIP44, SignedTx } from "../../types";
+import { getDerivePath } from "../getDerivePath";
 
 export class KEYSTORE {
   static getPrivateKey(seed: Buffer, path: BIP44): string {
-    const { key } = derivePath(
-      `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
-      seed.toString("hex")
-    );
+    const { key } = derivePath(getDerivePath(path)[0], seed.toString("hex"));
     const keyPair = nacl.sign.keyPair.fromSeed(key);
     return `${encode(Buffer.from(keyPair.secretKey))}`;
   }

@@ -4,6 +4,7 @@ import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
 import { createDidDoc, getResolver } from "./resolver";
 import { BIP44 } from "../types";
+import { getDerivePath } from "..";
 
 export async function verifyDid(
   jwt: string,
@@ -28,9 +29,7 @@ export async function createDid(
 ): Promise<string> {
   const seed = mnemonicToSeedSync(mnemonic);
   const node = fromSeed(seed);
-  const child = node.derivePath(
-    `m/44'/${path.type}'/${path.account}'/0/${path.index}`
-  );
+  const child = node.derivePath(getDerivePath(path)[0]);
 
   if (child.privateKey) {
     const signer = ES256KSigner(child.privateKey.toString("hex"));

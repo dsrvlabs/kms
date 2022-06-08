@@ -1,4 +1,5 @@
 import { BIP32Interface } from "bip32";
+import * as secp256k1 from "secp256k1";
 import {
   AccessListEIP2930Transaction,
   FeeMarketEIP1559Transaction,
@@ -31,8 +32,11 @@ export class KEYSTORE {
       address: `0x${privateToAddress(
         Buffer.from(node.replace("0x", ""), "hex")
       ).toString("hex")}`,
-      publicKey: `0x${privateToPublic(
-        Buffer.from(node.replace("0x", ""), "hex")
+      publicKey: `0x${Buffer.from(
+        secp256k1.publicKeyCreate(
+          new Uint8Array(Buffer.from(node.replace("0x", ""), "hex")),
+          true
+        )
       ).toString("hex")}`,
     };
   }
