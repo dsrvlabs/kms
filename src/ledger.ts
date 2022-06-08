@@ -1,5 +1,6 @@
 import Transport from "@ledgerhq/hw-transport";
 import { CHAIN, Account, BIP44, SignedTx, SignedMsg, Message } from "./types";
+import { LEDGER as eth } from "./blockchains/ethereum/ledger";
 import { LEDGER as terra } from "./blockchains/cosmos/ledger/terra";
 import { LEDGER as flow } from "./blockchains/flow/ledger";
 import { LEDGER as solana } from "./blockchains/solana/ledger";
@@ -66,6 +67,11 @@ export async function getAccountFromLedger(
         const account = await tezos.getAccount(path, transport);
         return account;
       }
+      case CHAIN.ETHEREUM:
+      case CHAIN.CELO: {
+        const account = eth.getAccount(path, transport);
+        return account;
+      }
       // add blockchains....
       // blockchains
       default:
@@ -121,6 +127,11 @@ export async function signTxFromLedger(
       }
       case CHAIN.SOLANA: {
         const response = await solana.signTx(path, transport, unsignedTx);
+        return { ...response };
+      }
+      case CHAIN.ETHEREUM:
+      case CHAIN.CELO: {
+        const response = await eth.signTx(path, transport, unsignedTx);
         return { ...response };
       }
       // add blockchains....
