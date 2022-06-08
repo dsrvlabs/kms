@@ -41,6 +41,45 @@ export class KEYSTORE {
     };
   }
 
+  public static celoRLPEncode(
+    parsedTx: any,
+    vNum?: number,
+    rHex?: string,
+    sHex?: string
+  ): Buffer {
+    return rlp.encode([
+      bnToHex(new BN(parsedTx.nonce)),
+      bnToHex(new BN(parsedTx.gasPrice)),
+      bnToHex(new BN(parsedTx.gasLimit)),
+      parsedTx.feeCurrency || "0x",
+      parsedTx.gatewayFeeRecipient || "0x",
+      parsedTx.gatewayFee ? bnToHex(new BN(parsedTx.gatewayFee)) : "0x",
+      parsedTx.to,
+      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
+      parsedTx.data || "0x",
+      vNum || bnToHex(new BN(parsedTx.chainId)),
+      rHex || "0x",
+      sHex || "0x",
+    ]);
+  }
+
+  private static celoSignTx(privateKey: Buffer, parsedTx: any): SignedTx {
+    const rlpEncode = KEYSTORE.celoRLPEncode(parsedTx);
+    const sig = ecsign(keccak256(rlpEncode), privateKey);
+
+    const signature = KEYSTORE.celoRLPEncode(
+      parsedTx,
+      sig.v,
+      `0x${sig.r.toString("hex")}`,
+      `0x${sig.s.toString("hex")}`
+    );
+
+    return {
+      hash: `0x${keccak256(signature).toString("hex")}`,
+      serializedTx: `0x${signature.toString("hex")}`,
+    };
+  }
+
   private static eip155ignTx(privateKey: Buffer, parsedTx: any): SignedTx {
     const rlpEncode = rlp.encode([
       bnToHex(new BN(parsedTx.nonce)),
@@ -117,51 +156,6 @@ export class KEYSTORE {
     return {
       hash: `0x${keccak256(signedTx.serialize()).toString("hex")}`,
       serializedTx: `0x${signedTx.serialize().toString("hex")}`,
-    };
-  }
-
-  private static celoSignTx(privateKey: Buffer, parsedTx: any): SignedTx {
-    const rlpEncode = rlp.encode([
-      bnToHex(new BN(parsedTx.nonce)),
-      bnToHex(new BN(parsedTx.gasPrice)),
-      bnToHex(new BN(parsedTx.gasLimit)),
-      parsedTx.feeCurrency || "0x",
-      parsedTx.gatewayFeeRecipient || "0x",
-      parsedTx.gatewayFee ? bnToHex(new BN(parsedTx.gatewayFee)) : "0x",
-      parsedTx.to,
-      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
-      parsedTx.data || "0x",
-      bnToHex(new BN(parsedTx.chainId)),
-      "0x",
-      "0x",
-    ]);
-    const sig = ecsign(keccak256(rlpEncode), privateKey);
-
-    const signature = rlp.encode([
-      bnToHex(new BN(parsedTx.nonce)),
-      bnToHex(new BN(parsedTx.gasPrice)),
-      bnToHex(new BN(parsedTx.gasLimit)),
-      parsedTx.feeCurrency || "0x",
-      parsedTx.gatewayFeeRecipient || "0x",
-      parsedTx.gatewayFee ? bnToHex(new BN(parsedTx.gatewayFee)) : "0x",
-      parsedTx.to,
-      parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
-      parsedTx.data || "0x",
-      bnToHex(
-        new BN(
-          27 +
-            (sig.v === 0 || sig.v === 1 ? sig.v : 1 - (sig.v % 2)) +
-            parseInt(parsedTx.chainId, 10) * 2 +
-            8
-        )
-      ),
-      `0x${sig.r.toString("hex")}`,
-      `0x${sig.s.toString("hex")}`,
-    ]);
-
-    return {
-      hash: `0x${keccak256(signature).toString("hex")}`,
-      serializedTx: `0x${signature.toString("hex")}`,
     };
   }
 
