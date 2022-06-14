@@ -260,7 +260,7 @@ export async function signTxFromPK(
   pk: string,
   option: KeyStorePKOption,
   unsignedTx: string
-) {
+): Promise<SignedTx> {
   try {
     switch (option.coinType) {
       /*
@@ -310,11 +310,11 @@ export async function signTxFromPK(
         break;
     }
 
-    return { unsignedTx };
+    return {};
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return { unsignedTx };
+    return {};
   }
 }
 
