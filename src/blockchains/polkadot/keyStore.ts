@@ -1,4 +1,4 @@
-import { derivePath } from "near-hd-key";
+import { derivePath } from "ed25519-hd-key";
 import { naclKeypairFromSeed, encodeAddress } from "@polkadot/util-crypto";
 import { Account, BIP44 } from "../../types";
 import { getDerivePath } from "../getDerivePath";

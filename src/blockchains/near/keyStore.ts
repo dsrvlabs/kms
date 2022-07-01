@@ -1,6 +1,6 @@
 import { encode, decode } from "bs58";
 import nacl from "tweetnacl";
-import { derivePath } from "near-hd-key";
+import { derivePath } from "ed25519-hd-key";
 import sha256 from "js-sha256";
 import { utils } from "near-api-js";
 import { Account, BIP44, SignedTx } from "../../types";

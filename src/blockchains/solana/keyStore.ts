@@ -1,5 +1,5 @@
 import base58 from "bs58";
-import { derivePath } from "near-hd-key";
+import { derivePath } from "ed25519-hd-key";
 import { Keypair, Transaction } from "@solana/web3.js";
 import { Account, BIP44, SignedTx } from "../../types";
 import { getDerivePath } from "../getDerivePath";

@@ -1,5 +1,5 @@
 import nacl from "tweetnacl";
-import { derivePath } from "near-hd-key";
+import { derivePath } from "ed25519-hd-key";
 import { Account, BIP44 } from "../../types";
 import { encodeAddress } from "./hw";
 import { getDerivePath } from "../getDerivePath";
