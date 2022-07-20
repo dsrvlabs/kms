@@ -49,4 +49,6 @@ export const CHAIN = {
   TEZOS: 1729,
   PERSISTENCE: 750,
   AGORIC: 564,
+  SUI: 784,
+  APTOS: 637,
 } as const;

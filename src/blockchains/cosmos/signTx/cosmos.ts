@@ -6,7 +6,7 @@ import {
 } from "@cosmjs/proto-signing";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
-import { sha256 } from "@terra-money/terra.js";
+import { sha256 } from "ethereumjs-util";
 import { SignedTx } from "../../../types";
 import { registry } from "../utils/defaultRegistryTypes";
 
@@ -48,18 +48,18 @@ export async function cosmosSignTx(
     parsedTx.signerData.accountNumber
   );
 
-  const { signature } = await wallet.signDirect(accounts[0].address, signDoc);
+  const { signature, signed } = await wallet.signDirect(accounts[0].address, signDoc);
 
   const txRaw = TxRaw.fromPartial({
-    bodyBytes: signDoc.bodyBytes,
-    authInfoBytes: signDoc.authInfoBytes,
+    bodyBytes: signed.bodyBytes,
+    authInfoBytes: signed.authInfoBytes,
     signatures: [new Uint8Array(Buffer.from(signature.signature, "base64"))],
   });
 
   const txByte = TxRaw.encode(txRaw).finish();
 
   return {
-    hash: Buffer.from(sha256(txByte)).toString("hex").toUpperCase(),
+    hash: sha256(Buffer.from(txByte)).toString("hex").toUpperCase(),
     serializedTx: `0x${Buffer.from(txByte).toString("hex")}`,
   };
 }

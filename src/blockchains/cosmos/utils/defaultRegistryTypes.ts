@@ -1,5 +1,5 @@
 import { GeneratedType, Registry } from "@cosmjs/proto-signing";
-import { MsgMultiSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend, MsgMultiSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {
   MsgFundCommunityPool,
   MsgSetWithdrawAddress,
@@ -43,9 +43,21 @@ import {
   MsgConnectionOpenInit,
   MsgConnectionOpenTry,
 } from "cosmjs-types/ibc/core/connection/v1/tx";
+import {
+  MsgClearAdmin,
+  MsgExecuteContract,
+  MsgInstantiateContract,
+  MsgMigrateContract,
+  MsgStoreCode,
+  MsgUpdateAdmin,
+} from "cosmjs-types/cosmwasm/wasm/v1/tx";
 
-const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
+const bankTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.bank.v1beta1.MsgMultiSend", MsgMultiSend],
+  ["/cosmos.bank.v1beta1.MsgSend", MsgSend],
+];
+
+const distributionTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.distribution.v1beta1.MsgFundCommunityPool", MsgFundCommunityPool],
   ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress],
   [
@@ -56,36 +68,61 @@ const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
     "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
     MsgWithdrawValidatorCommission,
   ],
+];
+
+const govTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.gov.v1beta1.MsgDeposit", MsgDeposit],
   ["/cosmos.gov.v1beta1.MsgSubmitProposal", MsgSubmitProposal],
   ["/cosmos.gov.v1beta1.MsgVote", MsgVote],
+];
+
+const stakingTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.staking.v1beta1.MsgBeginRedelegate", MsgBeginRedelegate],
   ["/cosmos.staking.v1beta1.MsgCreateValidator", MsgCreateValidator],
   ["/cosmos.staking.v1beta1.MsgDelegate", MsgDelegate],
   ["/cosmos.staking.v1beta1.MsgEditValidator", MsgEditValidator],
   ["/cosmos.staking.v1beta1.MsgUndelegate", MsgUndelegate],
-  ["/ibc.core.channel.v1.MsgChannelOpenInit", MsgChannelOpenInit],
-  ["/ibc.core.channel.v1.MsgChannelOpenTry", MsgChannelOpenTry],
+];
+
+const ibcTypes: ReadonlyArray<[string, GeneratedType]> = [
+  ["/ibc.applications.transfer.v1.MsgTransfer", MsgTransfer],
+  ["/ibc.core.channel.v1.MsgAcknowledgement", MsgAcknowledgement],
+  ["/ibc.core.channel.v1.MsgChannelCloseConfirm", MsgChannelCloseConfirm],
+  ["/ibc.core.channel.v1.MsgChannelCloseInit", MsgChannelCloseInit],
   ["/ibc.core.channel.v1.MsgChannelOpenAck", MsgChannelOpenAck],
   ["/ibc.core.channel.v1.MsgChannelOpenConfirm", MsgChannelOpenConfirm],
-  ["/ibc.core.channel.v1.MsgChannelCloseInit", MsgChannelCloseInit],
-  ["/ibc.core.channel.v1.MsgChannelCloseConfirm", MsgChannelCloseConfirm],
+  ["/ibc.core.channel.v1.MsgChannelOpenInit", MsgChannelOpenInit],
+  ["/ibc.core.channel.v1.MsgChannelOpenTry", MsgChannelOpenTry],
   ["/ibc.core.channel.v1.MsgRecvPacket", MsgRecvPacket],
   ["/ibc.core.channel.v1.MsgTimeout", MsgTimeout],
   ["/ibc.core.channel.v1.MsgTimeoutOnClose", MsgTimeoutOnClose],
-  ["/ibc.core.channel.v1.MsgAcknowledgement", MsgAcknowledgement],
   ["/ibc.core.client.v1.MsgCreateClient", MsgCreateClient],
+  ["/ibc.core.client.v1.MsgSubmitMisbehaviour", MsgSubmitMisbehaviour],
   ["/ibc.core.client.v1.MsgUpdateClient", MsgUpdateClient],
   ["/ibc.core.client.v1.MsgUpgradeClient", MsgUpgradeClient],
-  ["/ibc.core.client.v1.MsgSubmitMisbehaviour", MsgSubmitMisbehaviour],
-  ["/ibc.core.connection.v1.MsgConnectionOpenInit", MsgConnectionOpenInit],
-  ["/ibc.core.connection.v1.MsgConnectionOpenTry", MsgConnectionOpenTry],
   ["/ibc.core.connection.v1.MsgConnectionOpenAck", MsgConnectionOpenAck],
   [
     "/ibc.core.connection.v1.MsgConnectionOpenConfirm",
     MsgConnectionOpenConfirm,
   ],
-  ["/ibc.applications.transfer.v1.MsgTransfer", MsgTransfer],
+  ["/ibc.core.connection.v1.MsgConnectionOpenInit", MsgConnectionOpenInit],
+  ["/ibc.core.connection.v1.MsgConnectionOpenTry", MsgConnectionOpenTry],
 ];
 
-export const registry = new Registry(defaultRegistryTypes);
+const wasmTypes: ReadonlyArray<[string, GeneratedType]> = [
+  ["/cosmwasm.wasm.v1.MsgClearAdmin", MsgClearAdmin],
+  ["/cosmwasm.wasm.v1.MsgExecuteContract", MsgExecuteContract],
+  ["/cosmwasm.wasm.v1.MsgMigrateContract", MsgMigrateContract],
+  ["/cosmwasm.wasm.v1.MsgStoreCode", MsgStoreCode],
+  ["/cosmwasm.wasm.v1.MsgInstantiateContract", MsgInstantiateContract],
+  ["/cosmwasm.wasm.v1.MsgUpdateAdmin", MsgUpdateAdmin],
+];
+
+export const registry = new Registry([
+  ...bankTypes,
+  ...distributionTypes,
+  ...govTypes,
+  ...stakingTypes,
+  ...ibcTypes,
+  ...wasmTypes,
+]);
