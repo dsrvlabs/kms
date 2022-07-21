@@ -22,7 +22,6 @@ export interface SignedTx {
   hash?: string;
   signature?: string;
   serializedTx?: string;
-  publicKey?: string;
 }
 
 export interface Message {
