@@ -45,6 +45,7 @@ export class KEYSTORE {
       serializedTx,
       hash: hashTx,
       signature: signature.toString(),
+      publicKey: keyPair.getPublicKey().toString(),
     };
   }
 }

@@ -48,7 +48,10 @@ export async function cosmosSignTx(
     parsedTx.signerData.accountNumber
   );
 
-  const { signature, signed } = await wallet.signDirect(accounts[0].address, signDoc);
+  const { signature, signed } = await wallet.signDirect(
+    accounts[0].address,
+    signDoc
+  );
 
   const txRaw = TxRaw.fromPartial({
     bodyBytes: signed.bodyBytes,
