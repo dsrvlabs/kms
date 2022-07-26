@@ -1,5 +1,7 @@
 import { encode, decode } from "bs58";
 import nacl from "tweetnacl";
+// eslint-disable-next-line camelcase
+import { sha3_256 } from "js-sha3";
 import { derivePath } from "ed25519-hd-key";
 import { Ed25519Keypair, Base64DataBuffer } from "@mysten/sui.js";
 import { Account, BIP44, SignedTx } from "../../types";
@@ -38,7 +40,10 @@ export class KEYSTORE {
     path?: BIP44
   ): SignedTx {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const hashTx = "";
+    const hashTx = Buffer.from(
+      sha3_256(Buffer.from(serializedTx, "base64")),
+      "hex"
+    ).toString("base64");
     const signature = keyPair.signData(new Base64DataBuffer(serializedTx));
 
     return {
