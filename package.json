@@ -1,6 +1,6 @@
 {
   "name": "@dsrv/kms",
-  "version": "0.3.39",
+  "version": "0.3.40",
   "description": "blockchain key managament system",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -82,6 +82,7 @@
     "near-api-js": "^0.41.0",
     "near-ledger-js": "^0.2.0",
     "node-jose": "^2.1.1",
+    "protobufjs": "^7.0.0",
     "secp256k1": "^4.0.2",
     "tweetnacl": "^1.0.3"
   },

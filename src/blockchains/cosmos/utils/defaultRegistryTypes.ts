@@ -1,3 +1,6 @@
+import Long from "long";
+import * as _m0 from "protobufjs/minimal";
+import { Uint53 } from "@cosmjs/math";
 import { GeneratedType, Registry } from "@cosmjs/proto-signing";
 import { MsgSend, MsgMultiSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {
@@ -46,11 +49,91 @@ import {
 import {
   MsgClearAdmin,
   MsgExecuteContract,
-  MsgInstantiateContract,
-  MsgMigrateContract,
+  MsgInstantiateContract as OriginalMsgInstantiateContract,
+  MsgMigrateContract as OriginalMsgMigrateContract,
   MsgStoreCode,
   MsgUpdateAdmin,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+
+const MsgInstantiateContract = {
+  ...OriginalMsgInstantiateContract,
+  encode: (
+    message: OriginalMsgInstantiateContract,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer => {
+    if (message.sender !== "") {
+      writer.uint32(10).string(message.sender);
+    }
+    if (message.admin !== "") {
+      writer.uint32(18).string(message.admin);
+    }
+    if (message.codeId) {
+      if (message.codeId.isZero && !message.codeId.isZero()) {
+        writer.uint32(24).uint64(message.codeId);
+      }
+      if (typeof message.codeId === "number") {
+        writer
+          .uint32(24)
+          .uint64(Long.fromString(new Uint53(message.codeId).toString()));
+      }
+      if (typeof message.codeId === "string") {
+        writer
+          .uint32(24)
+          .uint64(
+            Long.fromString(new Uint53(parseInt(message.codeId, 10)).toString())
+          );
+      }
+    }
+    if (message.label !== "") {
+      writer.uint32(34).string(message.label);
+    }
+    if (message.msg.length !== 0) {
+      writer.uint32(42).bytes(message.msg);
+    }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const v of message.funds) {
+      Coin.encode(v!, writer.uint32(50).fork()).ldelim();
+    }
+    return writer;
+  },
+};
+
+const MsgMigrateContract = {
+  ...OriginalMsgMigrateContract,
+  encode: (
+    message: OriginalMsgMigrateContract,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer => {
+    if (message.sender !== "") {
+      writer.uint32(10).string(message.sender);
+    }
+    if (message.contract !== "") {
+      writer.uint32(18).string(message.contract);
+    }
+    if (message.codeId) {
+      if (message.codeId.isZero && !message.codeId.isZero()) {
+        writer.uint32(24).uint64(message.codeId);
+      }
+      if (typeof message.codeId === "number") {
+        writer
+          .uint32(24)
+          .uint64(Long.fromString(new Uint53(message.codeId).toString()));
+      }
+      if (typeof message.codeId === "string") {
+        writer
+          .uint32(24)
+          .uint64(
+            Long.fromString(new Uint53(parseInt(message.codeId, 10)).toString())
+          );
+      }
+    }
+    if (message.msg.length !== 0) {
+      writer.uint32(34).bytes(message.msg);
+    }
+    return writer;
+  },
+};
 
 const bankTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.bank.v1beta1.MsgMultiSend", MsgMultiSend],
