@@ -27,6 +27,11 @@ export function getDerivePath(path: BIP44): string[] {
         `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
         `m/44'/${path.type}'/${path.account}'/0'/`,
       ];
+    case CHAIN.APTOS:
+      return [
+        `m/44'/${path.type}'/${path.account}'/0'/${path.index}'`,
+        `m/44'/${path.type}'/${path.account}'/0'/`,
+      ];
     case CHAIN.SOLANA:
     case CHAIN.TEZOS:
       return [

@@ -8,6 +8,7 @@ import { KEYSTORE as polkadot } from "./blockchains/polkadot/keyStore";
 import { KEYSTORE as kusama } from "./blockchains/kusama/keyStore";
 import { KEYSTORE as near } from "./blockchains/near/keyStore";
 import { KEYSTORE as sui } from "./blockchains/sui/keyStore";
+import { KEYSTORE as aptos } from "./blockchains/aptos/keyStore";
 import { KEYSTORE as flow } from "./blockchains/flow/keyStore";
 import { KEYSTORE as tezos } from "./blockchains/tezos/keyStore";
 import { getDerivePath } from "./blockchains/getDerivePath";
@@ -55,6 +56,10 @@ export async function exportPrivateKey(
       }
       case CHAIN.SUI: {
         const privateKey = sui.getPrivateKey(seed, path);
+        return privateKey;
+      }
+      case CHAIN.APTOS: {
+        const privateKey = aptos.getPrivateKey(seed, path);
         return privateKey;
       }
       case CHAIN.TEZOS: {
@@ -123,6 +128,10 @@ export async function getAccountFromKeyStore(
         const account = sui.getAccount(seed, path);
         return account;
       }
+      case CHAIN.APTOS: {
+        const account = aptos.getAccount(seed, path);
+        return account;
+      }
       case CHAIN.FLOW: {
         const account = flow.getAccount(child);
         return account;
@@ -186,6 +195,10 @@ export async function getAccountFromPK(pk: string, option: KeyStorePKOption) {
         const account = sui.getAccount(pk);
         return account;
       }
+      case CHAIN.APTOS: {
+        const account = aptos.getAccount(pk);
+        return account;
+      }
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
@@ -227,6 +240,10 @@ export async function signTxFromKeyStore(
       }
       case CHAIN.SUI: {
         const response = sui.signTx(seed, unsignedTx, path);
+        return { ...response };
+      }
+      case CHAIN.APTOS: {
+        const response = aptos.signTx(seed, unsignedTx, path);
         return { ...response };
       }
       case CHAIN.SOLANA: {
@@ -292,6 +309,10 @@ export async function signTxFromPK(
       }
       case CHAIN.SUI: {
         const response = sui.signTx(pk, unsignedTx);
+        return { ...response };
+      }
+      case CHAIN.APTOS: {
+        const response = aptos.signTx(pk, unsignedTx);
         return { ...response };
       }
       case CHAIN.SOLANA: {
