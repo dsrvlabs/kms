@@ -365,9 +365,7 @@ export async function signMsgFromKeyStore(
   msg: Message
 ): Promise<SignedMsg> {
   try {
-    const seed = mnemonicToSeedSync(mnemonic);
-    const node = fromSeed(seed);
-    const child = node.derivePath(getDerivePath(path)[0]);
+    const { seed, child } = getChild(path, mnemonic);
 
     switch (path.type) {
       case CHAIN.DSRV: {
@@ -378,6 +376,10 @@ export async function signMsgFromKeyStore(
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
         const response = await eth.signMessage(child, msg);
+        return { ...response };
+      }
+      case CHAIN.NEAR: {
+        const response = await near.signMessage(seed, msg, path);
         return { ...response };
       }
       // blockchains
@@ -409,6 +411,10 @@ export async function signMsgFromPK(
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
         const response = await eth.signMessage(pk, msg);
+        return { ...response };
+      }
+      case CHAIN.NEAR: {
+        const response = await near.signMessage(pk, msg);
         return { ...response };
       }
       // blockchains
