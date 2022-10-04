@@ -128,6 +128,7 @@ export class KEYSTORE {
       value: parsedTx.value ? bnToHex(new BN(parsedTx.value)) : "0x",
       data: parsedTx.data || "0x",
       chainId: bnToHex(new BN(parsedTx.chainId)),
+      accessList: parsedTx.accessList ? parsedTx.accessList : [],
     });
     const signedTx = tx.sign(privateKey);
     return {
