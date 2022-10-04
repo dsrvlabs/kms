@@ -382,6 +382,10 @@ export async function signMsgFromKeyStore(
         const response = await near.signMessage(seed, msg, path);
         return { ...response };
       }
+      case CHAIN.SOLANA: {
+        const response = await solana.signMessage(seed, msg, path);
+        return { ...response };
+      }
       // blockchains
       // add blockchains....
       // blockchains
@@ -415,6 +419,10 @@ export async function signMsgFromPK(
       }
       case CHAIN.NEAR: {
         const response = await near.signMessage(pk, msg);
+        return { ...response };
+      }
+      case CHAIN.SOLANA: {
+        const response = await solana.signMessage(pk, msg);
         return { ...response };
       }
       // blockchains

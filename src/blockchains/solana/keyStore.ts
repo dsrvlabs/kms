@@ -1,7 +1,8 @@
 import base58 from "bs58";
 import { derivePath } from "ed25519-hd-key";
+import nacl from "tweetnacl";
 import { Keypair, Transaction } from "@solana/web3.js";
-import { Account, BIP44, SignedTx } from "../../types";
+import { Account, BIP44, Message, SignedTx } from "../../types";
 import { getDerivePath } from "../getDerivePath";
 
 export class KEYSTORE {
@@ -48,9 +49,15 @@ export class KEYSTORE {
     };
   }
 
-  /*
-  export signMessage(node: BIP32Interface, msg: string) {
-    // ...
+  static async signMessage(seed: Buffer | string, msg: Message, path?: BIP44) {
+    const payer = KEYSTORE.getKeypair(seed, path);
+    const result = nacl.sign(Buffer.from(msg.data), payer.secretKey);
+    return {
+      msg,
+      signedMsg: {
+        signature: `0x${Buffer.from(result).toString("hex").slice(0, 128)}`,
+        publicKey: payer.publicKey.toBase58(),
+      },
+    };
   }
-  */
 }
