@@ -51,7 +51,7 @@ export class KEYSTORE {
 
   static async signMessage(seed: Buffer | string, msg: Message, path?: BIP44) {
     const payer = KEYSTORE.getKeypair(seed, path);
-    const result = nacl.sign(Buffer.from(msg.data), payer.secretKey);
+    const result = nacl.sign(Buffer.from(msg.data, "utf8"), payer.secretKey);
     return {
       msg,
       signedMsg: {
