@@ -52,7 +52,10 @@ export class KEYSTORE {
   static async signMessage(seed: Buffer | string, msg: Message, path?: BIP44) {
     const payer = KEYSTORE.getKeypair(seed, path);
     const result = nacl.sign.detached(
-      Buffer.from(msg.data, "utf8"),
+      Buffer.from(
+        msg.data.replace("0x", ""),
+        msg.data.startsWith("0x") ? "hex" : "utf8"
+      ),
       payer.secretKey
     );
     return {

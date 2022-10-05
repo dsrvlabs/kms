@@ -50,7 +50,14 @@ export class KEYSTORE {
 
   static async signMessage(seed: Buffer | string, msg: Message, path?: BIP44) {
     const keyPair = KEYSTORE.getKeyPair(seed, path);
-    const hash = sha256.sha256.array(new Uint8Array(Buffer.from(msg.data)));
+    const hash = sha256.sha256.array(
+      new Uint8Array(
+        Buffer.from(
+          msg.data.replace("0x", ""),
+          msg.data.startsWith("0x") ? "hex" : "utf8"
+        )
+      )
+    );
     const { signature } = keyPair.sign(new Uint8Array(hash));
     return {
       msg,
