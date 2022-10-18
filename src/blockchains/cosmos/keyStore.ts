@@ -1,6 +1,6 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
-import { enc, SHA256 } from "crypto-js";
+import { isHexString, sha256 } from "ethereumjs-util";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import { Account, Message, SignedTx } from "../../types";
 import { cosmosSignTx } from "./signTx/cosmos";
@@ -64,10 +64,12 @@ export class KEYSTORE {
         : Buffer.from(node.replace("0x", ""), "hex");
 
     if (privateKey) {
-      const signature = secp256k1.ecdsaSign(
-        Buffer.from(enc.Base64.stringify(SHA256(msg.data)), "base64"),
-        privateKey
+      const hash = sha256(
+        isHexString(msg.data)
+          ? Buffer.from(msg.data.replace("0x", ""), "hex")
+          : Buffer.from(msg.data, "utf8")
       );
+      const signature = secp256k1.ecdsaSign(hash, privateKey);
       return { msg, signedMsg: { ...signature } };
     }
     return { msg };

@@ -368,10 +368,12 @@ export async function signMsgFromKeyStore(
     const { seed, child } = getChild(path, mnemonic);
 
     switch (path.type) {
+      /*
       case CHAIN.DSRV: {
         const response = await cosmos.signMessage(child, "dsrv", msg);
         return { ...response };
       }
+      */
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
@@ -384,6 +386,14 @@ export async function signMsgFromKeyStore(
       }
       case CHAIN.SOLANA: {
         const response = await solana.signMessage(seed, msg, path);
+        return { ...response };
+      }
+      case CHAIN.COSMOS: {
+        const response = await cosmos.signMessage(
+          child,
+          path.prefix || "cosmos",
+          msg
+        );
         return { ...response };
       }
       // blockchains
@@ -407,10 +417,12 @@ export async function signMsgFromPK(
 ): Promise<SignedMsg> {
   try {
     switch (option.coinType) {
+      /*
       case CHAIN.DSRV: {
         const response = await cosmos.signMessage(pk, "dsrv", msg);
         return { ...response };
       }
+      */
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
@@ -423,6 +435,14 @@ export async function signMsgFromPK(
       }
       case CHAIN.SOLANA: {
         const response = await solana.signMessage(pk, msg);
+        return { ...response };
+      }
+      case CHAIN.COSMOS: {
+        const response = await cosmos.signMessage(
+          pk,
+          option.prefix || "cosmos",
+          msg
+        );
         return { ...response };
       }
       // blockchains
