@@ -4,7 +4,6 @@ import { isHexString, sha256 } from "ethereumjs-util";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 import { Account, Message, SignedTx } from "../../types";
 import { cosmosSignTx } from "./signTx/cosmos";
-import { terraSignTx } from "./signTx/terra";
 
 export class KEYSTORE {
   static async getAccount(
@@ -43,12 +42,11 @@ export class KEYSTORE {
       typeof node !== "string"
         ? node.privateKey
         : Buffer.from(node.replace("0x", ""), "hex");
-    const parsedTx = JSON.parse(unsignedTx);
+    const parsedTx = isHexString(unsignedTx)
+      ? unsignedTx
+      : JSON.parse(unsignedTx);
     if (privateKey) {
-      if (parsedTx.signerData) {
-        return cosmosSignTx(privateKey, prefix, parsedTx);
-      }
-      return terraSignTx(privateKey, prefix, parsedTx);
+      return cosmosSignTx(privateKey, prefix, parsedTx);
     }
     return {};
   }

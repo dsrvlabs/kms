@@ -4,23 +4,16 @@ import {
   makeAuthInfoBytes,
   encodePubkey,
 } from "@cosmjs/proto-signing";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { SignDoc, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
 import { sha256 } from "ethereumjs-util";
 import { SignedTx } from "../../../types";
 import { registry } from "../utils/defaultRegistryTypes";
 
-export async function cosmosSignTx(
-  privateKey: Buffer,
-  prefix: string,
-  parsedTx: any
-): Promise<SignedTx> {
-  const wallet = await DirectSecp256k1Wallet.fromKey(
-    new Uint8Array(privateKey),
-    prefix
-  );
-  const accounts = await wallet.getAccounts();
-
+function getSignDoc(publicKey: Uint8Array, parsedTx: any): SignDoc {
+  if (typeof parsedTx === "string") {
+    return SignDoc.decode(Buffer.from(parsedTx.replace("0x", ""), "hex"));
+  }
   const txBodyEncodeObject = {
     typeUrl: "/cosmos.tx.v1beta1.TxBody",
     value: {
@@ -30,9 +23,9 @@ export async function cosmosSignTx(
   };
 
   const txBodyBytes = registry.encode(txBodyEncodeObject);
-  const pubkey = encodePubkey(encodeSecp256k1Pubkey(accounts[0].pubkey));
+  const pubkey = encodePubkey(encodeSecp256k1Pubkey(publicKey));
 
-  const signDoc = makeSignDoc(
+  return makeSignDoc(
     txBodyBytes,
     makeAuthInfoBytes(
       [
@@ -47,7 +40,20 @@ export async function cosmosSignTx(
     parsedTx.signerData.chainId,
     parsedTx.signerData.accountNumber
   );
+}
 
+export async function cosmosSignTx(
+  privateKey: Buffer,
+  prefix: string,
+  parsedTx: any
+): Promise<SignedTx> {
+  const wallet = await DirectSecp256k1Wallet.fromKey(
+    new Uint8Array(privateKey),
+    prefix
+  );
+  const accounts = await wallet.getAccounts();
+
+  const signDoc = getSignDoc(accounts[0].pubkey, parsedTx);
   const { signature, signed } = await wallet.signDirect(
     accounts[0].address,
     signDoc
