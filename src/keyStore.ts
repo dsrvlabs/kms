@@ -143,7 +143,7 @@ export async function getAccountFromKeyStore(
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const account = eth.getAccount(child);
+        const account = eth.getAccount(child, path.prefix || "");
         return account;
       }
       // add blockchains....
@@ -202,7 +202,7 @@ export async function getAccountFromPK(pk: string, option: KeyStorePKOption) {
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const account = eth.getAccount(pk);
+        const account = eth.getAccount(pk, option.prefix || "");
         return account;
       }
       // add blockchains....
@@ -273,7 +273,7 @@ export async function signTxFromKeyStore(
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = eth.signTx(child, unsignedTx);
+        const response = eth.signTx(child, path.prefix || "", unsignedTx);
         return { ...response };
       }
       // add blockchains....
@@ -342,7 +342,7 @@ export async function signTxFromPK(
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = eth.signTx(pk, unsignedTx);
+        const response = eth.signTx(pk, option.prefix || "", unsignedTx);
         return { ...response };
       }
       // add blockchains....
@@ -377,7 +377,7 @@ export async function signMsgFromKeyStore(
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = await eth.signMessage(child, msg);
+        const response = await eth.signMessage(child, path.prefix || "", msg);
         return { ...response };
       }
       case CHAIN.NEAR: {
@@ -426,7 +426,7 @@ export async function signMsgFromPK(
       case CHAIN.ETHEREUM:
       case CHAIN.KLAYTN:
       case CHAIN.CELO: {
-        const response = await eth.signMessage(pk, msg);
+        const response = await eth.signMessage(pk, option.prefix || "", msg);
         return { ...response };
       }
       case CHAIN.NEAR: {

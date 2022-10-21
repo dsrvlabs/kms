@@ -1,9 +1,10 @@
 import { BIP32Interface } from "bip32";
 import * as secp256k1 from "secp256k1";
-import { isHexString, sha256 } from "ethereumjs-util";
+import { isHexString, privateToAddress } from "ethereumjs-util";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
+import { bech32 } from "bech32";
 import { Account, Message, SignedTx } from "../../types";
-import { cosmosSignTx } from "./signTx/cosmos";
+import { cosmosSignTx, signCosmos, signInject } from "./signTx/cosmos";
 
 export class KEYSTORE {
   static async getAccount(
@@ -16,6 +17,18 @@ export class KEYSTORE {
         : Buffer.from(node.replace("0x", ""), "hex");
 
     if (privateKey) {
+      if (prefix === "inj") {
+        return {
+          address: bech32.encode(
+            prefix,
+            bech32.toWords(privateToAddress(privateKey))
+          ),
+          publicKey: Buffer.from(
+            secp256k1.publicKeyCreate(privateKey, true)
+          ).toString("base64"),
+        };
+      }
+
       const wallet = await DirectSecp256k1Wallet.fromKey(
         new Uint8Array(privateKey),
         prefix
@@ -53,7 +66,7 @@ export class KEYSTORE {
 
   static async signMessage(
     node: BIP32Interface | string,
-    _prefix: string,
+    prefix: string,
     msg: Message
   ) {
     const privateKey =
@@ -62,13 +75,17 @@ export class KEYSTORE {
         : Buffer.from(node.replace("0x", ""), "hex");
 
     if (privateKey) {
-      const hash = sha256(
-        isHexString(msg.data)
-          ? Buffer.from(msg.data.replace("0x", ""), "hex")
-          : Buffer.from(msg.data, "utf8")
-      );
-      const signature = secp256k1.ecdsaSign(hash, privateKey);
-      return { msg, signedMsg: { ...signature } };
+      const message = isHexString(msg.data)
+        ? Buffer.from(msg.data.replace("0x", ""), "hex")
+        : Buffer.from(msg.data, "utf8");
+      const signature =
+        prefix === "inj"
+          ? signInject(message, privateKey)
+          : signCosmos(message, privateKey);
+      return {
+        msg,
+        signedMsg: { ...signature },
+      };
     }
     return { msg };
   }

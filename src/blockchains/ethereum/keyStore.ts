@@ -7,7 +7,6 @@ import {
 import {
   privateToAddress,
   privateToPublic,
-  publicToAddress,
   rlp,
   bnToHex,
   keccak256,
@@ -18,26 +17,37 @@ import {
   toBuffer,
   intToHex,
 } from "ethereumjs-util";
+import { bech32 } from "bech32";
 import { Account, Message, SignedTx } from "../../types";
 
 export class KEYSTORE {
-  static getAccount(node: BIP32Interface | string): Account {
-    if (typeof node !== "string") {
+  static getAccount(node: BIP32Interface | string, prefix: string): Account {
+    const privateKey =
+      typeof node !== "string"
+        ? node.privateKey
+        : Buffer.from(node.replace("0x", ""), "hex");
+    if (privateKey) {
+      if (prefix === "inj") {
+        return {
+          address: bech32.encode(
+            prefix,
+            bech32.toWords(privateToAddress(privateKey))
+          ),
+          publicKey: Buffer.from(
+            secp256k1.publicKeyCreate(privateKey, true)
+          ).toString("base64"),
+        };
+      }
       return {
-        address: `0x${publicToAddress(node.publicKey, true).toString("hex")}`,
-        publicKey: `0x${node.publicKey.toString("hex")}`,
+        address: `0x${privateToAddress(privateKey).toString("hex")}`,
+        publicKey: `0x${Buffer.from(
+          secp256k1.publicKeyCreate(privateKey, true)
+        ).toString("hex")}`,
       };
     }
     return {
-      address: `0x${privateToAddress(
-        Buffer.from(node.replace("0x", ""), "hex")
-      ).toString("hex")}`,
-      publicKey: `0x${Buffer.from(
-        secp256k1.publicKeyCreate(
-          new Uint8Array(Buffer.from(node.replace("0x", ""), "hex")),
-          true
-        )
-      ).toString("hex")}`,
+      address: "",
+      publicKey: "",
     };
   }
 
@@ -160,11 +170,34 @@ export class KEYSTORE {
     };
   }
 
-  static signTx(node: BIP32Interface | string, unsignedTx: string): SignedTx {
+  private static signInjectiveProtocol(
+    privateKey: Buffer,
+    unsignedTx: any
+  ): SignedTx {
+    const sig = ecsign(
+      keccak256(Buffer.from(unsignedTx.replace("0x", ""), "hex")),
+      privateKey
+    );
+    return {
+      serializedTx: unsignedTx,
+      signature: `0x${Buffer.concat([sig.r, sig.s]).toString("hex")}`,
+    };
+  }
+
+  static signTx(
+    node: BIP32Interface | string,
+    prefix: string,
+    unsignedTx: string
+  ): SignedTx {
     const privateKey =
       typeof node !== "string"
         ? node.privateKey
         : Buffer.from(node.replace("0x", ""), "hex");
+
+    if (isHexString(unsignedTx) && prefix === "inj" && privateKey) {
+      return KEYSTORE.signInjectiveProtocol(privateKey, unsignedTx);
+    }
+
     const parsedTx = JSON.parse(unsignedTx);
     if (privateKey) {
       if (parsedTx.feeCurrency) {
@@ -185,7 +218,11 @@ export class KEYSTORE {
     return {};
   }
 
-  static async signMessage(node: BIP32Interface | string, msg: Message) {
+  static async signMessage(
+    node: BIP32Interface | string,
+    prefix: string,
+    msg: Message
+  ) {
     const privateKey =
       typeof node !== "string"
         ? node.privateKey
@@ -198,6 +235,22 @@ export class KEYSTORE {
       return bytes;
     };
     if (privateKey) {
+      if (prefix === "inj") {
+        const message = isHexString(msg.data)
+          ? Buffer.from(msg.data.replace("0x", ""), "hex")
+          : Buffer.from(msg.data, "utf8");
+        const { signature } = KEYSTORE.signInjectiveProtocol(
+          privateKey,
+          message.toString("hex")
+        );
+        return {
+          msg,
+          signedMsg: {
+            signature,
+            publicKey: `0x${privateToPublic(privateKey).toString("hex")}`,
+          },
+        };
+      }
       const msgHex = isHexString(msg.data) ? msg.data : fromUtf8(msg.data);
       const messageBytes = hexToBytes(msgHex.replace("0x", ""));
       const messageBuffer = toBuffer(msgHex);
