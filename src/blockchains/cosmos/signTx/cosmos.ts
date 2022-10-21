@@ -88,7 +88,7 @@ export async function cosmosSignTx(
       bodyBytes: signDoc.bodyBytes,
       authInfoBytes: signDoc.authInfoBytes,
       signatures: [
-        new Uint8Array(Buffer.from(signature.replace("0x", ""), "base64")),
+        new Uint8Array(Buffer.from(signature.replace("0x", ""), "hex")),
       ],
     });
 
